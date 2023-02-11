@@ -52,6 +52,7 @@ router.post("/login", (request, response) => {
             });
         })
         .then(result => {
+            // return the result to the client
             response.json(result);
         })
         .catch(error => {
@@ -62,11 +63,12 @@ router.post("/login", (request, response) => {
 
 
 function authenticate(request, response, next) {
-    const authHeader = request.get("Authorization")
-    const token = authHeader.split(" ")[1]
+    const token = request.headers.authorization
     const secret = "SECRET"
     jwt.verify(token, secret, (error, payload) => {
-        if (error) throw new Error("sign in error!")
+        if (error) {
+            return response.json({ message: "sign in error!" });
+        }
         database("users")
             .where({ username: payload.username })
             .first()
@@ -79,6 +81,7 @@ function authenticate(request, response, next) {
     })
 }
 
-router.get('/someRoute', authenticate, (request, response) => {
+
+router.get('/welcome', authenticate, (request, response) => {
     response.json({ message: `Welcome ${request.user.username}!` })
 })
