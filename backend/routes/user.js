@@ -39,18 +39,27 @@ router.post("/login", (request, response) => {
             ]).then(results => {
                 const areSamePasswords = results[0]
                 if (!areSamePasswords) throw new Error("wrong Password!")
-                const user = results[1]
-                const payload = { username: user.username }
+                const retrievedUser = results[1];
+                // console.log(results)
+                const payload = { username: retrievedUser.username };
                 const secret = "SECRET"
-                jwt.sign(payload, secret, (error, token) => {
-                    if (error) throw new Error("Sign in error!")
-                    response.json({ token, user })
-                }).catch(error => {
-                    response.json({ message: error.message })
-                })
-            })
+                return new Promise((resolve, reject) => {
+                    jwt.sign(payload, secret, (error, token) => {
+                        if (error) reject(new Error("Sign in error!"))
+                        resolve({ token, user });
+                    });
+                });
+            });
         })
-})
+        .then(result => {
+            response.json(result);
+        })
+        .catch(error => {
+            response.json({ message: error.message });
+        });
+});
+
+
 
 function authenticate(request, response, next) {
     const authHeader = request.get("Authorization")
