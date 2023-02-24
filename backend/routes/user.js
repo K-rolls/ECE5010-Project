@@ -1,17 +1,17 @@
-
 const express = require("express")
 const router = express.Router()
 const database = require("../db/db.js")
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
+const spotify = require('../spotify/spotify.js');
 
 module.exports = router;
 
-router.post("/users", (request, response) => {
+router.post("/signUp", (request, response) => {
     const { user } = request.body
     bcrypt.hash(user.password, 12)
         .then(hashed_password => {
-            return database("users")
+            database("users")
                 .insert({
                     username: user.username,
                     password_hash: hashed_password
@@ -24,6 +24,7 @@ router.post("/users", (request, response) => {
                     response.json({ error: error.message })
                 })
         })
+    spotify.spotifyCallback(request, response, user)
 })
 
 router.post("/login", (request, response) => {
@@ -60,8 +61,6 @@ router.post("/login", (request, response) => {
         });
 });
 
-
-
 function authenticate(request, response, next) {
     const token = request.headers.authorization
     const secret = "SECRET"
@@ -80,7 +79,6 @@ function authenticate(request, response, next) {
             })
     })
 }
-
 
 router.get('/welcome', authenticate, (request, response) => {
     response.json({ message: `Welcome ${request.user.username}!` })
