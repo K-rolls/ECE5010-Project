@@ -8,13 +8,13 @@ const Welcome = () => {
       background-repeat="no-repeat"
       background-size="cover"
     >
-      <div className="bg-accentlavender p-6 rounded-xl">
+      <div className="bg-background opacity-90 p-6 rounded-xl border-4 border-mainblue">
         <div className="flex flex-col space-y-2 items-center">
           <img src="/SquareLogo.png" className="h-64 w-64"></img>
-          <button className=" bg-mainblue h-12 w-32 rounded-lg text-white">
+          <button className=" bg-mainblue h-12 w-32 rounded-lg font-extrabold text-background">
             Login
           </button>
-          <button className=" bg-mainblue h-12 w-32 rounded-lg text-white">
+          <button className=" bg-mainblue h-12 w-32 rounded-lg font-extrabold text-background">
             Signup
           </button>
         </div>

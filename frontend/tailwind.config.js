@@ -9,6 +9,8 @@ module.exports = {
       colors: {
         mainblue: "#94C1D2",
         accentlavender: "#d299ff",
+        background: "#0B4981",
+        background2: "#881337"
       },
     },
   },
