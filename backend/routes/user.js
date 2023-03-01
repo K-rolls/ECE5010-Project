@@ -3,9 +3,34 @@ const router = express.Router()
 const database = require("../db/db.js")
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
+const axios = require('axios')
+// const request = require('request')
 const spotify = require('../spotify/spotify.js');
 
 module.exports = router;
+
+router.get('/spotify/token', async (request, response) => {
+    const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
+    const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+
+    const authOptions = {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: 'grant_type=client_credentials'
+    };
+
+    try {
+        const tokenResponse = await axios('https://accounts.spotify.com/api/token', authOptions);
+        const data = tokenResponse.data;
+        const token = data.access_token;
+        response.send({ token });
+    } catch (error) {
+        response.status(500).send(error.message);
+    }
+});
 
 router.post("/signUp", (request, response) => {
     const { user } = request.body
