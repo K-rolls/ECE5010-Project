@@ -4,13 +4,13 @@ const database = require("../db/db.js")
 const router = require("../routes/user.js")
 
 // Route to search for tracks on Spotify
-router.get('/spotify/search', async (req, res) => {
+async function search(req) {
     const { q } = req.query;
     const token = await getSpotifyToken();
     const searchResults = await searchSpotifyTracks(q, token);
 
     res.json(searchResults);
-});
+};
 
 // Helper function to retrieve a Spotify token
 async function getSpotifyToken() {

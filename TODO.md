@@ -3,9 +3,11 @@
 - [ ] Fix router
 - [ ] add classes to spotify request 
 - [ ] format data from spotify API
-- [ ] write the knexfile for the database tables
-- [ ] make the database tables 
-
+- [x] write the knexfile for the database tables
+- [x] make the database tables 
+- [ ] fix duplicate users issue
+- [ ] write seed data
+- [ ] verify the database still works
 ## Frontend
 - [ ] flesh out welcome
 - [ ] create sign up
