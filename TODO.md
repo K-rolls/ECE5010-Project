@@ -3,6 +3,8 @@
 - [ ] Fix router
 - [ ] add classes to spotify request 
 - [ ] format data from spotify API
+- [ ] write the knexfile for the database tables
+- [ ] make the database tables 
 
 ## Frontend
 - [ ] flesh out welcome
