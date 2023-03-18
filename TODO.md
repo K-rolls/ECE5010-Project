@@ -5,7 +5,7 @@
 - [ ] format data from spotify API
 - [x] write the knexfile for the database tables
 - [x] make the database tables 
-- [ ] fix duplicate users issue
+- [x] fix duplicate users issue
 - [x] write seed data
 - [x] verify the database still works
 ## Frontend
