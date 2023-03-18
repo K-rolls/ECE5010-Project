@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        "permanent-marker": '"Permanent Marker"',
+      },
       backgroundImage: {
         albums: "url('/BackgroundScaledblur.png')",
       },
@@ -11,7 +14,7 @@ module.exports = {
         accentlavender: "#d299ff",
         background: "#0B4981",
         background2: "#881337",
-        shitfart: "#FFFF00"
+        shitfart: "#FFFF00",
       },
     },
   },
