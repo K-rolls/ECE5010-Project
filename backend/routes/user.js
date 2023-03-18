@@ -42,17 +42,27 @@ router.post("/signUp", (request, response) => {
     bcrypt.hash(user.password, 12)
         .then(hashed_password => {
             database("users")
-                .insert({
-                    user_id: user_id,
-                    username: user.username,
-                    password_hash: hashed_password
-                })
-                .returning("*")
-                .then(users => {
-                    const user = users[0]
-                    response.json({ user })
-                }).catch(error => {
-                    response.json({ error: error.message })
+                .where({ username: user.username })
+                .first()
+                .then(existingUser => {
+                    if (existingUser) {
+                        // User with the same username already exists
+                        response.status(409).json({ error: 'Username already taken' });
+                    } else {
+                        return database("users")
+                            .insert({
+                                user_id: user_id,
+                                username: user.username,
+                                password_hash: hashed_password
+                            })
+                            .returning("*")
+                            .then(users => {
+                                const user = users[0]
+                                response.json({ user })
+                            }).catch(error => {
+                                response.json({ error: error.message })
+                            })
+                    }
                 })
         })
 });
