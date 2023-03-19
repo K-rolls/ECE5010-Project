@@ -1,11 +1,13 @@
 const express = require("express")
 const router = express.Router()
 const database = require("../db/db.js")
+// console.log(database);
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const axios = require('axios')
 // const request = require('request')
 const spotify = require('../spotify/spotify.js');
+const { v4: uuidv4, v3: uuidv3 } = require('uuid');
 
 module.exports = router;
 
@@ -33,24 +35,38 @@ router.get('/spotify/token', async (request, response) => {
 });
 
 router.post("/signUp", (request, response) => {
-    const { user } = request.body
+    const { user } = request.body;
+    const namespace = '666f849c-326f-4922-8252-c97cef969af5';
+    const user_id = uuidv3(user.username, namespace);
+
     bcrypt.hash(user.password, 12)
         .then(hashed_password => {
             database("users")
-                .insert({
-                    username: user.username,
-                    password_hash: hashed_password
-                })
-                .returning("*")
-                .then(users => {
-                    const user = users[0]
-                    response.json({ user })
-                }).catch(error => {
-                    response.json({ error: error.message })
+                .where({ username: user.username })
+                .first()
+                .then(existingUser => {
+                    if (existingUser) {
+                        // User with the same username already exists
+                        response.status(409).json({ error: 'Username already taken' });
+                    } else {
+                        return database("users")
+                            .insert({
+                                user_id: user_id,
+                                username: user.username,
+                                password_hash: hashed_password
+                            })
+                            .returning("*")
+                            .then(users => {
+                                const user = users[0]
+                                response.json({ user })
+                            }).catch(error => {
+                                response.json({ error: error.message })
+                            })
+                    }
                 })
         })
-    spotify.spotifyCallback(request, response, user)
-})
+});
+
 
 router.post("/login", (request, response) => {
     const { user } = request.body
