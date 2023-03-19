@@ -3,6 +3,7 @@ import {
   FormLabel,
   FormErrorMessage,
   FormHelperText,
+  Input
 } from "@chakra-ui/react";
 
 const Signup = () => {
@@ -16,7 +17,7 @@ const Signup = () => {
         <div className="flex flex-col space-y-2 items-center">
           <img src="/SquareLogo.png" className="h-32 w-32"></img>
           <FormControl isRequired>
-            <FormLabel>Email address</FormLabel>
+            <FormLabel>Username</FormLabel>
             <Input type="email" />
           </FormControl>
           <FormControl isRequired>
