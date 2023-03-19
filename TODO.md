@@ -9,11 +9,11 @@
 - [x] write seed data
 - [x] verify the database still works
 ## Frontend
-- [ ] flesh out welcome
+- [x] flesh out welcome
 - [ ] create sign up
-- [ ] create login
+- [x] create login
 - [ ] create home page
-- [ ] search bar
+  - [ ] search bar
 - [ ] profile page
 - [ ] album collection page
 - [ ] album page
