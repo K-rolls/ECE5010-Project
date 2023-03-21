@@ -28,9 +28,9 @@ router.get('/spotify/token', async (request, response) => {
         const tokenResponse = await axios('https://accounts.spotify.com/api/token', authOptions);
         const data = tokenResponse.data;
         const token = data.access_token;
-        response.send({ token });
+        return response.send({ token });
     } catch (error) {
-        response.status(500).send(error.message);
+        return response.status(500).send(error.message);
     }
 });
 
@@ -47,7 +47,7 @@ router.post("/signUp", (request, response) => {
                 .then(existingUser => {
                     if (existingUser) {
                         // User with the same username already exists
-                        response.status(409).json({ error: 'Username already taken' });
+                        return response.status(409).json({ error: 'Username already taken' });
                     } else {
                         return database("users")
                             .insert({
@@ -58,9 +58,9 @@ router.post("/signUp", (request, response) => {
                             .returning("*")
                             .then(users => {
                                 const user = users[0]
-                                response.json({ user })
+                                return response.json({ user })
                             }).catch(error => {
-                                response.json({ error: error.message })
+                                return response.json({ error: error.message })
                             })
                     }
                 })
@@ -95,18 +95,20 @@ router.post("/login", (request, response) => {
         })
         .then(result => {
             // return the result to the client
-            response.json(result);
+            return response.json(result);
         })
         .catch(error => {
-            response.json({ message: error.message });
+            return response.json({ message: error.message });
         });
 });
+
 
 function authenticate(request, response, next) {
     const token = request.headers.authorization
     const secret = "SECRET"
     jwt.verify(token, secret, (error, payload) => {
         if (error) {
+            console.error(error);
             return response.json({ message: "sign in error!" });
         }
         database("users")
@@ -116,11 +118,73 @@ function authenticate(request, response, next) {
                 request.user = user
                 next()
             }).catch(error => {
-                response.json({ message: error.message })
+                return response.json({ message: error.message })
             })
     })
 }
 
 router.get('/welcome', authenticate, (request, response) => {
-    response.json({ message: `Welcome ${request.user.username}!` })
+    return response.json({ message: `Welcome ${request.user.username}!` })
 })
+
+////? tests
+// async function login(username, password) {
+//     try {
+//         const response = await fetch('http://localhost:5000/login', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({ user: { username, password } })
+//         });
+
+//         const contentType = response.headers.get('content-type');
+//         if (!contentType || !contentType.includes('application/json')) {
+//             throw new TypeError("Response wasn't JSON");
+//         }
+
+//         const data = await response.json();
+
+//         if (!response.ok) {
+//             throw new Error(data.message || 'Unable to login');
+//         }
+
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//         return { error: error.message };
+//     }
+// }
+
+// async function getWelcomeMessage(token) {
+//     try {
+//         const response = await fetch('http://localhost:5000/welcome', {
+//             headers: {
+//                 'Authorization': `${token}`
+//             }
+//         });
+
+//         const data = await response.json();
+
+//         if (!response.ok) {
+//             throw new Error(data.message || 'Unable to get welcome message');
+//         }
+
+//         return data.message;
+//     } catch (error) {
+//         console.error(error);
+//         return { error: error.message };
+//     }
+// }
+
+// login('Moe', 'password123')
+//     .then(data => {
+//         if (data.error) {
+//             console.error(data.error);
+//         } else {
+//             console.log(data.token); // logged in successfully!
+//             getWelcomeMessage(data.token).then(message => {
+//                 console.log(message);
+//             })
+//         }
+//     });
