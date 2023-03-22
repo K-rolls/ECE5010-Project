@@ -1,13 +1,11 @@
 const express = require("express")
 const router = express.Router()
 const database = require("../db/db.js")
-// console.log(database);
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const axios = require('axios')
-// const request = require('request')
 const spotify = require('../spotify/spotify.js');
-const { v4: uuidv4, v3: uuidv3 } = require('uuid');
+const { v3: uuidv3 } = require('uuid');
 
 module.exports = router;
 

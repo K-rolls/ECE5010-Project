@@ -8,6 +8,10 @@
 - [x] fix duplicate users issue
 - [x] write seed data
 - [x] verify the database still works
+- [x] fix json return type from backend
+- [x] write tests for /login, /welcome
+- [ ] write endpoint for searching using command design principle
+- [ ] fix search filtering by decade
 ## Frontend
 - [x] flesh out welcome
 - [ ] create sign up

@@ -1,13 +1,14 @@
 const axios = require('axios');
-
+const express = require("express");
+const router = express.Router();
 class Search {
-    constructor(req) {
-        this.req = req;
+    constructor(query) {
+        this.query = query;
     }
 
     async search() {
-        const { q } = this.req.query || {};
         const token = await this.getSpotifyToken();
+        const q = this.query.makeQuery()
         const searchResults = await this.searchSpotifyAlbum(q, token);
         return searchResults;
     }
@@ -37,6 +38,7 @@ class Search {
     }
 
     async searchSpotifyAlbum(query, token) {
+        console.log(query);
         const searchOptions = {
             method: 'GET',
             headers: {
@@ -44,11 +46,11 @@ class Search {
                 'Content-Type': 'application/json'
             },
             params: {
-                q: query.q,
+                q: query,
                 type: 'album',
                 limit: 10,
                 market: 'CA',
-                offset: 0
+                offset: this.query.getPage() * 10
             }
         };
 
@@ -59,7 +61,8 @@ class Search {
                 id: item.id,
                 name: item.name,
                 artists: item.artists.map(artist => artist.name).join(', '),
-                image: item.images[0]?.url
+                image: item.images[0]?.url,
+                releaseDate: item.release_date
             }));
 
             return searchResults;
@@ -69,6 +72,7 @@ class Search {
         }
     }
 }
+
 
 class Query {
     constructor(q, decade = null, page) {
@@ -104,44 +108,41 @@ class Query {
                 decade = "year:1930-1939";
                 break;
             default:
-                decade = null;
+                decade = '';
         }
+
         if ((q == null) && (decade == null)) {
             console.log("Bad search query");
+        } else if ((q == null) && !(decade == null)) {
+            this.q = decade;
+        } else if (!(q == null) && (decade == null)) {
+            this.q = q
         } else {
-            this.q = q + '%20' + decade;
+            this.q = q + "%20" + decade
         }
         this.page = page;
     }
 
-    async makeQuery() {
-        const query = {
-            q: this.q,
-            page: this.page
-        };
-        return query;
+    makeQuery() {
+        return this.q;
+    }
+
+    getPage() {
+        return this.page;
     }
 }
 
+// // Example usage:
+// const query = new Query(null, 4, 1);
+// const search = new Search(query);
+// search.search()
+//     .then(searchResults => {
+//         console.log(searchResults);
+//     })
+//     .catch(error => {
+//         console.error(error);
+//     });
 
-// //example usage
-// const q = "OK Computer";
-// const decade = 3; // 1990s
-// const page = 0;
-// const search = new Query(q, decade, page);
-// const searchResults = search.query();
-// console.log(searchResults); // prints "OK%20Computer%20year:1990-1999"
-
-
-// Example usage:
-const req = new Query("ride the lightning", 3, 0);
-const query = req.makeQuery();
-console.log(query); // prints { query: { q: 'ride the lightning%20year:1990-1999' }, page: { page: 0 } }
-const search = new Search(req);
-search.search()
-    .then(searchResults => {
-        console.log(searchResults);
-    })
-    .catch(error => {
-        console.error(error);
-    });
+router.get('/spotify/search', (request, response) => {
+    return response.json({ message: `Welcome ${request.user.username}!` })
+})
