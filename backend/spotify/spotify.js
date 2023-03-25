@@ -48,7 +48,7 @@ class Search {
             params: {
                 q: query,
                 type: 'album',
-                limit: 10,
+                limit: 10, //! can be changed to fill site
                 market: 'CA',
                 offset: this.query.getPage() * 10
             }
@@ -111,14 +111,14 @@ class Query {
                 decade = '';
         }
 
-        if ((q == null) && (decade == null)) {
-            console.log("Bad search query");
-        } else if ((q == null) && !(decade == null)) {
+        if (q === null && decade === null) {
+            console.error("Bad search query");
+        } else if (q === null && decade !== null) {
+            // console.log("q is null");
             this.q = decade;
-        } else if (!(q == null) && (decade == null)) {
-            this.q = q
-        } else {
-            this.q = q + "%20" + decade
+        } else if (q !== null) {
+            // console.log("q is not null");
+            this.q = q;
         }
         this.page = page;
     }
@@ -132,7 +132,7 @@ class Query {
     }
 }
 
-// // Example usage:
+// //? Example usage:
 // const query = new Query(null, 4, 1);
 // const search = new Search(query);
 // search.search()
@@ -143,6 +143,58 @@ class Query {
 //         console.error(error);
 //     });
 
-router.get('/spotify/search', (request, response) => {
-    return response.json({ message: `Welcome ${request.user.username}!` })
+// default route
+router.get('/', (request, response) => {
+    return response.json({
+        "Spotify endpoints": [
+            { "/token": "gets the spotify token based on app credentials" },
+            { "/albumSearch": "makes a search call to the spotify API based on a query or decade" }
+        ]
+    })
 })
+
+// gets token as a route incase needed
+router.get('/token', async (request, response) => {
+    const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
+    const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+
+    const authOptions = {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: 'grant_type=client_credentials'
+    };
+
+    try {
+        const tokenResponse = await axios('https://accounts.spotify.com/api/token', authOptions);
+        const data = tokenResponse.data;
+        const token = data.access_token;
+        return response.send({ token });
+    } catch (error) {
+        return response.status(500).send(error.message);
+    }
+});
+
+router.post("/albumSearch", async (request, response) => {
+    // Get query parameters from the request
+    const { q, decade, page } = request.body;
+
+    // Create a new Query object
+    const query = new Query(q, decade, page);
+    // console.log(query);
+    // return response.json(query);
+    const search = new Search(query);
+    search.search()
+        .then(searchResults => {
+            // console.log(searchResults);
+            return response.json(searchResults);
+        })
+        .catch(error => {
+            return response.errored(error);
+        });
+})
+
+
+module.exports = router;
