@@ -58,12 +58,16 @@ router.post("/login", (request, response) => {
                 if (!areSamePasswords) throw new Error("wrong Password!")
                 const retrievedUser = results[1];
                 // console.log(results)
-                const payload = { username: retrievedUser.username };
+                const payload = {
+                    username: retrievedUser.username,
+                    User_ID: retrievedUser.User_ID
+                };
+                console.log(payload);
                 const secret = "SECRET"
                 return new Promise((resolve, reject) => {
                     jwt.sign(payload, secret, (error, token) => {
                         if (error) reject(new Error("Sign in error!"))
-                        resolve({ token, user });
+                        resolve({ token, User_ID: retrievedUser.User_ID }); // Include user_id in response
                     });
                 });
             });
@@ -101,6 +105,68 @@ function authenticate(request, response, next) {
 router.get('/welcome', authenticate, (request, response) => {
     return response.json({ message: `Welcome ${request.user.username}!` })
 })
+
+router.post('/makeReview', async (request, response) => {
+    const { token, albumID, review, rating } = request.body;
+    const decodedToken = jwt.decode(token);
+    const uuid = decodedToken ? decodedToken.User_ID : null;
+
+    try {
+        await database.transaction(async (trx) => {
+            const existingRow = await database("lookUp")
+                .select('User_ID', 'Album_ID')
+                .where({
+                    User_ID: uuid,
+                    Album_ID: albumID
+                })
+                .first()
+                .transacting(trx);
+
+            if (existingRow) {
+                await database("reviews")
+                    .where({
+                        User_ID: uuid,
+                        Album_ID: albumID
+                    })
+                    .update({
+                        review: review,
+                        rating: rating
+                    })
+                    .transacting(trx);
+                return response.json({
+                    success: true,
+                    message: "Review updated successfully"
+                });
+            } else {
+                await database("lookUp")
+                    .insert({
+                        User_ID: uuid,
+                        Album_ID: albumID
+                    })
+                    .transacting(trx);
+                await database("reviews")
+                    .insert({
+                        User_ID: uuid,
+                        Album_ID: albumID,
+                        review: review,
+                        rating: rating
+                    })
+                    .transacting(trx);
+                return response.json({
+                    success: true,
+                    message: "Review added successfully"
+                });
+            }
+        });
+    } catch (error) {
+        response.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+});
+
+
 
 module.exports = router;
 

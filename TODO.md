@@ -13,7 +13,7 @@
 - [x] write endpoint for searching using command design principle
 - [ ] fix search filtering by decade
 - [ ] get reviwed albums based on uuid
-- [ ] make review and store in database
+- [X] make/update review and store in database
 - [ ] get reviews based on album id
 
 ## Frontend
