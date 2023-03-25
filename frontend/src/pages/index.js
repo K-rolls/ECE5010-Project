@@ -1,4 +1,5 @@
 import link from "next/link";
+import Router from "next/router";
 
 const Welcome = () => {
   return (
@@ -22,6 +23,9 @@ const Welcome = () => {
           </button>
           <button className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background">
             Sign Up
+          </button>
+          <button onClick = {() =>{Router.push('/profile')}} className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background">
+            Profile Test
           </button>
         </div>
       </div>
