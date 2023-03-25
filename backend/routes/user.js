@@ -166,7 +166,7 @@ router.post('/makeReview', async (request, response) => {
     }
 });
 
-router.get('/getReviews', async (request, response) => {
+router.get('/getReviewed', async (request, response) => {
     const { token } = request.body;
     const decodedToken = jwt.decode(token);
     const uuid = decodedToken ? decodedToken.User_ID : null;
@@ -212,6 +212,26 @@ router.get('/getReviews', async (request, response) => {
     });
 });
 
+router.get('/getReviews', async (request, response) => {
+    const albumId = request.body.album_id;
+
+    try {
+        const reviews = await database('reviews')
+            .select('reviews.*', 'users.User_ID')
+            .where({ album_id: albumId })
+            .join('users', 'reviews.User_ID', '=', 'users.User_ID');
+
+        return response.json({
+            success: true,
+            data: reviews
+        });
+    } catch (error) {
+        return response.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
 
 
 module.exports = router;
