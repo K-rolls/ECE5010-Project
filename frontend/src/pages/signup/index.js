@@ -9,16 +9,18 @@ import {
   InputRightElement,
   Button,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Formik, Field } from "formik";
 import Router from "next/router";
+import { useToastHook } from "../../utils/useToastHook";
+import { ToastContainer, toast } from "react-toastify";
 
-
+//TODO: Implement error handling/alerts for signup errors. Several ways to do this, not sure which will work
 const Signup = () => {
-  const signupURL = "http://localhost:5000/signup";
-
+  const signupURL = "http://localhost:5000/user/signup";
   const [usernameVal, setUsernameVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
   const [confirmPasswordVal, setConfirmPasswordVal] = useState("");
@@ -26,6 +28,9 @@ const Signup = () => {
   const handleShowPassClick = () => setShowPass(!showPass);
   const [showConfirm, setShowConfirm] = useState(false);
   const handleShowConfirmClick = () => setShowConfirm(!showConfirm);
+  //const [state, newToast] = useToastHook();
+  // const [isError, setIsError] = useState(false);
+  // const handleError = () => setIsError(!isError);
 
   const handleUsernameChange = (event) => {
     setUsernameVal(event.target.value);
@@ -39,25 +44,34 @@ const Signup = () => {
     setConfirmPasswordVal(event.target.value);
   };
 
-  //TODO: Write attempt signup func
-  // async function attemptSignup() {
-  //   console.log("Attempting signup");
-  //   console.log(`${usernameVal}, ${passwordVal}`);
-  //   const req = { user: { username: usernameVal, password: passwordVal } };
-  //   //console.log(req);
-  //   var res = await fetch(loginURL, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(req),
-  //   }).then((res) => {
-  //     console.log(res.json());
-  //     return res;
-  //   });
-  // }
+  //const toast = useToast();
+
+  function displayError(message) {}
+
+  async function attemptSignup() {
+    console.log("Attempting signup");
+    console.log(`${usernameVal}, ${passwordVal}`);
+    const req = { user: { username: usernameVal, password: passwordVal } };
+    //console.log(req);
+    try {
+      var res = await fetch(signupURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+      });
+      const data = await res.json();
+      console.log(data);
+      return data;
+    } catch (e) {
+      console.error(e);
+      const errorText = e.stringify;
+      console.log(errorText);
+    }
+  }
 
   async function handleClick(username, password) {
     console.log("Got here");
-    await attemptLogin();
+    await attemptSignup();
   }
 
   // const validate = values => {
@@ -126,67 +140,80 @@ const Signup = () => {
                   <FormControl
                     isInvalid={!!errors.username && touched.username}
                   >
-                    <FormLabel className=' font-permanent-marker text-mainblue' htmlFor="username">
+                    <FormLabel
+                      className=" font-permanent-marker text-mainblue"
+                      htmlFor="username"
+                    >
                       Username
                     </FormLabel>
-                    <Field
-                      as={Input}
-                      onChange={handleUsernameChange}
-                      value={usernameVal}
-                      id="username"
-                      name="username"
-                      type="username"
-                      variant="filled"
-                      validate={(value) => {
-                        let error;
+                    <div className="bg-white rounded-lg">
+                      <Field
+                        className="focus:bg-current"
+                        as={Input}
+                        onChange={handleUsernameChange}
+                        value={usernameVal}
+                        id="username"
+                        name="username"
+                        type="username"
+                        variant="filled"
+                        validate={(value) => {
+                          let error;
 
-                        if (usernameVal.length == 0) {
-                          error = "Username is required";
-                        }
+                          if (usernameVal.length == 0) {
+                            error = "Username is required";
+                          }
 
-                        return error;
-                      }}
-                    />
+                          return error;
+                        }}
+                      />
+                    </div>
 
                     <FormErrorMessage>{errors.username}</FormErrorMessage>
                   </FormControl>
                   <FormControl
                     isInvalid={!!errors.password && touched.password}
                   >
-                    <FormLabel className='font-permanent-marker' htmlFor="password" textColor="#94C1D2">
+                    <FormLabel
+                      className="font-permanent-marker"
+                      htmlFor="password"
+                      textColor="#94C1D2"
+                    >
                       Password
                     </FormLabel>
-                    <InputGroup>
-                      <Field
-                        as={Input}
-                        onChange={handlePasswordChange}
-                        value={passwordVal}
-                        id="password"
-                        name="password"
-                        type={showPass ? "text" : "password"}
-                        variant="filled"
-                        validate={(value) => {
-                          let error;
+                    <div className="bg-white rounded-lg">
+                      <InputGroup>
+                        <Field
+                          as={Input}
+                          onChange={handlePasswordChange}
+                          value={passwordVal}
+                          id="password"
+                          name="password"
+                          type={showPass ? "text" : "password"}
+                          variant="filled"
+                          validate={(value) => {
+                            let error;
 
-                          if (passwordVal.length == 0) {
-                            error = "Password is required";
-                          }
+                            if (passwordVal.length == 0) {
+                              error = "Password is required";
+                            }
 
-                          return error;
-                        }}
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          hover
-                          size="lg"
-                          aria-label="Show Password"
-                          icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
-                          backgroundColor="transparent"
-                          color="#d299ff"
-                          onClick={handleShowPassClick}
+                            return error;
+                          }}
                         />
-                      </InputRightElement>
-                    </InputGroup>
+                        <InputRightElement>
+                          <IconButton
+                            hover
+                            size="lg"
+                            aria-label="Show Password"
+                            icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
+                            backgroundColor="transparent"
+                            color="#d299ff"
+                            onClick={handleShowPassClick}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                    </div>
+
                     <FormErrorMessage>{errors.password}</FormErrorMessage>
                   </FormControl>
                   <FormControl
@@ -194,10 +221,14 @@ const Signup = () => {
                       !!errors.confirmPassword && touched.confirmPassword
                     }
                   >
-                    <FormLabel className='font-permanent-marker' htmlFor="confirmPassword" textColor="#94C1D2">
+                    <FormLabel
+                      className="font-permanent-marker"
+                      htmlFor="confirmPassword"
+                      textColor="#94C1D2"
+                    >
                       Confirm Password
                     </FormLabel>
-                    <InputGroup>
+                    <div className="bg-white rounded-lg"><InputGroup>
                       <Field
                         as={Input}
                         onChange={handleConfirmPasswordChange}
@@ -216,7 +247,6 @@ const Signup = () => {
                           return error;
                         }}
                       />
-                      //TODO: Fix this
                       <InputRightElement>
                         <IconButton
                           size="lg"
@@ -227,8 +257,8 @@ const Signup = () => {
                           onClick={handleShowConfirmClick}
                         />
                       </InputRightElement>
-                    </InputGroup>
-
+                    </InputGroup></div>
+                
                     <FormErrorMessage>
                       {errors.confirmPassword}
                     </FormErrorMessage>

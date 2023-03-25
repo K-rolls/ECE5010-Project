@@ -8,15 +8,15 @@ import {
   InputGroup,
   InputRightElement,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Formik, Field } from "formik";
 import Router from "next/router";
 
-
 const Login = () => {
-  const loginURL = "http://localhost:5000/login";
+  const loginURL = "http://localhost:5000/user/login";
 
   const [usernameVal, setUsernameVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
@@ -31,19 +31,25 @@ const Login = () => {
     setPasswordVal(event.target.value);
   };
 
+  //TODO: Implement error handling/alerts for login errors. Several ways to do this, not sure which will work
+
   async function attemptLogin() {
     console.log("Attempting login");
     console.log(`${usernameVal}, ${passwordVal}`);
     const req = { user: { username: usernameVal, password: passwordVal } };
     //console.log(req);
-    var res = await fetch(loginURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
-    }).then((res) => {
-      console.log(res.json());
-      return res;
-    });
+    try {
+      var res = await fetch(loginURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+      });
+      const data = await res.json();
+      console.log(data);
+      return data;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async function handleClick(username, password) {
@@ -123,24 +129,26 @@ const Login = () => {
                     >
                       Username
                     </FormLabel>
-                    <Field
-                      as={Input}
-                      onChange={handleUsernameChange}
-                      value={usernameVal}
-                      id="username"
-                      name="username"
-                      type="username"
-                      variant="filled"
-                      validate={(value) => {
-                        let error;
+                    <div className="bg-white rounded-lg">
+                      <Field
+                        as={Input}
+                        onChange={handleUsernameChange}
+                        value={usernameVal}
+                        id="username"
+                        name="username"
+                        type="username"
+                        variant="filled"
+                        validate={(value) => {
+                          let error;
 
-                        if (usernameVal.length == 0) {
-                          error = "Username is required";
-                        }
+                          if (usernameVal.length == 0) {
+                            error = "Username is required";
+                          }
 
-                        return error;
-                      }}
-                    />
+                          return error;
+                        }}
+                      />
+                    </div>
                     <FormErrorMessage>{errors.username}</FormErrorMessage>
                   </FormControl>
                   <FormControl
@@ -152,37 +160,39 @@ const Login = () => {
                     >
                       Password
                     </FormLabel>
-                    <InputGroup>
-                      <Field
-                        as={Input}
-                        onChange={handlePasswordChange}
-                        value={passwordVal}
-                        id="password"
-                        name="password"
-                        type={showPass ? "text" : "password"}
-                        variant="filled"
-                        validate={(value) => {
-                          let error;
+                    <div className="bg-white rounded-lg">
+                      <InputGroup>
+                        <Field
+                          as={Input}
+                          onChange={handlePasswordChange}
+                          value={passwordVal}
+                          id="password"
+                          name="password"
+                          type={showPass ? "text" : "password"}
+                          variant="filled"
+                          validate={(value) => {
+                            let error;
 
-                          if (passwordVal.length == 0) {
-                            error = "Password is required";
-                          }
+                            if (passwordVal.length == 0) {
+                              error = "Password is required";
+                            }
 
-                          return error;
-                        }}
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          hover
-                          size="lg"
-                          aria-label="Show Password"
-                          icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
-                          backgroundColor="transparent"
-                          color="#d299ff"
-                          onClick={handleShowPassClick}
+                            return error;
+                          }}
                         />
-                      </InputRightElement>
-                    </InputGroup>
+                        <InputRightElement>
+                          <IconButton
+                            hover
+                            size="lg"
+                            aria-label="Show Password"
+                            icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
+                            backgroundColor="transparent"
+                            color="#d299ff"
+                            onClick={handleShowPassClick}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                    </div>
 
                     <FormErrorMessage>{errors.password}</FormErrorMessage>
                   </FormControl>
