@@ -11,12 +11,13 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-//TODO: Fix this shit
 import { useState } from "react";
 import { Formik, Field } from "formik";
+import Router from "next/router";
+
 
 const Signup = () => {
-  const loginURL = "http://localhost:5000/signup";
+  const signupURL = "http://localhost:5000/signup";
 
   const [usernameVal, setUsernameVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
@@ -88,8 +89,7 @@ const Signup = () => {
   //     error = "Username is required";
   //   }
   //   //TODO: put in error for nonexistant username once user auth is implemented
-  //   return error;
-  // }
+  //   return error;c
 
   // const validatePassword = (password) => {
   //   let error;
@@ -107,8 +107,8 @@ const Signup = () => {
       background-size="cover"
     >
       <div className="bg-background/90 p-6 rounded-xl border-4 border-mainblue">
-        <div className="flex flex-col space-y-2 items-center">
-          <img src="/SquareLogo.png" className="h-32 w-32"></img>
+        <div className="flex flex-col space-y-2 items-center p-6">
+          <img src="/SquareLogo.png" className="h-36 w-36"></img>
           <Formik
             initialValues={{
               username: "",
@@ -126,7 +126,9 @@ const Signup = () => {
                   <FormControl
                     isInvalid={!!errors.username && touched.username}
                   >
-                    <FormLabel htmlFor="username">Username</FormLabel>
+                    <FormLabel className=' font-permanent-marker text-mainblue' htmlFor="username">
+                      Username
+                    </FormLabel>
                     <Field
                       as={Input}
                       onChange={handleUsernameChange}
@@ -151,7 +153,9 @@ const Signup = () => {
                   <FormControl
                     isInvalid={!!errors.password && touched.password}
                   >
-                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <FormLabel className='font-permanent-marker' htmlFor="password" textColor="#94C1D2">
+                      Password
+                    </FormLabel>
                     <InputGroup>
                       <Field
                         as={Input}
@@ -171,12 +175,14 @@ const Signup = () => {
                           return error;
                         }}
                       />
-                      //TODO: Fix this
                       <InputRightElement>
                         <IconButton
+                          hover
+                          size="lg"
                           aria-label="Show Password"
                           icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
-                          colorScheme="blue"
+                          backgroundColor="transparent"
+                          color="#d299ff"
                           onClick={handleShowPassClick}
                         />
                       </InputRightElement>
@@ -188,7 +194,7 @@ const Signup = () => {
                       !!errors.confirmPassword && touched.confirmPassword
                     }
                   >
-                    <FormLabel htmlFor="confirmPassword">
+                    <FormLabel className='font-permanent-marker' htmlFor="confirmPassword" textColor="#94C1D2">
                       Confirm Password
                     </FormLabel>
                     <InputGroup>
@@ -213,9 +219,11 @@ const Signup = () => {
                       //TODO: Fix this
                       <InputRightElement>
                         <IconButton
+                          size="lg"
                           aria-label="Show Password"
                           icon={showConfirm ? <ViewOffIcon /> : <ViewIcon />}
-                          colorScheme="blue"
+                          backgroundColor="transparent"
+                          color="#d299ff"
                           onClick={handleShowConfirmClick}
                         />
                       </InputRightElement>
@@ -225,16 +233,24 @@ const Signup = () => {
                       {errors.confirmPassword}
                     </FormErrorMessage>
                   </FormControl>
-                  <button
-                    type="submit"
-                    className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
-                  >
-                    Signup
-                  </button>
+                  <div className="pt-5">
+                    <button
+                      type="submit"
+                      className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
+                    >
+                      Signup
+                    </button>
+                  </div>
                 </VStack>
               </form>
             )}
           </Formik>
+          <button
+            onClick={() => Router.push("/login")}
+            className="pt-5 font-permanent-marker text-mainblue hover:text-accentlavender"
+          >
+            Already have an account? Log in!
+          </button>
         </div>
       </div>
     </div>

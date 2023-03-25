@@ -5,16 +5,23 @@ import {
   FormHelperText,
   Input,
   VStack,
+  InputGroup,
+  InputRightElement,
+  IconButton,
 } from "@chakra-ui/react";
-//TODO: Fix this shit
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Formik, Field } from "formik";
+import Router from "next/router";
+
 
 const Login = () => {
   const loginURL = "http://localhost:5000/login";
 
   const [usernameVal, setUsernameVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const handleShowPassClick = () => setShowPass(!showPass);
 
   const handleUsernameChange = (event) => {
     setUsernameVal(event.target.value);
@@ -92,7 +99,7 @@ const Login = () => {
       background-size="cover"
     >
       <div className="bg-background/90 p-6 rounded-xl border-4 border-mainblue">
-        <div className="flex flex-col space-y-2 items-center">
+        <div className="flex flex-col space-y-2 items-center p-6">
           <img src="/SquareLogo.png" className="h-32 w-32"></img>
           <Formik
             initialValues={{
@@ -110,7 +117,12 @@ const Login = () => {
                   <FormControl
                     isInvalid={!!errors.username && touched.username}
                   >
-                    <FormLabel htmlFor="username">Username</FormLabel>
+                    <FormLabel
+                      className=" font-permanent-marker text-mainblue"
+                      htmlFor="username"
+                    >
+                      Username
+                    </FormLabel>
                     <Field
                       as={Input}
                       onChange={handleUsernameChange}
@@ -134,37 +146,64 @@ const Login = () => {
                   <FormControl
                     isInvalid={!!errors.password && touched.password}
                   >
-                    <FormLabel htmlFor="password">Password</FormLabel>
-                    <Field
-                      as={Input}
-                      onChange={handlePasswordChange}
-                      value={passwordVal}
-                      id="password"
-                      name="password"
-                      type="password"
-                      variant="filled"
-                      validate={(value) => {
-                        let error;
+                    <FormLabel
+                      className=" font-permanent-marker text-mainblue"
+                      htmlFor="password"
+                    >
+                      Password
+                    </FormLabel>
+                    <InputGroup>
+                      <Field
+                        as={Input}
+                        onChange={handlePasswordChange}
+                        value={passwordVal}
+                        id="password"
+                        name="password"
+                        type={showPass ? "text" : "password"}
+                        variant="filled"
+                        validate={(value) => {
+                          let error;
 
-                        if (passwordVal.length == 0) {
-                          error = "Password is required";
-                        }
+                          if (passwordVal.length == 0) {
+                            error = "Password is required";
+                          }
 
-                        return error;
-                      }}
-                    />
+                          return error;
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          hover
+                          size="lg"
+                          aria-label="Show Password"
+                          icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
+                          backgroundColor="transparent"
+                          color="#d299ff"
+                          onClick={handleShowPassClick}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+
                     <FormErrorMessage>{errors.password}</FormErrorMessage>
                   </FormControl>
-                  <button
-                    type="submit"
-                    className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
-                  >
-                    Login
-                  </button>
+                  <div className="pt-5">
+                    <button
+                      type="submit"
+                      className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
+                    >
+                      Login
+                    </button>
+                  </div>
                 </VStack>
               </form>
             )}
           </Formik>
+          <button
+            onClick={() => Router.push("/signup")}
+            className="pt-5 font-permanent-marker text-mainblue hover:text-accentlavender"
+          >
+            New user? Sign up!
+          </button>
         </div>
       </div>
     </div>
