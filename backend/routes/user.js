@@ -62,7 +62,7 @@ router.post("/login", (request, response) => {
                     username: retrievedUser.username,
                     User_ID: retrievedUser.User_ID
                 };
-                console.log(payload);
+                //console.log(payload);
                 const secret = "SECRET"
                 return new Promise((resolve, reject) => {
                     jwt.sign(payload, secret, (error, token) => {

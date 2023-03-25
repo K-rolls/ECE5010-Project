@@ -3,10 +3,117 @@ import {
   FormLabel,
   FormErrorMessage,
   FormHelperText,
-  Input
+  Input,
+  VStack,
+  InputGroup,
+  InputRightElement,
+  Button,
+  IconButton,
+  useToast,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+import { Formik, Field } from "formik";
+import Router from "next/router";
+import { useToastHook } from "../../utils/useToastHook";
+import { ToastContainer, toast } from "react-toastify";
 
+//TODO: Implement error handling/alerts for signup errors. Several ways to do this, not sure which will work
 const Signup = () => {
+  const signupURL = "http://localhost:5000/user/signup";
+  const [usernameVal, setUsernameVal] = useState("");
+  const [passwordVal, setPasswordVal] = useState("");
+  const [confirmPasswordVal, setConfirmPasswordVal] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const handleShowPassClick = () => setShowPass(!showPass);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const handleShowConfirmClick = () => setShowConfirm(!showConfirm);
+  //const [state, newToast] = useToastHook();
+  // const [isError, setIsError] = useState(false);
+  // const handleError = () => setIsError(!isError);
+
+  const handleUsernameChange = (event) => {
+    setUsernameVal(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPasswordVal(event.target.value);
+  };
+
+  const handleConfirmPasswordChange = (event) => {
+    setConfirmPasswordVal(event.target.value);
+  };
+
+  //const toast = useToast();
+
+  function displayError(message) {}
+
+  async function attemptSignup() {
+    console.log("Attempting signup");
+    console.log(`${usernameVal}, ${passwordVal}`);
+    const req = { user: { username: usernameVal, password: passwordVal } };
+    //console.log(req);
+    try {
+      var res = await fetch(signupURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+      });
+      const data = await res.json();
+      console.log(data);
+      return data;
+    } catch (e) {
+      console.error(e);
+      const errorText = e.stringify;
+      console.log(errorText);
+    }
+  }
+
+  async function handleClick(username, password) {
+    console.log("Got here");
+    await attemptSignup();
+  }
+
+  // const validate = values => {
+  //   const errors = {};
+  //   if (!values.username) {
+  //     errors.username = 'Required';
+  //   } else if (values.firstName.length > 15) {
+  //     errors.username = 'Must be 15 characters or less';
+  //   }
+
+  //   if (!values.lastName) {
+  //     errors.lastName = 'Required';
+  //   } else if (values.lastName.length > 20) {
+  //     errors.lastName = 'Must be 20 characters or less';
+  //   }
+
+  //   if (!values.email) {
+  //     errors.email = 'Required';
+  //   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+  //     errors.email = 'Invalid email address';
+  //   }
+
+  //   return errors;
+  // };
+
+  // const validateUsername = (username) => {
+  //   let errors;
+  //   if (!username) {
+  //     error = "Username is required";
+  //   }
+  //   //TODO: put in error for nonexistant username once user auth is implemented
+  //   return error;c
+
+  // const validatePassword = (password) => {
+  //   let error;
+  //   if (!password) {
+  //     error = "Password is required";
+  //   }
+  //   //TODO: put in error for incorrect password once user auth is implemented
+  //   return error;
+  // }
+
   return (
     <div
       className="h-screen w-screen bg-albums bg-contain bg-center flex justify-center items-center"
@@ -14,22 +121,165 @@ const Signup = () => {
       background-size="cover"
     >
       <div className="bg-background/90 p-6 rounded-xl border-4 border-mainblue">
-        <div className="flex flex-col space-y-2 items-center">
-          <img src="/SquareLogo.png" className="h-32 w-32"></img>
-          <FormControl isRequired>
-            <FormLabel>Username</FormLabel>
-            <Input type="email" />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Password</FormLabel>
-            <Input type="password" />
-          </FormControl >
-          <FormControl isRequired>
-            <FormLabel>Confirm Password</FormLabel>
-            <Input type="password" />
-          </FormControl>
-          <button className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background">
-            Sign Up
+        <div className="flex flex-col space-y-2 items-center p-6">
+          <img src="/SquareLogo.png" className="h-36 w-36"></img>
+          <Formik
+            initialValues={{
+              username: "",
+              password: "",
+              confirmPassword: "",
+            }}
+            onSubmit={() => {
+              console.log("Got here");
+              handleClick();
+            }}
+          >
+            {({ handleSubmit, errors, touched }) => (
+              <form onSubmit={handleSubmit}>
+                <VStack className="flex items-center" spacing={4}>
+                  <FormControl
+                    isInvalid={!!errors.username && touched.username}
+                  >
+                    <FormLabel
+                      className=" font-permanent-marker text-mainblue"
+                      htmlFor="username"
+                    >
+                      Username
+                    </FormLabel>
+                    <div className="bg-white rounded-lg">
+                      <Field
+                        className="focus:bg-current"
+                        as={Input}
+                        onChange={handleUsernameChange}
+                        value={usernameVal}
+                        id="username"
+                        name="username"
+                        type="username"
+                        variant="filled"
+                        validate={(value) => {
+                          let error;
+
+                          if (usernameVal.length == 0) {
+                            error = "Username is required";
+                          }
+
+                          return error;
+                        }}
+                      />
+                    </div>
+
+                    <FormErrorMessage>{errors.username}</FormErrorMessage>
+                  </FormControl>
+                  <FormControl
+                    isInvalid={!!errors.password && touched.password}
+                  >
+                    <FormLabel
+                      className="font-permanent-marker"
+                      htmlFor="password"
+                      textColor="#94C1D2"
+                    >
+                      Password
+                    </FormLabel>
+                    <div className="bg-white rounded-lg">
+                      <InputGroup>
+                        <Field
+                          as={Input}
+                          onChange={handlePasswordChange}
+                          value={passwordVal}
+                          id="password"
+                          name="password"
+                          type={showPass ? "text" : "password"}
+                          variant="filled"
+                          validate={(value) => {
+                            let error;
+
+                            if (passwordVal.length == 0) {
+                              error = "Password is required";
+                            }
+
+                            return error;
+                          }}
+                        />
+                        <InputRightElement>
+                          <IconButton
+                            hover
+                            size="lg"
+                            aria-label="Show Password"
+                            icon={showPass ? <ViewOffIcon /> : <ViewIcon />}
+                            backgroundColor="transparent"
+                            color="#d299ff"
+                            onClick={handleShowPassClick}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                    </div>
+
+                    <FormErrorMessage>{errors.password}</FormErrorMessage>
+                  </FormControl>
+                  <FormControl
+                    isInvalid={
+                      !!errors.confirmPassword && touched.confirmPassword
+                    }
+                  >
+                    <FormLabel
+                      className="font-permanent-marker"
+                      htmlFor="confirmPassword"
+                      textColor="#94C1D2"
+                    >
+                      Confirm Password
+                    </FormLabel>
+                    <div className="bg-white rounded-lg"><InputGroup>
+                      <Field
+                        as={Input}
+                        onChange={handleConfirmPasswordChange}
+                        value={confirmPasswordVal}
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirm ? "text" : "password"}
+                        variant="filled"
+                        validate={(value) => {
+                          let error;
+
+                          if (passwordVal !== confirmPasswordVal) {
+                            error = "Passwords must match";
+                          }
+
+                          return error;
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          size="lg"
+                          aria-label="Show Password"
+                          icon={showConfirm ? <ViewOffIcon /> : <ViewIcon />}
+                          backgroundColor="transparent"
+                          color="#d299ff"
+                          onClick={handleShowConfirmClick}
+                        />
+                      </InputRightElement>
+                    </InputGroup></div>
+                
+                    <FormErrorMessage>
+                      {errors.confirmPassword}
+                    </FormErrorMessage>
+                  </FormControl>
+                  <div className="pt-5">
+                    <button
+                      type="submit"
+                      className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
+                    >
+                      Signup
+                    </button>
+                  </div>
+                </VStack>
+              </form>
+            )}
+          </Formik>
+          <button
+            onClick={() => Router.push("/login")}
+            className="pt-5 font-permanent-marker text-mainblue hover:text-accentlavender"
+          >
+            Already have an account? Log in!
           </button>
         </div>
       </div>
