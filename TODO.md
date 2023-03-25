@@ -8,12 +8,16 @@
 - [x] fix duplicate users issue
 - [x] write seed data
 - [x] verify the database still works
+- [x] fix json return type from backend
+- [x] write tests for /login, /welcome
+- [ ] write endpoint for searching using command design principle
+- [ ] fix search filtering by decade
 ## Frontend
-- [ ] flesh out welcome
+- [x] flesh out welcome
 - [ ] create sign up
-- [ ] create login
+- [x] create login
 - [ ] create home page
-- [ ] search bar
+  - [ ] search bar
 - [ ] profile page
 - [ ] album collection page
 - [ ] album page
