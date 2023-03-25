@@ -166,6 +166,52 @@ router.post('/makeReview', async (request, response) => {
     }
 });
 
+router.get('/getReviews', async (request, response) => {
+    const { token } = request.body;
+    const decodedToken = jwt.decode(token);
+    const uuid = decodedToken ? decodedToken.User_ID : null;
+
+    // Get all reviewed albums in order of most recent to least recent
+    let reviewedAlbums;
+    try {
+        reviewedAlbums = await database("reviews")
+            .select('Album_ID')
+            .where({ user_id: uuid })
+            .orderByRaw('id desc');
+    } catch (error) {
+        return response.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+
+    // Get the top four reviewed albums
+    const topFourAlbums = reviewedAlbums.slice(0, 4).map(review => review.Album_ID);
+    const albumIds = reviewedAlbums.map(review => review.Album_ID);
+
+    // return response.json(reviewedAlbums);
+    // Get the metadata associated with the top four albums and all reviewed albums
+    let albumData;
+    try {
+        albumData = await axios.post('http://localhost:5000/spotify/getAlbums', {
+            Reviewed: albumIds
+        });
+    } catch (error) {
+        return response.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+
+    const topFourImages = albumData.data.filter(album => topFourAlbums.includes(album.id));
+    const reviewedImages = albumData.data.filter(album => reviewedAlbums.map(review => review.Album_ID).includes(album.id));
+
+    return response.json({
+        topFour: topFourImages,
+        reviewed: reviewedImages
+    });
+});
+
 
 
 module.exports = router;
