@@ -203,11 +203,8 @@ router.post("/getAlbums", async (request, response) => {
 
     const tokenResponse = await axios.get('http://localhost:5000/spotify/token');
     const token = tokenResponse.data.token;
-    const albumData = [];
-    // albumData.push(token);
-    albumData.push({ len: len })
-    for (let i = 0; i < len; i++) {
-        const albumId = indices[i];
+
+    const albumPromises = indices.map(async albumId => {
         const albumUrl = `https://api.spotify.com/v1/albums/${albumId}`;
         const searchOptions = {
             method: 'GET',
@@ -230,14 +227,17 @@ router.post("/getAlbums", async (request, response) => {
                 type
             };
 
-            albumData.push(albumDataItem);
-
+            return albumDataItem;
         } catch (error) {
             console.error(error);
+            return null;
         }
-    }
+    });
+
+    const albumData = [{ len: len }, ...(await Promise.all(albumPromises)).filter(item => item !== null)];
 
     return response.json(albumData);
-})
+});
+
 
 module.exports = router;
