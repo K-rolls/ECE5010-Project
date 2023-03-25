@@ -38,7 +38,7 @@ class Search {
     }
 
     async searchSpotifyAlbum(query, token) {
-        console.log(query);
+        // console.log(query);
         const searchOptions = {
             method: 'GET',
             headers: {
@@ -196,5 +196,48 @@ router.post("/albumSearch", async (request, response) => {
         });
 })
 
+// gets the albums associated with the user
+router.post("/getAlbums", async (request, response) => {
+    const indices = Object.values(request.body.Reviewed);
+    const len = indices.length;
+
+    const tokenResponse = await axios.get('http://localhost:5000/spotify/token');
+    const token = tokenResponse.data.token;
+    const albumData = [];
+    // albumData.push(token);
+    albumData.push({ len: len })
+    for (let i = 0; i < len; i++) {
+        const albumId = indices[i];
+        const albumUrl = `https://api.spotify.com/v1/albums/${albumId}`;
+        const searchOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        };
+        try {
+            const albumResponse = await axios.get(albumUrl, searchOptions);
+            const { name, artists, id, images, release_date, total_tracks, type } = albumResponse.data;
+
+            const albumDataItem = {
+                name,
+                artists: artists.map(artist => artist.name).join(", "),
+                id,
+                image: images[0].url,
+                releaseDate: release_date,
+                numTracks: total_tracks,
+                type
+            };
+
+            albumData.push(albumDataItem);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return response.json(albumData);
+})
 
 module.exports = router;
