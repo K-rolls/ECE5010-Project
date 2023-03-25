@@ -1,8 +1,6 @@
 const axios = require('axios');
 const express = require("express");
 const router = express.Router();
-const database = require("../db/db.js")
-
 class Search {
     constructor(query) {
         this.query = query;
@@ -15,64 +13,79 @@ class Search {
         return searchResults;
     }
 
-    async getSpotifyToken() {
-        const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
-        const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+// Route to search for tracks on Spotify
+async function search(req) {
+    const { q } = req.query;
+    const token = await getSpotifyToken();
+    const searchResults = await searchSpotifyTracks(q, token);
 
-        const authOptions = {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: 'grant_type=client_credentials'
-        };
+    res.json(searchResults);
+};
 
-        try {
-            const tokenResponse = await axios('https://accounts.spotify.com/api/token', authOptions);
-            const data = tokenResponse.data;
-            const token = data.access_token;
-            return token;
-        } catch (error) {
-            console.error('Error retrieving Spotify token:', error);
-            return null;
-        }
-    }
+// Helper function to retrieve a Spotify token
+async function getSpotifyToken() {
+    const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
+    const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+
+  const authOptions = {
+    method: "POST",
+    headers: {
+      Authorization:
+        "Basic " +
+        new Buffer.from(client_id + ":" + client_secret).toString("base64"),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data: "grant_type=client_credentials",
+  };
+
+  try {
+    const tokenResponse = await axios(
+      "https://accounts.spotify.com/api/token",
+      authOptions
+    );
+    const data = tokenResponse.data;
+    const token = data.access_token;
+    return token;
+  } catch (error) {
+    console.error("Error retrieving Spotify token:", error);
+    return null;
+  }
+}
 
     async searchSpotifyAlbum(query, token) {
-        // console.log(query);
-        const searchOptions = {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            params: {
-                q: query,
-                type: 'album',
-                limit: 10, //! can be changed to fill site
-                market: 'CA',
-                offset: this.query.getPage() * 10
-            }
-        };
-
-        try {
-            const searchResponse = await axios('https://api.spotify.com/v1/search', searchOptions);
-            const data = searchResponse.data;
-            const searchResults = data.albums.items.map(item => ({
-                id: item.id,
-                name: item.name,
-                artists: item.artists.map(artist => artist.name).join(', '),
-                image: item.images[0]?.url,
-                releaseDate: item.release_date
-            }));
-
-            return searchResults;
-        } catch (error) {
-            console.error('Error searching Spotify tracks:', error);
-            return null;
+    // console.log(query);
+    const searchOptions = {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        params: {
+            q: query,
+            type: 'album',
+            limit: 10, //! can be changed to fill site
+            market: 'CA',
+            offset: this.query.getPage() * 10
         }
+    };
+
+    try {
+        const searchResponse = await axios('https://api.spotify.com/v1/search', searchOptions);
+        const data = searchResponse.data;
+        const searchResults = data.albums.items.map(item => ({
+            id: item.id,
+            name: item.name,
+            artists: item.artists.map(artist => artist.name).join(', '),
+            image: item.images[0]?.url,
+            releaseDate: item.release_date
+        }));
+
+        return searchResults;
+    } catch (error) {
+        console.error('Error searching Spotify tracks:', error);
+        return null;
     }
+}
 }
 
 
@@ -239,27 +252,6 @@ router.post("/getAlbums", async (request, response) => {
     const albumData = [{ len: len }, ...(await Promise.all(albumPromises)).filter(item => item !== null)];
 
     return response.json(albumData);
-});
-
-router.get('/getReviews', async (request, response) => {
-    const albumId = request.body.album_id;
-
-    try {
-        const reviews = await database('reviews')
-            .select('reviews.*', 'users.User_ID')
-            .where({ album_id: albumId })
-            .join('users', 'reviews.User_ID', '=', 'users.User_ID');
-
-        return response.json({
-            success: true,
-            data: reviews
-        });
-    } catch (error) {
-        return response.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
 });
 
 
