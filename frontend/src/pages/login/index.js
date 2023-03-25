@@ -6,10 +6,44 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-
+//TODO: Fix this shit
+import { useState } from "react";
 import { Formik, Field } from "formik";
 
 const Login = () => {
+  const loginURL = "http://localhost:5000/login";
+
+  const [usernameVal, setUsernameVal] = useState("");
+  const [passwordVal, setPasswordVal] = useState("");
+
+  const handleUsernameChange = (event) => {
+    setUsernameVal(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPasswordVal(event.target.value);
+  };
+
+  async function attemptLogin() {
+    console.log("Attempting login");
+    console.log(`${usernameVal}, ${passwordVal}`);
+    const req = { user: { username: usernameVal, password: passwordVal } };
+    //console.log(req);
+    var res = await fetch(loginURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    }).then((res) => {
+      console.log(res.json());
+      return res;
+    });
+  }
+
+  async function handleClick(username, password) {
+    console.log("Got here");
+    await attemptLogin();
+  }
+
   // const validate = values => {
   //   const errors = {};
   //   if (!values.username) {
@@ -65,19 +99,22 @@ const Login = () => {
               username: "",
               password: "",
             }}
-            onSubmit={(values) => {
-              alert(JSON.stringify(values, null, 2));
+            onSubmit={() => {
+              console.log("Got here");
+              handleClick();
             }}
           >
             {({ handleSubmit, errors, touched }) => (
               <form onSubmit={handleSubmit}>
-                <VStack className="flex items-center"spacing={4}>
+                <VStack className="flex items-center" spacing={4}>
                   <FormControl
                     isInvalid={!!errors.username && touched.username}
                   >
                     <FormLabel htmlFor="username">Username</FormLabel>
                     <Field
                       as={Input}
+                      onChange={handleUsernameChange}
+                      value={usernameVal}
                       id="username"
                       name="username"
                       type="username"
@@ -85,7 +122,7 @@ const Login = () => {
                       validate={(value) => {
                         let error;
 
-                        if (value.length == 0) {
+                        if (usernameVal.length == 0) {
                           error = "Username is required";
                         }
 
@@ -100,6 +137,8 @@ const Login = () => {
                     <FormLabel htmlFor="password">Password</FormLabel>
                     <Field
                       as={Input}
+                      onChange={handlePasswordChange}
+                      value={passwordVal}
                       id="password"
                       name="password"
                       type="password"
@@ -107,7 +146,7 @@ const Login = () => {
                       validate={(value) => {
                         let error;
 
-                        if (value.length == 0) {
+                        if (passwordVal.length == 0) {
                           error = "Password is required";
                         }
 
