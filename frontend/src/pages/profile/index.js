@@ -109,11 +109,6 @@ const Profile = () => {
 
       </div>
 
-
-
-
-
-
     </div>
 
   );
