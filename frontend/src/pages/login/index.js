@@ -17,7 +17,8 @@ import Router from "next/router";
 
 const Login = () => {
   const loginURL = "http://localhost:5000/user/login";
-
+  const welcomeURL = "http://localhost:5000/user/welcome";
+  const toast = useToast();
   const [usernameVal, setUsernameVal] = useState("");
   const [passwordVal, setPasswordVal] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -45,16 +46,71 @@ const Login = () => {
         body: JSON.stringify(req),
       });
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       return data;
     } catch (e) {
       console.error(e);
+      return e;
+    }
+  }
+
+  async function welcome(token) {
+    console.log(token);
+    // const req = { token: token };
+    //console.log(req);
+    try {
+      var res = await fetch(welcomeURL, {
+        method: "GET",
+        headers: { "Authorization": token },
+        // body: JSON.stringify(req),
+      });
+      const data = await res.json();
+      // console.log(data);
+      return data;
+    } catch (e) {
+      console.error(e);
+      return e;
     }
   }
 
   async function handleClick(username, password) {
-    console.log("Got here");
-    await attemptLogin();
+    // console.log("Got here");
+    var response = await attemptLogin();
+    if (response.message == "user not found!") {
+      console.log(response.message);
+      toast({
+        title: "Error",
+        description: "Incorrect username, please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    } else if (response.message == "wrong Password!") {
+      console.log(response.message);
+      toast({
+        title: "Error",
+        description: "Incorrect password, please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    else {
+      console.log(response);
+      localStorage.setItem("token", response.token);
+      const welcomeMessage = await welcome(response.token);
+      toast({
+        title: `${welcomeMessage.message}`,
+        description: "Log in successful.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      Router.push("/home");
+    }
   }
 
   // const validate = values => {
@@ -113,7 +169,7 @@ const Login = () => {
               password: "",
             }}
             onSubmit={() => {
-              console.log("Got here");
+              // console.log("Got here");
               handleClick();
             }}
           >
