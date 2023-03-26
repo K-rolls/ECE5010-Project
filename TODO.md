@@ -15,6 +15,10 @@
 - [x] get reviwed albums based on uuid
 - [X] make/update review and store in database
 - [x] get reviews based on album id
+- [ ] add get album stats to /spotify/getAlbums 
+  - [ ] # of reviews
+  - [ ] average rating
+  - [ ] 
 
 ## Frontend
 - [x] flesh out welcome
