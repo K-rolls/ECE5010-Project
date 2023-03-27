@@ -13,6 +13,7 @@ import Router from "next/router";
 import { useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
 import AlbumTile from "../../components/AlbumTile.js";
+import NavBar from '../../components/NavBar';
 import Link from 'next/link';
 
 const Search = () => {
@@ -102,8 +103,9 @@ const Search = () => {
                     justify-center
                     overflow-y-scroll
                     "
-      >
+      ><NavBar />
         <div className="flex flex-col space-y-2 justify-center items-center">
+
           <div className="flex flex-col justify-center items-center space-y-10 p-8">
             <Link href="/home">
               <Image src="/SquareLogo.png" className="h-48 w-48" />

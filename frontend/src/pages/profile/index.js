@@ -1,5 +1,6 @@
 import { Avatar, Image, Text, Button } from '@chakra-ui/react'
 import Router from "next/router";
+import NavBar from '../../components/NavBar';
 
 const Profile = () => {
 
@@ -14,7 +15,7 @@ const Profile = () => {
         p-10
         justify-center
         "
-    >
+    ><NavBar />
       <div
         className="flex flex-col space-y-2 justify-center items-center
          ">

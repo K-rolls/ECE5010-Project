@@ -16,6 +16,7 @@ import { SearchIcon } from '@chakra-ui/icons'
 import { useState } from 'react';
 import Link from 'next/link';
 import Router from "next/router";
+import NavBar from '../../components/NavBar';
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,6 +90,7 @@ const Home = () => {
       <div
         className="flex flex-col justify-center items-center p-10 "
       >
+        <NavBar />
         <div
           className="flex flex-col justify-center items-center space-y-5"
         >
