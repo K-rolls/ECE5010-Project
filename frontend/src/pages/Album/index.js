@@ -11,69 +11,99 @@ import {
   Box,
   Textarea,
 } from "@chakra-ui/react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import UserReviewTile from "../../components/UserReviewTile.js";
+
 
 const Album = () => {
   const [sliderValue, setSliderValue] = useState(0);
   const [reviewValue, setReviewValue] = useState("");
-  var AVERAGE;
-  // const [albumData, setAlbumData] = useState({});
-  async function getAverage(album_id) {
-    try {
-      var response = await fetch(
-        "http://localhost:5000/spotify/averageRating",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            album_id: album_id,
-          },
-        }
-      );
-      const data = await response.json();
-      const value = data.data;
+  const [data, setData] = useState({});
+  const router = useRouter();
+  const { id } = router.query; // Access the id parameter from the query string
+  // console.log(id);
 
-      return value;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-
-  async function getData() {
-    try {
-      const albumData = JSON.parse(localStorage.getItem("albumData"));
-      console.log(albumData);
-      if (!albumData) {
-        throw new Error("Album data not found");
-      }
-      const averageVal = localStorage.getItem("averageVal");
-      // AVERAGE = averageVal === null ? 0 : averageVal;
-      AVERAGE = averageVal === null ? 0 : parseInt(averageVal);
-      const user = JSON.parse(localStorage.getItem("user"));
-      console.log(user);
-      if (!user) {
-        throw new Error("User data not found");
-      }
-      const avg = await getAverage(albumData.id);
-      setAlbumData(albumData);
-      console.log(albumData);
-      return albumData;
-    } catch (error) {
-      console.error(error);
-      // Router.push("/home");
-    }
-  }
-
-  const [data, setData] = useState();
-
+  // Fetch album data using the id parameter
   useEffect(() => {
-    setData(getData());
-  }, []);
+    async function fetchReviews() {
+      try {
+        var response = await fetch(
+          "http://localhost:5000/spotify/getReviews",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              album_id: id,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data);
+        var numReviews = Object.values(data.data).length;
+        var allReviews = data.data;
+        setData(prevState => ({ ...prevState, reviews: { numReviews, allReviews } }));
+      } catch (error) {
+        console.error(error);
+        setData(prevState => ({ ...prevState, reviews: null }));
+      }
+    }
+    async function getAverage() {
+      try {
+        var response = await fetch(
+          "http://localhost:5000/spotify/averageRating",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              album_id: id,
+            },
+          }
+        );
+        const data = await response.json();
+        const value = data.data;
 
-  console.log(data);
+        setData(prevState => ({ ...prevState, avg: value }));
+      } catch (error) {
+        console.error(error);
+        setData(prevState => ({ ...prevState, avg: null }));
+      }
+    }
+    async function fetchAlbumData() {
+      try {
+        var data;
+        const req = {
+          Reviewed: [id],
+        };
+
+        const response = await fetch(
+          "http://localhost:5000/spotify/getAlbums",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(req),
+          }
+        );
+
+        data = await response.json();
+        data = data[1];
+        // console.log(data);
+        setData(prevState => ({ ...prevState, albumData: data }));
+      } catch (error) {
+        fetchAlbumData();
+        getAverage();
+      }
+    }
+    if (id) {
+      fetchAlbumData();
+      getAverage();
+      fetchReviews();
+    }
+  }, [id]);
+
+  // Handle input change
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
     setReviewValue(inputValue);
@@ -102,7 +132,7 @@ const Album = () => {
               fontSize="3xl"
             >
               {" "}
-              {data.albumData.name}{" "}
+              {data.albumData?.name}{" "}
             </Text>
           </div>
           <div>
@@ -112,7 +142,7 @@ const Album = () => {
               fontSize="xl"
             >
               {" "}
-              {data.albumData.artists}{" "}
+              {data.albumData?.artists}{" "}
             </Text>
           </div>
         </div>
@@ -125,13 +155,13 @@ const Album = () => {
                   Average Rating: {data.avg}★
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Number of Reviews:
+                  Number of Reviews: {data.reviews.numReviews}
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Release Date: {data.albumData.releaseDate}
+                  Release Date: {data.albumData?.releaseDate}
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Number of Tracks: {data.albumData.numTracks}
+                  Number of Tracks: {data.albumData?.numTracks}
                 </Text>
               </div>
             </div>

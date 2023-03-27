@@ -261,7 +261,7 @@ router.get("/averageRating", async (request, response) => {
 })
 
 router.get('/getReviews', async (request, response) => {
-    const albumId = request.body.album_id;
+    const albumId = request.headers.album_id;
 
     try {
         const reviews = await database('reviews')
