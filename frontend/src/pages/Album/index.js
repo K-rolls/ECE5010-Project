@@ -12,33 +12,68 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import Router from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserReviewTile from "../../components/UserReviewTile.js";
 
 const Album = () => {
   const [sliderValue, setSliderValue] = useState(0);
   const [reviewValue, setReviewValue] = useState("");
-  var albumData = localStorage.getItem("albumData");
-  var averageVal = localStorage.getItem("averageVal");
-  // define async function or some shit idk
-  if (albumData === null) {
-    console.error("Album data not found");
-    // Router.push("/home");
-  } else {
-    albumData = JSON.parse(albumData);
-    console.log(albumData);
+  var AVERAGE;
+  // const [albumData, setAlbumData] = useState({});
+  async function getAverage(album_id) {
+    try {
+      var response = await fetch(
+        "http://localhost:5000/spotify/averageRating",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            album_id: album_id,
+          },
+        }
+      );
+      const data = await response.json();
+      const value = data.data;
+
+      return value;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
-  if (averageVal === null) {
-    console.error("Average value not found");
-    // Router.push("/home");
-  } else {
-    averageVal = JSON.parse(averageVal);
+  async function getData() {
+    try {
+      const albumData = JSON.parse(localStorage.getItem("albumData"));
+      console.log(albumData);
+      if (!albumData) {
+        throw new Error("Album data not found");
+      }
+      const averageVal = localStorage.getItem("averageVal");
+      // AVERAGE = averageVal === null ? 0 : averageVal;
+      AVERAGE = averageVal === null ? 0 : parseInt(averageVal);
+      const user = JSON.parse(localStorage.getItem("user"));
+      console.log(user);
+      if (!user) {
+        throw new Error("User data not found");
+      }
+      const avg = await getAverage(albumData.id);
+      setAlbumData(albumData);
+      console.log(albumData);
+      return albumData;
+    } catch (error) {
+      console.error(error);
+      // Router.push("/home");
+    }
   }
-  const AVERAGE = averageVal.data;
-  console.log(AVERAGE);
-  const user = JSON.parse(localStorage.getItem("user"));
 
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    setData(getData());
+  }, []);
+
+  console.log(data);
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
     setReviewValue(inputValue);
@@ -47,17 +82,17 @@ const Album = () => {
   return (
     <div
       className="
-        overflow-auto
-        min-h-screen
-        min-w-screen
-        bg-slate-400
-        flex
-        justify-center
-        "
+    overflow-auto
+    min-h-screen
+    min-w-screen
+    bg-slate-400
+    flex
+    justify-center
+  "
     >
       <div className="flex flex-col space-y-4 justify-center items-center p-10">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
-          <img src={albumData[1].image} className="h-40 w-40"></img>
+          <img src={data.albumData && data.albumData.image} className="h-40 w-40"></img>
         </div>
         <div className="flex flex-col justify-center items-center space-y-0">
           <div>
@@ -67,7 +102,7 @@ const Album = () => {
               fontSize="3xl"
             >
               {" "}
-              {albumData[1].name}{" "}
+              {data.albumData.name}{" "}
             </Text>
           </div>
           <div>
@@ -77,7 +112,7 @@ const Album = () => {
               fontSize="xl"
             >
               {" "}
-              {albumData[1].artists}{" "}
+              {data.albumData.artists}{" "}
             </Text>
           </div>
         </div>
@@ -87,16 +122,16 @@ const Album = () => {
             <div className="flex bg-background/90 p-6 rounded-xl border-4 border-mainblue">
               <div className=" text-xl flex flex-col space-y-1 items-start">
                 <Text className="font-permanent-marker" color="white">
-                  Average Rating: {AVERAGE}★
+                  Average Rating: {data.avg}★
                 </Text>
                 <Text className="font-permanent-marker" color="white">
                   Number of Reviews:
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Release Date: {albumData[1].releaseDate}
+                  Release Date: {data.albumData.releaseDate}
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Number of Tracks: {albumData[1].numTracks}
+                  Number of Tracks: {data.albumData.numTracks}
                 </Text>
               </div>
             </div>

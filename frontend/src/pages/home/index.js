@@ -21,6 +21,14 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const searchURL = "http://localhost:5000/spotify/albumSearch"
   const toast = useToast();
+  try {
+    localStorage.setItem("searchTerm", "null");
+    localStorage.setItem("currPage", 0);
+    localStorage.setItem("searchResults", "null");
+    localStorage.setItem("averageVal", 0);
+  } catch (error) {
+    console.log(error);
+  }
 
   async function makeSearch(searchTerm) {
     const req = {

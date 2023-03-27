@@ -1,14 +1,4 @@
-import {
-  Avatar,
-  Image,
-  Text,
-  Button,
-  InputGroup,
-  Input,
-  InputRightElement,
-  IconButton,
-  useToast,
-} from "@chakra-ui/react";
+import { Avatar, Image, Text, Button, InputGroup, Input, InputRightElement, IconButton, useToast } from "@chakra-ui/react";
 import Router from "next/router";
 import { useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
@@ -80,6 +70,9 @@ const Search = () => {
     }
   }
 
+  const handleAlbumClick = (album) => {
+    console.log("Album clicked:", album);
+  }
 
   try {
     var searchResults = localStorage.getItem("searchResults");
@@ -135,9 +128,24 @@ const Search = () => {
             </div>
             <div className="grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
-                <AlbumTile key={index} album={JSON.stringify(album)} />
+                <AlbumTile key={index} album={JSON.stringify(album)} onClick={() => handleAlbumClick(album)}>
+                  <div className="p-4">
+                    {album.image ? (
+                      <Image
+                        src={album.image}
+                        alt={album.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        <span className="text-xl">No Image</span>
+                      </div>
+                    )}
+                  </div>
+                </AlbumTile>
               ))}
             </div>
+
             <Button
               aria-label="Next page"
 
