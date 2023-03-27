@@ -32,8 +32,6 @@ const Login = () => {
     setPasswordVal(event.target.value);
   };
 
-  //TODO: Implement error handling/alerts for login errors. Several ways to do this, not sure which will work
-
   async function attemptLogin() {
     console.log("Attempting login");
     console.log(`${usernameVal}, ${passwordVal}`);
