@@ -16,27 +16,27 @@ const Welcome = () => {
         "
     >
       <div className="bg-background/90 p-6 rounded-xl border-4 border-mainblue">
-        <div className="flex flex-col space-y-2 items-center">
-          <img src="/SquareLogo.png" className="h-64 w-64"></img>
-          <div></div>
+        <img src="/SquareLogo.png" className="h-64 w-64"></img>
+        <div></div>
+        <div className="flex flex-col space-y-6 pt-4 items-center">
           <button
             onClick={() => Router.push("/login")}
-            className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
+            className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
           >
             Login
           </button>
           <button
             onClick={() => Router.push("/signup")}
-            className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
+            className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
           >
             Sign Up
           </button>
-          <button
+          {/* <button
             onClick={() => Router.push("/Album")}
             className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
           >
             Album Test
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

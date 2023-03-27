@@ -1,18 +1,9 @@
-import {
-  Avatar,
-  Image,
-  Text,
-  Button,
-  InputGroup,
-  Input,
-  InputRightElement,
-  IconButton,
-  useToast,
-} from "@chakra-ui/react";
+import { Avatar, Image, Text, Button, InputGroup, Input, InputRightElement, IconButton, useToast } from "@chakra-ui/react";
 import Router from "next/router";
 import { useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
 import AlbumTile from "../../components/AlbumTile.js";
+import NavBar from '../../components/NavBar';
 import Link from 'next/link';
 
 const Search = () => {
@@ -80,6 +71,9 @@ const Search = () => {
     }
   }
 
+  const handleAlbumClick = (album) => {
+    console.log("Album clicked:", album);
+  }
 
   try {
     var searchResults = localStorage.getItem("searchResults");
@@ -102,8 +96,9 @@ const Search = () => {
                     justify-center
                     overflow-y-scroll
                     "
-      >
+      ><NavBar />
         <div className="flex flex-col space-y-2 justify-center items-center">
+
           <div className="flex flex-col justify-center items-center space-y-10 p-8">
             <Link href="/home">
               <Image src="/SquareLogo.png" className="h-48 w-48" />
@@ -133,11 +128,26 @@ const Search = () => {
                 </InputRightElement>
               </InputGroup>
             </div>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
-                <AlbumTile key={index} album={JSON.stringify(album)} />
+                <AlbumTile key={index} album={JSON.stringify(album)} onClick={() => handleAlbumClick(album)}>
+                  <div className="p-4">
+                    {album.image ? (
+                      <Image
+                        src={album.image}
+                        alt={album.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        <span className="text-xl">No Image</span>
+                      </div>
+                    )}
+                  </div>
+                </AlbumTile>
               ))}
             </div>
+
             <Button
               aria-label="Next page"
 

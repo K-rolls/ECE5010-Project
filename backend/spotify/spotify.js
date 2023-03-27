@@ -261,11 +261,11 @@ router.get("/averageRating", async (request, response) => {
 })
 
 router.get('/getReviews', async (request, response) => {
-    const albumId = request.body.album_id;
+    const albumId = request.headers.album_id;
 
     try {
         const reviews = await database('reviews')
-            .select('reviews.*', 'users.User_ID')
+            .select('reviews.*', 'users.username')
             .where({ album_id: albumId })
             .join('users', 'reviews.User_ID', '=', 'users.User_ID');
 
