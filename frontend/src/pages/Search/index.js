@@ -1,7 +1,7 @@
 import { Avatar, Image, Text, Button } from '@chakra-ui/react'
 import Router from "next/router";
 
-const Home = () => {
+const Search = () => {
 
     return (
         <div
@@ -31,4 +31,4 @@ const Home = () => {
     </div>
 </div>
 
-export default Home;
+export default Search;
