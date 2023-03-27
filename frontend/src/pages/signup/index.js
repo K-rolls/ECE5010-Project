@@ -28,6 +28,7 @@ const Signup = () => {
   const handleShowPassClick = () => setShowPass(!showPass);
   const [showConfirm, setShowConfirm] = useState(false);
   const handleShowConfirmClick = () => setShowConfirm(!showConfirm);
+  const toast = useToast();
   //const [state, newToast] = useToastHook();
   // const [isError, setIsError] = useState(false);
   // const handleError = () => setIsError(!isError);
@@ -50,7 +51,7 @@ const Signup = () => {
 
   async function attemptSignup() {
     console.log("Attempting signup");
-    console.log(`${usernameVal}, ${passwordVal}`);
+    // console.log(`${usernameVal}, ${passwordVal}`);
     const req = { user: { username: usernameVal, password: passwordVal } };
     //console.log(req);
     try {
@@ -60,18 +61,39 @@ const Signup = () => {
         body: JSON.stringify(req),
       });
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       return data;
     } catch (e) {
       console.error(e);
-      const errorText = e.stringify;
-      console.log(errorText);
+      return e;
     }
   }
 
   async function handleClick(username, password) {
     console.log("Got here");
-    await attemptSignup();
+    var response = await attemptSignup();
+    if (response.error) {
+      console.log(response);
+      toast({
+        title: "Error",
+        description: "Username already exists",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    } else {
+      console.log(response);
+      toast({
+        title: "Success",
+        description: "Account created! Please login",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      Router.push("/login");
+    }
   }
 
   // const validate = values => {
