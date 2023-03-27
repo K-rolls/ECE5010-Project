@@ -31,11 +31,11 @@ const Welcome = () => {
           >
             Sign Up
           </button>
-          <button onClick = {() =>{Router.push('/profile')}} className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background">
-            Profile Test
-          </button>
-          <button onClick={() => { Router.push('/home') }} className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background">
-            Home Test
+          <button
+            onClick={() => Router.push("/Album")}
+            className=" bg-mainblue h-12 w-32 opacity-100 rounded-lg font-extrabold text-background"
+          >
+            Album Test
           </button>
         </div>
       </div>

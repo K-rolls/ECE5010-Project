@@ -1,6 +1,8 @@
 const axios = require('axios');
 const express = require("express");
 const router = express.Router();
+const database = require("../db/db.js")
+
 class Search {
     constructor(query) {
         this.query = query;
@@ -13,79 +15,64 @@ class Search {
         return searchResults;
     }
 
-// Route to search for tracks on Spotify
-async function search(req) {
-    const { q } = req.query;
-    const token = await getSpotifyToken();
-    const searchResults = await searchSpotifyTracks(q, token);
+    async getSpotifyToken() {
+        const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
+        const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
 
-    res.json(searchResults);
-};
+        const authOptions = {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: 'grant_type=client_credentials'
+        };
 
-// Helper function to retrieve a Spotify token
-async function getSpotifyToken() {
-    const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
-    const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
-
-  const authOptions = {
-    method: "POST",
-    headers: {
-      Authorization:
-        "Basic " +
-        new Buffer.from(client_id + ":" + client_secret).toString("base64"),
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    data: "grant_type=client_credentials",
-  };
-
-  try {
-    const tokenResponse = await axios(
-      "https://accounts.spotify.com/api/token",
-      authOptions
-    );
-    const data = tokenResponse.data;
-    const token = data.access_token;
-    return token;
-  } catch (error) {
-    console.error("Error retrieving Spotify token:", error);
-    return null;
-  }
-}
+        try {
+            const tokenResponse = await axios('https://accounts.spotify.com/api/token', authOptions);
+            const data = tokenResponse.data;
+            const token = data.access_token;
+            return token;
+        } catch (error) {
+            console.error('Error retrieving Spotify token:', error);
+            return null;
+        }
+    }
 
     async searchSpotifyAlbum(query, token) {
-    // console.log(query);
-    const searchOptions = {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        params: {
-            q: query,
-            type: 'album',
-            limit: 10, //! can be changed to fill site
-            market: 'CA',
-            offset: this.query.getPage() * 10
+        // console.log(query);
+        const searchOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            params: {
+                q: query,
+                type: 'album',
+                limit: 20, //! can be changed to fill site
+                market: 'CA',
+                offset: this.query.getPage() * 10
+            }
+        };
+
+        try {
+            const searchResponse = await axios('https://api.spotify.com/v1/search', searchOptions);
+            const data = searchResponse.data;
+            const searchResults = data.albums.items.map(item => ({
+                id: item.id,
+                name: item.name,
+                artists: item.artists.map(artist => artist.name).join(', '),
+                image: item.images[0]?.url,
+                releaseDate: item.release_date
+            }));
+
+            return searchResults;
+        } catch (error) {
+            console.error('Error:', error);
+            return null;
         }
-    };
-
-    try {
-        const searchResponse = await axios('https://api.spotify.com/v1/search', searchOptions);
-        const data = searchResponse.data;
-        const searchResults = data.albums.items.map(item => ({
-            id: item.id,
-            name: item.name,
-            artists: item.artists.map(artist => artist.name).join(', '),
-            image: item.images[0]?.url,
-            releaseDate: item.release_date
-        }));
-
-        return searchResults;
-    } catch (error) {
-        console.error('Error searching Spotify tracks:', error);
-        return null;
     }
-}
 }
 
 
@@ -213,45 +200,71 @@ router.post("/albumSearch", async (request, response) => {
 
 // gets the albums associated with the user
 router.post("/getAlbums", async (request, response) => {
-    const indices = Object.values(request.body.Reviewed);
-    const len = indices.length;
+    try {
+        const indices = Object.values(request.body.Reviewed);
+        const len = indices.length;
 
-    const tokenResponse = await axios.get('http://localhost:5000/spotify/token');
-    const token = tokenResponse.data.token;
+        const tokenResponse = await axios.get('http://localhost:5000/spotify/token');
+        const token = tokenResponse.data.token;
 
-    const albumPromises = indices.map(async albumId => {
-        const albumUrl = `https://api.spotify.com/v1/albums/${albumId}`;
-        const searchOptions = {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-        };
-        try {
-            const albumResponse = await axios.get(albumUrl, searchOptions);
-            const { name, artists, id, images, release_date, total_tracks, type } = albumResponse.data;
-
-            const albumDataItem = {
-                name,
-                artists: artists.map(artist => artist.name).join(", "),
-                id,
-                image: images[0].url,
-                releaseDate: release_date,
-                numTracks: total_tracks,
-                type
+        const albumPromises = indices.map(async albumId => {
+            const albumUrl = `https://api.spotify.com/v1/albums/${albumId}`;
+            const searchOptions = {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
             };
+            try {
+                const albumResponse = await axios.get(albumUrl, searchOptions);
+                const { name, artists, id, images, release_date, total_tracks, type } = albumResponse.data;
 
-            return albumDataItem;
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
-    });
+                const albumDataItem = {
+                    name,
+                    artists: artists.map(artist => artist.name).join(", "),
+                    id,
+                    image: images[0].url,
+                    releaseDate: release_date,
+                    numTracks: total_tracks,
+                    type
+                };
 
-    const albumData = [{ len: len }, ...(await Promise.all(albumPromises)).filter(item => item !== null)];
+                return albumDataItem;
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        });
 
-    return response.json(albumData);
+        const albumData = [{ len: len }, ...(await Promise.all(albumPromises)).filter(item => item !== null)];
+
+        return response.json(albumData);
+    } catch (error) {
+        console.error(error);
+        return response.status(500).send(error.message);
+    }
+});
+
+router.get('/getReviews', async (request, response) => {
+    const albumId = request.body.album_id;
+
+    try {
+        const reviews = await database('reviews')
+            .select('reviews.*', 'users.User_ID')
+            .where({ album_id: albumId })
+            .join('users', 'reviews.User_ID', '=', 'users.User_ID');
+
+        return response.json({
+            success: true,
+            data: reviews
+        });
+    } catch (error) {
+        return response.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 });
 
 

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Avatar, Image, Text, Button } from '@chakra-ui/react'
 import Router from "next/router";
 
@@ -100,23 +99,8 @@ const Profile = () => {
 
         </div>
       </div>
-      <div>
-
-
-      </div>
-
-      <div>
-
-
-      </div>
-
     </div>
-
   );
 };
 
 export default Profile;
-=======
-//TODO: Start cooking profile page
-
->>>>>>> origin/main
