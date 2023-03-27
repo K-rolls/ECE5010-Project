@@ -234,7 +234,7 @@ const Album = () => {
                   Average Rating: {data.avg}★
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Number of Reviews: {data.reviews?.numReviews}
+                  Number of Reviews: {reviews.reviews?.numReviews}
                 </Text>
                 <Text className="font-permanent-marker" color="white">
                   Release Date: {data.albumData?.releaseDate}
