@@ -118,16 +118,11 @@ const Home = () => {
           </div>
           <div className=" bg-background font-permanent-marker text-center rounded-lg text-mainblue p-4 shadow-2xl">
             <Stack spacing={1} >
-              <Text fontSize='3xl' paddingBottom={2}> Welcome to Scaled! </Text>
+              <Text fontSize='4xl' paddingBottom={2}> Welcome to Scaled! </Text>
               <Divider orientation='horizontal' />
-              <Text fontSize='md' paddingTop={2}> Use the search bar above to search for an album </Text>
-              <Text fontSize='md'> Or use the side bar to navigate to your profile </Text>
+              <Text fontSize='lg' paddingTop={2}> Use the search bar above to search for an album </Text>
+              <Text fontSize='lg'> Or use the side bar to navigate to your profile </Text>
             </Stack>
-          </div>
-          <div className="flex justify-center bg-background font-permanent-marker text-center rounded-lg text-mainblue p-4 shadow-2xl">
-            <Link href="/profile">
-              <button>Go to Profile</button>
-            </Link>
           </div>
         </div>
       </div>
