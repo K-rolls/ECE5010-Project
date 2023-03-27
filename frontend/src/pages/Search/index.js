@@ -13,19 +13,21 @@ import Router from "next/router";
 import { useState } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
 import AlbumTile from "../../components/AlbumTile.js";
+import Link from 'next/link';
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const searchURL = "http://localhost:5000/spotify/albumSearch";
   const toast = useToast();
+  var currPage = 0;
 
-  async function makeSearch(searchTerm) {
+  async function makeSearch(searchTerm, page = 0) {
     const req = {
       q: searchTerm,
       decade: "",
-      page: 0,
+      page: page,
     };
-
+    console.log(req);
     try {
       var res = await fetch(searchURL, {
         method: "POST",
@@ -40,9 +42,21 @@ const Search = () => {
     }
   }
 
-  async function handleSearch(searchTerm) {
-    var response = await makeSearch(searchTerm);
-    if (searchTerm === "null" || searchTerm === "") {
+  async function handleSearch(searchTerm, page = 0) {
+    if (page === 0) {
+      localStorage.setItem("currPage", 0);
+    } else {
+      var currPage = parseInt(localStorage.getItem("currPage")) || 0;
+      page = currPage + 1;
+      localStorage.setItem("currPage", page);
+    }
+    if (!searchTerm) {
+      searchTerm = localStorage.getItem("searchTerm") || "";
+    } else {
+      localStorage.setItem("searchTerm", searchTerm);
+    }
+    var response = await makeSearch(searchTerm, page);
+    if (!searchTerm) {
       toast({
         title: "Error",
         description: "must have a search term",
@@ -66,6 +80,7 @@ const Search = () => {
     }
   }
 
+
   try {
     var searchResults = localStorage.getItem("searchResults");
     var searchResJSON = JSON.parse(searchResults);
@@ -85,11 +100,14 @@ const Search = () => {
                     items-start
                     p-10
                     justify-center
+                    overflow-y-scroll
                     "
       >
         <div className="flex flex-col space-y-2 justify-center items-center">
           <div className="flex flex-col justify-center items-center space-y-10 p-8">
-            <img src="/SquareLogo.png" className="h-48 w-48"></img>
+            <Link href="/home">
+              <Image src="/SquareLogo.png" className="h-48 w-48" />
+            </Link>
             <div>
               <InputGroup
                 size="md"
@@ -120,6 +138,15 @@ const Search = () => {
                 <AlbumTile key={index} album={JSON.stringify(album)} />
               ))}
             </div>
+            <Button
+              aria-label="Next page"
+
+              backgroundColor="white"
+              color="grey.300"
+              onClick={() => handleSearch(localStorage.getItem(searchTerm), 1)}
+            >
+              Next Page
+            </Button>
           </div>
         </div>
 

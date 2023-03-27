@@ -14,7 +14,7 @@ import {
 
 import { SearchIcon } from '@chakra-ui/icons'
 import { useState } from 'react';
-
+import Link from 'next/link';
 import Router from "next/router";
 
 const Home = () => {
@@ -28,7 +28,7 @@ const Home = () => {
       "decade": "",
       "page": 0
     };
-    // console.log(req);
+    console.log(req);
 
     try {
       var res = await fetch(searchURL, {
@@ -46,6 +46,8 @@ const Home = () => {
   }
 
   async function handleSearch() {
+    localStorage.setItem("searchTerm", searchTerm);
+    localStorage.setItem("currPage", 0);
     var response = await makeSearch(searchTerm);
     if (searchTerm == "null" || searchTerm == "") {
       toast({
@@ -119,6 +121,11 @@ const Home = () => {
               <Text fontSize='md' paddingTop={2}> Use the search bar above to search for an album </Text>
               <Text fontSize='md'> Or use the side bar to navigate to your profile </Text>
             </Stack>
+          </div>
+          <div className="flex justify-center bg-background font-permanent-marker text-center rounded-lg text-mainblue p-4 shadow-2xl">
+            <Link href="/profile">
+              <button>Go to Profile</button>
+            </Link>
           </div>
         </div>
       </div>

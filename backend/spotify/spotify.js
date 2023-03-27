@@ -50,7 +50,7 @@ class Search {
             params: {
                 q: query,
                 type: 'album',
-                limit: 10, //! can be changed to fill site
+                limit: 20, //! can be changed to fill site
                 market: 'CA',
                 offset: this.query.getPage() * 10
             }
