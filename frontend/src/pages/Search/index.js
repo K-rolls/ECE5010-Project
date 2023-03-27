@@ -135,7 +135,7 @@ const Search = () => {
                 </InputRightElement>
               </InputGroup>
             </div>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
                 <AlbumTile key={index} album={JSON.stringify(album)} />
               ))}
