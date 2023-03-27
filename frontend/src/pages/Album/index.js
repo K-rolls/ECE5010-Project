@@ -18,12 +18,32 @@ import UserReviewTile from "../../components/UserReviewTile.js";
 const Album = () => {
   const [sliderValue, setSliderValue] = useState(0);
   const [reviewValue, setReviewValue] = useState("");
+  var albumData = localStorage.getItem("albumData");
+  var averageVal = localStorage.getItem("averageVal");
+  // define async function or some shit idk
+  if (albumData === null) {
+    console.error("Album data not found");
+    // Router.push("/home");
+  } else {
+    albumData = JSON.parse(albumData);
+    console.log(albumData);
+  }
+
+  if (averageVal === null) {
+    console.error("Average value not found");
+    // Router.push("/home");
+  } else {
+    averageVal = JSON.parse(averageVal);
+  }
+  const AVERAGE = averageVal.data;
+  console.log(AVERAGE);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
     setReviewValue(inputValue);
   };
-
+  
   return (
     <div
       className="
@@ -37,7 +57,7 @@ const Album = () => {
     >
       <div className="flex flex-col space-y-4 justify-center items-center p-10">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
-          <img src="TPAB.jpg" className="h-40 w-40"></img>
+          <img src={albumData[1].image} className="h-40 w-40"></img>
         </div>
         <div className="flex flex-col justify-center items-center space-y-0">
           <div>
@@ -47,7 +67,7 @@ const Album = () => {
               fontSize="3xl"
             >
               {" "}
-              To Pimp A Butterfly{" "}
+              {albumData[1].name}{" "}
             </Text>
           </div>
           <div>
@@ -57,7 +77,7 @@ const Album = () => {
               fontSize="xl"
             >
               {" "}
-              Kendrick Lamar{" "}
+              {albumData[1].artists}{" "}
             </Text>
           </div>
         </div>
@@ -67,16 +87,16 @@ const Album = () => {
             <div className="flex bg-background/90 p-6 rounded-xl border-4 border-mainblue">
               <div className=" text-xl flex flex-col space-y-1 items-start">
                 <Text className="font-permanent-marker" color="white">
-                  Average Rating: 10★
+                  Average Rating: {AVERAGE}★
                 </Text>
                 <Text className="font-permanent-marker" color="white">
                   Number of Reviews:
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Release Date:
+                  Release Date: {albumData[1].releaseDate}
                 </Text>
                 <Text className="font-permanent-marker" color="white">
-                  Number of Tracks:
+                  Number of Tracks: {albumData[1].numTracks}
                 </Text>
               </div>
             </div>
@@ -161,9 +181,6 @@ const Album = () => {
                 <UserReviewTile></UserReviewTile>
                 <UserReviewTile></UserReviewTile>
                 <UserReviewTile></UserReviewTile>
-
-
-
               </div>
             </div>
           </div>
