@@ -265,7 +265,7 @@ router.get('/getReviews', async (request, response) => {
 
     try {
         const reviews = await database('reviews')
-            .select('reviews.*', 'users.User_ID')
+            .select('reviews.*', 'users.username')
             .where({ album_id: albumId })
             .join('users', 'reviews.User_ID', '=', 'users.User_ID');
 
