@@ -15,6 +15,7 @@ import {
 import { useRouter, Router } from "next/router";
 import { useState, useEffect } from "react";
 import UserReviewTile from "../../components/UserReviewTile.js";
+import NavBar from '../../components/NavBar';
 
 
 const Album = () => {
@@ -198,6 +199,7 @@ const Album = () => {
   "
     >
       <div className="flex flex-col space-y-4 justify-center items-center p-10">
+        <NavBar />
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
           <img src={data.albumData && data.albumData.image} className="h-40 w-40"></img>
         </div>

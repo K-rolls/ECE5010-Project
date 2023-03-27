@@ -52,7 +52,7 @@ class Search {
                 type: 'album',
                 limit: 20, //! can be changed to fill site
                 market: 'CA',
-                offset: this.query.getPage() * 10
+                offset: this.query.getPage() * 20
             }
         };
 
