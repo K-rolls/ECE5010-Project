@@ -18,7 +18,6 @@
 - [ ] add get album stats to /spotify/getAlbums 
   - [ ] # of reviews
   - [ ] average rating
-- [ ] 
 
 ## Frontend
 - [x] flesh out welcome
@@ -26,7 +25,7 @@
 - [x] create login
 - [x] create home page
   - [x] search bar
-- [~] profile page
+- [ ] profile page
 - [x] album page
   - [ ] submit review/rating
 - [ ] connect all pages
