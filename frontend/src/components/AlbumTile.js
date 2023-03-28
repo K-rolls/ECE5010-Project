@@ -4,7 +4,7 @@ import { Image, Text, Button } from "@chakra-ui/react";
 import Link from "next/link";
 
 function AlbumTile({ album, onClick }) {
-  console.log(album);
+  // console.log(album);
   // const [loading, setLoading] = useState(false);
   var albumData = JSON.parse(album);
   const { id, name, artists, image, releaseDate } = albumData;

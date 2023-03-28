@@ -1,9 +1,14 @@
-import { Avatar, Image, Text, Button, InputGroup, Input, InputRightElement, IconButton, useToast } from "@chakra-ui/react";
+import {
+  Image,
+  Button,
+  useToast
+} from "@chakra-ui/react";
 import Router from "next/router";
 import { useState } from "react";
-import { SearchIcon } from "@chakra-ui/icons";
 import AlbumTile from "../../components/AlbumTile.js";
 import NavBar from '../../components/NavBar';
+import SearchBar from '../../components/SearchBar';
+
 import Link from 'next/link';
 
 const Search = () => {
@@ -103,37 +108,7 @@ const Search = () => {
             <Link href="/home">
               <Image src="/SquareLogo.png" className="h-48 w-48" />
             </Link>
-            <div>
-              <form onSubmit={(e) => {
-                e.preventDefault()
-                handleSearch();
-              }}>
-              <InputGroup
-                size="md"
-                width="500px"
-                bg="white"
-                borderRadius="lg"
-                boxShadow="lg"
-              >
-                <Input
-                  placeholder="Search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <InputRightElement>
-                  <IconButton
-                    aria-label="Search albums"
-                    size="sm"
-                    icon={<SearchIcon />}
-                    backgroundColor="white"
-                    color="grey.300"
-                    onClick={() => handleSearch(searchTerm)}
-                      type="submit"
-                  />
-                </InputRightElement>
-              </InputGroup>
-              </form>
-            </div>
+            <SearchBar />
             <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
                 <AlbumTile key={index} album={JSON.stringify(album)} onClick={() => handleAlbumClick(album)}>

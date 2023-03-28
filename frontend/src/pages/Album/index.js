@@ -1,8 +1,5 @@
 import {
-  Avatar,
-  Image,
   Text,
-  Button,
   Slider,
   SliderTrack,
   SliderFilledTrack,
@@ -10,7 +7,7 @@ import {
   SliderMark,
   Box,
   Textarea,
-  Link
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter, Router } from "next/router";
 import { useState, useEffect } from "react";
@@ -25,16 +22,10 @@ const Album = () => {
   const [reviews, setReviews] = useState({});
   const router = useRouter();
   const { id } = router.query;
-  const nextId = id;
-  // Access the id parameter from the query string
-  // const token = localStorage.getItem("token");
-  // console.log(token);
-
+  const toast = useToast();
 
   useEffect(() => {
     async function fetchReviews() {
-      // let data.reviews.allReviews.entries = {};
-
       try {
         var response = await fetch(
           "http://localhost:5000/spotify/getReviews",
@@ -47,11 +38,9 @@ const Album = () => {
           }
         );
         const data = await response.json();
-        console.log(data);
         var numReviews = Object.values(data.data).length;
         var allReviews = data.data;
 
-        console.log(allReviews);
         setReviews(prevState => ({ ...prevState, reviews: { numReviews, allReviews } }));
       } catch (error) {
         console.error(error);
@@ -99,7 +88,6 @@ const Album = () => {
 
         data = await response.json();
         data = data[1];
-        console.log(data);
         setData(prevState => ({ ...prevState, albumData: data }));
       } catch (error) {
         fetchAlbumData();
@@ -137,8 +125,6 @@ const Album = () => {
 
   async function makeReview(review, rating) {
     try {
-      console.log(review);
-      console.log(rating);
       var req = {
         "token": token,
         "albumID": id,
@@ -156,27 +142,46 @@ const Album = () => {
           body: JSON.stringify(req),
         }
       );
-      const success = await response.json().then(window.location.reload());
+      const success = await response.json();
       console.log(success);
+      return success;
     }
     catch (error) {
       console.error(error);
+      return error;
     }
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     let review = reviewValue;
     let rating = sliderValue;
     console.log(review);
     console.log(rating);
-    makeReview(review, rating);
-
+    var reviewed = await makeReview(review, rating);
+    if (reviewed.success) {
+      toast({
+        title: reviewed.message,
+        status: "success",
+        set: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setTimeout(() => window.location.reload(), 750);
+    } else {
+      toast({
+        title: reviewed.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    setReviewValue("");
   }
 
   // Handle input change
   let handleInputChange = (e) => {
-    // console.log(data)
     let inputValue = e.target.value;
     setReviewValue(inputValue);
   };
