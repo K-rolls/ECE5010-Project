@@ -9,7 +9,7 @@ const Home = () => {
             className="
         h-screen
         w-screen 
-        bg-slate-400 
+        bg-slate-500
         flex
         items-start
         p-10
