@@ -1,6 +1,8 @@
 import { useToast } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 
+//Hook for toasts, may be useful eventually for refactoring but currently unused
+
 export function useToastHook() {
   const [state, setState] = useState(undefined);
   const toast = useToast();
