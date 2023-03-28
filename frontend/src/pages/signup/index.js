@@ -2,12 +2,10 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
   Input,
   VStack,
   InputGroup,
   InputRightElement,
-  Button,
   IconButton,
   useToast,
 } from "@chakra-ui/react";
@@ -15,10 +13,9 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { Formik, Field } from "formik";
 import Router from "next/router";
-import { useToastHook } from "../../utils/useToastHook";
-import { ToastContainer, toast } from "react-toastify";
+import ScaledBackgroundDiv from "@/components/ScaledBackgroundDiv";
+import CustomButton from "@/components/CustomButton";
 
-//TODO: Implement error handling/alerts for signup errors. Several ways to do this, not sure which will work
 const Signup = () => {
   const signupURL = "http://localhost:5000/user/signup";
   const [usernameVal, setUsernameVal] = useState("");
@@ -45,10 +42,6 @@ const Signup = () => {
     setConfirmPasswordVal(event.target.value);
   };
 
-  //const toast = useToast();
-
-  function displayError(message) {}
-
   async function attemptSignup() {
     console.log("Attempting signup");
     // console.log(`${usernameVal}, ${passwordVal}`);
@@ -69,7 +62,7 @@ const Signup = () => {
     }
   }
 
-  async function handleClick(username, password) {
+  async function handleClick() {
     console.log("Got here");
     var response = await attemptSignup();
     if (response.error) {
@@ -96,52 +89,8 @@ const Signup = () => {
     }
   }
 
-  // const validate = values => {
-  //   const errors = {};
-  //   if (!values.username) {
-  //     errors.username = 'Required';
-  //   } else if (values.firstName.length > 15) {
-  //     errors.username = 'Must be 15 characters or less';
-  //   }
-
-  //   if (!values.lastName) {
-  //     errors.lastName = 'Required';
-  //   } else if (values.lastName.length > 20) {
-  //     errors.lastName = 'Must be 20 characters or less';
-  //   }
-
-  //   if (!values.email) {
-  //     errors.email = 'Required';
-  //   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-  //     errors.email = 'Invalid email address';
-  //   }
-
-  //   return errors;
-  // };
-
-  // const validateUsername = (username) => {
-  //   let errors;
-  //   if (!username) {
-  //     error = "Username is required";
-  //   }
-  //   //TODO: put in error for nonexistant username once user auth is implemented
-  //   return error;c
-
-  // const validatePassword = (password) => {
-  //   let error;
-  //   if (!password) {
-  //     error = "Password is required";
-  //   }
-  //   //TODO: put in error for incorrect password once user auth is implemented
-  //   return error;
-  // }
-
   return (
-    <div
-      className="h-screen w-screen bg-albums bg-contain bg-center flex justify-center items-center"
-      background-repeat="no-repeat"
-      background-size="cover"
-    >
+    <ScaledBackgroundDiv childPage={
       <div className="bg-background/90 p-6 rounded-xl border-4 border-mainblue">
         <div className="flex flex-col space-y-2 items-center p-6">
           <img src="/SquareLogo.png" className="h-36 w-36"></img>
@@ -178,7 +127,7 @@ const Signup = () => {
                         name="username"
                         type="username"
                         variant="filled"
-                        validate={(value) => {
+                        validate={() => {
                           let error;
 
                           if (usernameVal.length == 0) {
@@ -212,7 +161,7 @@ const Signup = () => {
                           name="password"
                           type={showPass ? "text" : "password"}
                           variant="filled"
-                          validate={(value) => {
+                          validate={() => {
                             let error;
 
                             if (passwordVal.length == 0) {
@@ -250,48 +199,45 @@ const Signup = () => {
                     >
                       Confirm Password
                     </FormLabel>
-                    <div className="bg-white rounded-lg"><InputGroup>
-                      <Field
-                        as={Input}
-                        onChange={handleConfirmPasswordChange}
-                        value={confirmPasswordVal}
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showConfirm ? "text" : "password"}
-                        variant="filled"
-                        validate={(value) => {
-                          let error;
+                    <div className="bg-white rounded-lg">
+                      <InputGroup>
+                        <Field
+                          as={Input}
+                          onChange={handleConfirmPasswordChange}
+                          value={confirmPasswordVal}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showConfirm ? "text" : "password"}
+                          variant="filled"
+                          validate={() => {
+                            let error;
 
-                          if (passwordVal !== confirmPasswordVal) {
-                            error = "Passwords must match";
-                          }
+                            if (passwordVal !== confirmPasswordVal) {
+                              error = "Passwords must match";
+                            }
 
-                          return error;
-                        }}
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          size="lg"
-                          aria-label="Show Password"
-                          icon={showConfirm ? <ViewOffIcon /> : <ViewIcon />}
-                          backgroundColor="transparent"
-                          color="#d299ff"
-                          onClick={handleShowConfirmClick}
+                            return error;
+                          }}
                         />
-                      </InputRightElement>
-                    </InputGroup></div>
-                
+                        <InputRightElement>
+                          <IconButton
+                            size="lg"
+                            aria-label="Show Password"
+                            icon={showConfirm ? <ViewOffIcon /> : <ViewIcon />}
+                            backgroundColor="transparent"
+                            color="#d299ff"
+                            onClick={handleShowConfirmClick}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                    </div>
+
                     <FormErrorMessage>
                       {errors.confirmPassword}
                     </FormErrorMessage>
                   </FormControl>
                   <div className="pt-5">
-                    <button
-                      type="submit"
-                      className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
-                    >
-                      Signup
-                    </button>
+                    <CustomButton text="Sign up" type="submit"/>
                   </div>
                 </VStack>
               </form>
@@ -305,7 +251,7 @@ const Signup = () => {
           </button>
         </div>
       </div>
-    </div>
+    } />
   );
 };
 

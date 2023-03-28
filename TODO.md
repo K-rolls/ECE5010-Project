@@ -15,9 +15,9 @@
 - [x] get reviwed albums based on uuid
 - [X] make/update review and store in database
 - [x] get reviews based on album id
-- [ ] add get album stats to /spotify/getAlbums 
-  - [ ] # of reviews
-  - [ ] average rating
+- [x] add get album stats to /spotify/getAlbums 
+  - [x] # of reviews
+  - [x] average rating
 
 ## Frontend
 - [x] flesh out welcome
@@ -27,15 +27,15 @@
   - [x] search bar
 - [ ] profile page
 - [x] album page
-  - [ ] submit review/rating
-- [ ] connect all pages
+  - [x] submit review/rating
+- [x] connect all pages
 - [ ] album collection page
-- [ ] implement profile page
-- [ ] implement album page
-- [ ] implement search to album page
+- [x] implement profile page
+- [x] implement album page
+- [x] implement search to album page
 
 # final submission
-- [ ] user sessions
-- [ ] logout
+- [x] user sessions
+- [x] logout
 - [ ] home page
 - [ ] friends page
