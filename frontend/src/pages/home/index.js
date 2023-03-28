@@ -9,7 +9,8 @@ import {
   InputRightElement,
   Divider,
   IconButton,
-  useToast
+  useToast,
+  form
 } from '@chakra-ui/react';
 
 import { SearchIcon } from '@chakra-ui/icons'
@@ -69,7 +70,7 @@ const Home = () => {
       })
     } else {
       const searchRes = JSON.stringify(response);
-      localStorage.setItem("searchResults", searchRes);
+      localStorage.setItem("searchResults", searchRes)
       Router.push("/Search");
     }
 
@@ -96,14 +97,18 @@ const Home = () => {
         >
           <img src="/SquareLogo.png" className="h-48 w-48"></img>
           <div>
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              handleSearch();
+            }}>
             <InputGroup
               size="md"
               width="500px"
               bg="white"
               borderRadius="lg"
-              boxShadow="lg"
-            >
+                boxShadow="lg">
               <Input placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+
               <InputRightElement>
                 <IconButton
                   aria-label="Search"
@@ -112,9 +117,11 @@ const Home = () => {
                   backgroundColor="white"
                   color="grey.300"
                   onClick={handleSearch}
+                    type="submit"
                 />
               </InputRightElement>
             </InputGroup>
+            </form>
           </div>
           <div className=" bg-background font-permanent-marker text-center rounded-lg text-mainblue p-4 shadow-2xl">
             <Stack spacing={1} >
