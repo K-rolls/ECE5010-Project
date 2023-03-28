@@ -1,15 +1,19 @@
 import { Text } from "@chakra-ui/react";
 
-const UserReviewTile = () => {
+function UserReviewTile({ review }) {
+
+  const reviewData = review;
+  const { id, username, rating, Review } = reviewData;
+
   return (
-    <div className="border-2 p-3 rounded-md border-accentlavender bg-white min-w-[250px] max-w-[350px]">
+    <div className="border-2 p-3 rounded-md border-accentlavender bg-white w-[350px]">
       <div className="flex flex-col space-y-2">
         <div className="flex flex-row justify-between overflow-hidden">
-          <Text className=" max-w-[120px] font-permanent-marker">DrCumSlinger</Text>
-          <Text className=" font-permanent-marker">10★</Text>
+          <Text className=" max-w-[120px] font-permanent-marker">{username}</Text>
+          <Text className=" font-permanent-marker">{rating}★</Text>
         </div>
         <Text>
-         fat Cock bob! fat cock bob! fat cock bob! fat Cock bob! 
+          {Review}
         </Text>
       </div>
     </div>

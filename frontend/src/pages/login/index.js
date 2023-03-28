@@ -97,7 +97,8 @@ const Login = () => {
     }
     else {
       console.log(response);
-      localStorage.setItem("token", response.token);
+      // localStorage.setItem("token", response.token);
+      document.cookie = `token=${response.token}; path=/; secure; SameSite=Strict`;
       const welcomeMessage = await welcome(response.token);
       toast({
         title: `${welcomeMessage.message}`,

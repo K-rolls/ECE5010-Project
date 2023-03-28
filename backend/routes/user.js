@@ -191,7 +191,7 @@ router.get('/getReviewed', async (request, response) => {
 
     // return response.json(reviewedAlbums);
     // Get the metadata associated with the top four albums and all reviewed albums
-    let albumData;
+    var albumData;
     try {
         albumData = await axios.post('http://localhost:5000/spotify/getAlbums', {
             Reviewed: albumIds

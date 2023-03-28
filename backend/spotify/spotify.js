@@ -218,7 +218,7 @@ router.post("/getAlbums", async (request, response) => {
             };
             try {
                 const albumResponse = await axios.get(albumUrl, searchOptions);
-                const { name, artists, id, images, release_date, total_tracks, type } = albumResponse.data;
+                const { name, artists, id, images, release_date, total_tracks, album_type } = albumResponse.data;
 
                 const albumDataItem = {
                     name,
@@ -227,7 +227,7 @@ router.post("/getAlbums", async (request, response) => {
                     image: images[0].url,
                     releaseDate: release_date,
                     numTracks: total_tracks,
-                    type
+                    type: album_type
                 };
 
                 return albumDataItem;
@@ -246,12 +246,26 @@ router.post("/getAlbums", async (request, response) => {
     }
 });
 
+router.get("/averageRating", async (request, response) => {
+    const albumId = request.headers.album_id;
+    const reviews = await database('reviews')
+        .select('reviews.*')
+        .where({ album_id: albumId })
+        .join('users', 'reviews.User_ID', '=', 'users.User_ID');
+    const ratings = reviews.map(review => review.rating);
+    const avgRatings = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    return response.json({
+        success: true,
+        data: avgRatings
+    });
+})
+
 router.get('/getReviews', async (request, response) => {
-    const albumId = request.body.album_id;
+    const albumId = request.headers.album_id;
 
     try {
         const reviews = await database('reviews')
-            .select('reviews.*', 'users.User_ID')
+            .select('reviews.*', 'users.username')
             .where({ album_id: albumId })
             .join('users', 'reviews.User_ID', '=', 'users.User_ID');
 
