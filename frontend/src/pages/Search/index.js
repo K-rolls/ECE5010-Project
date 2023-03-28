@@ -104,6 +104,10 @@ const Search = () => {
               <Image src="/SquareLogo.png" className="h-48 w-48" />
             </Link>
             <div>
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                handleSearch();
+              }}>
               <InputGroup
                 size="md"
                 width="500px"
@@ -124,9 +128,11 @@ const Search = () => {
                     backgroundColor="white"
                     color="grey.300"
                     onClick={() => handleSearch(searchTerm)}
+                      type="submit"
                   />
                 </InputRightElement>
               </InputGroup>
+              </form>
             </div>
             <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
