@@ -37,7 +37,7 @@ const Home = () => {
         >
           <img src="/SquareLogo.png" className="h-48 w-48"></img>
           <SearchBar />
-          <div className=" bg-background font-permanent-marker text-center rounded-lg text-mainblue p-4 shadow-2xl">
+          <div className=" bg-background font-permanent-marker text-center rounded-lg text-white p-4 shadow-2xl">
             <Stack spacing={1} >
               <Text fontSize='4xl' paddingBottom={2}> Welcome to Scaled! </Text>
               <Divider orientation='horizontal' />

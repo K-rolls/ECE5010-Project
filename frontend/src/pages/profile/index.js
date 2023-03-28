@@ -91,14 +91,14 @@ const Profile = () => {
           name="Default"
           src="/ProfileDefault.png"
         />
-        <div className="flex self-start">
-          <Text className="flex" as="b" color="white" fontSize="xl">
+        <div className="flex self-start font-permanent-marker">
+          <Text className="flex" color="white" fontSize="xl">
             {" "}
             Favourites{" "}
           </Text>
         </div>
 
-        <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4">
+        <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
           {reviews.reviews?.topFour?.map((review, index) => (
             <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md ">
               <Link href={`/Album/?id=${review?.id}`}>
@@ -109,14 +109,14 @@ const Profile = () => {
         </div>
 
         <div className="flex flex-col justify-center items-center space-y-2">
-          <div className="flex self-start">
-            <Text className="flex" as="b" color="white" fontSize="xl">
+          <div className="flex self-start font-permanent-marker">
+            <Text className="flex" color="white" fontSize="xl">
               {" "}
               Recents{" "}
             </Text>
           </div>
 
-          <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4">
+          <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
             {reviews.reviews?.recentReviews?.map((review, index) => (
               <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md ">
                 <Link href={`/Album/?id=${review?.id}`}>
@@ -128,7 +128,7 @@ const Profile = () => {
           <div className="p-12">
             <button
               onClick={() => Router.push("/Collection")}
-              className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
+              className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white shadow-2xl"
             >
               View All
             </button>
