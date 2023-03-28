@@ -183,18 +183,19 @@ router.post("/getReviewed", async (request, response) => {
   }
 
   // Get the top four reviewed albums
-  const topFourAlbums = reviewedAlbums
+  const recents = reviewedAlbums
     .slice(0, 4)
     .map((review) => review.Album_ID);
-  const albumIds = reviewedAlbums.map((review) => review.Album_ID);
 
-  // return response.json(reviewedAlbums);
-  // Get the metadata associated with the top four albums and all reviewed albums
-  var albumData;
+  // Get the top rated albums based on the user's reviews
+  let topRatedAlbums;
   try {
-    albumData = await axios.post("http://localhost:5000/spotify/getAlbums", {
-      Reviewed: albumIds,
-    });
+    topRatedAlbums = await database("reviews")
+      .select("Album_ID")
+      .where({ user_id: uuid })
+      .groupBy("Album_ID")
+      .orderByRaw("rating desc, id desc")
+      .limit(4);
   } catch (error) {
     return response.status(500).json({
       success: false,
@@ -202,17 +203,43 @@ router.post("/getReviewed", async (request, response) => {
     });
   }
 
-  const topFourImages = albumData.data.filter((album) =>
-    topFourAlbums.includes(album.id)
-  );
-  const reviewedImages = albumData.data.filter((album) =>
-    reviewedAlbums.map((review) => review.Album_ID).includes(album.id)
-  );
+  const albumIds = reviewedAlbums.map((review) => review.Album_ID);
 
-  return response.json({
-    topFour: topFourImages,
-    reviewed: reviewedImages,
-  });
+  // Get the metadata associated with the top four albums and all reviewed albums
+  try {
+    const albumData = await axios.post("http://localhost:5000/spotify/getAlbums", {
+      Reviewed: albumIds,
+    }, {
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Origin, Content-Type, Accept"
+      }
+    });
+
+    const recentImages = albumData.data.filter((album) =>
+      recents.includes(album.id)
+    );
+    const reviewedImages = albumData.data.filter((album) =>
+      reviewedAlbums.map((review) => review.Album_ID).includes(album.id)
+    );
+    const topRatedImages = albumData.data.filter((album) =>
+      topRatedAlbums.map((review) => review.Album_ID).includes(album.id)
+    );
+
+    return response.json({
+      recents: recentImages,
+      reviewed: reviewedImages,
+      topRated: topRatedImages
+    });
+  } catch (error) {
+    return response.json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
+
 
 module.exports = router;

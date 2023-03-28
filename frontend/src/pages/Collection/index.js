@@ -16,20 +16,21 @@ const Home = () => {
         justify-center
         "
         >
+            <div
+                className="flex flex-col space-y-2 justify-center items-center"
+            ><NavBar />
+                <div
+                    className="flex flex-col justify-center items-center space-y-10 p-8"
+                >
+                    <Button
+                        colorScheme='gray' size='lg' >View All
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 };
 
-<div
-    className="flex flex-col space-y-2 justify-center items-center"
-><NavBar />
-    <div
-        className="flex flex-col justify-center items-center space-y-10 p-8"
-    >
-        <Button
-            colorScheme='gray' size='lg' >View All
-        </Button>
-    </div>
-</div>
+
 
 export default Home;

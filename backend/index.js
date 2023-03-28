@@ -8,7 +8,13 @@ const spotifyRoutes = require("./spotify/spotify.js");
 const app = express();
 
 app.use(bodyParser.json());
-app.use(cors());
+const corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200,
+    credentials: true
+    // allowMethods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+};
+app.use(cors(corsOptions));
 
 const port = 5000;
 
