@@ -16,8 +16,8 @@ class Search {
     }
 
     async getSpotifyToken() {
-        const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
-        const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+        const client_id = '01c778890a1a46348091aa2b929d8a2f';
+        const client_secret = '81e7861416dd4463b1053da21d575f8b';
 
         const authOptions = {
             method: 'POST',
@@ -40,7 +40,6 @@ class Search {
     }
 
     async searchSpotifyAlbum(query, token) {
-        // console.log(query);
         const searchOptions = {
             method: 'GET',
             headers: {
@@ -116,10 +115,10 @@ class Query {
         if (q === null && decade === null) {
             console.error("Bad search query");
         } else if (q === null && decade !== null) {
-            // console.log("q is null");
+            console.log("q is null");
             this.q = decade;
         } else if (q !== null) {
-            // console.log("q is not null");
+            console.log("q is not null");
             this.q = q;
         }
         this.page = page;
@@ -134,17 +133,6 @@ class Query {
     }
 }
 
-// //? Example usage:
-// const query = new Query(null, 4, 1);
-// const search = new Search(query);
-// search.search()
-//     .then(searchResults => {
-//         console.log(searchResults);
-//     })
-//     .catch(error => {
-//         console.error(error);
-//     });
-
 // default route
 router.get('/', (request, response) => {
     return response.json({
@@ -157,8 +145,8 @@ router.get('/', (request, response) => {
 
 // gets token as a route incase needed
 router.get('/token', async (request, response) => {
-    const client_id = '01c778890a1a46348091aa2b929d8a2f'; // Your client id
-    const client_secret = '81e7861416dd4463b1053da21d575f8b'; // Your secret
+    const client_id = '01c778890a1a46348091aa2b929d8a2f';
+    const client_secret = '81e7861416dd4463b1053da21d575f8b';
 
     const authOptions = {
         method: 'POST',
@@ -185,12 +173,10 @@ router.post("/albumSearch", async (request, response) => {
 
     // Create a new Query object
     const query = new Query(q, decade, page);
-    // console.log(query);
-    // return response.json(query);
+
     const search = new Search(query);
     search.search()
         .then(searchResults => {
-            // console.log(searchResults);
             return response.json(searchResults);
         })
         .catch(error => {

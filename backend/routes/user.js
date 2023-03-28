@@ -57,17 +57,15 @@ router.post("/login", (request, response) => {
                 const areSamePasswords = results[0]
                 if (!areSamePasswords) throw new Error("wrong Password!")
                 const retrievedUser = results[1];
-                // console.log(results)
                 const payload = {
                     username: retrievedUser.username,
                     User_ID: retrievedUser.User_ID
                 };
-                //console.log(payload);
                 const secret = "SECRET"
                 return new Promise((resolve, reject) => {
                     jwt.sign(payload, secret, (error, token) => {
                         if (error) reject(new Error("Sign in error!"))
-                        resolve({ token, User_ID: retrievedUser.User_ID }); // Include user_id in response
+                        resolve({ token });
                     });
                 });
             });
@@ -214,65 +212,3 @@ router.get('/getReviewed', async (request, response) => {
 
 
 module.exports = router;
-
-////? tests
-// async function login(username, password) {
-//     try {
-//         const response = await fetch('http://localhost:5000/login', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({ user: { username, password } })
-//         });
-
-//         const contentType = response.headers.get('content-type');
-//         if (!contentType || !contentType.includes('application/json')) {
-//             throw new TypeError("Response wasn't JSON");
-//         }
-
-//         const data = await response.json();
-
-//         if (!response.ok) {
-//             throw new Error(data.message || 'Unable to login');
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//         return { error: error.message };
-//     }
-// }
-
-// async function getWelcomeMessage(token) {
-//     try {
-//         const response = await fetch('http://localhost:5000/welcome', {
-//             headers: {
-//                 'Authorization': `${token}`
-//             }
-//         });
-
-//         const data = await response.json();
-
-//         if (!response.ok) {
-//             throw new Error(data.message || 'Unable to get welcome message');
-//         }
-
-//         return data.message;
-//     } catch (error) {
-//         console.error(error);
-//         return { error: error.message };
-//     }
-// }
-
-// login('Moe', 'password123')
-//     .then(data => {
-//         if (data.error) {
-//             console.error(data.error);
-//         } else {
-//             console.log(data.token); // logged in successfully!
-//             getWelcomeMessage(data.token).then(message => {
-//                 console.log(message);
-//             })
-//         }
-//     });
