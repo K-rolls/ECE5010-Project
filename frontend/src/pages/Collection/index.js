@@ -93,9 +93,9 @@ const Home = () => {
                         </heading>
                     </div>
                     <div className="p-8 bg-background border-4 border-mainblue rounded-xl shadow-2xl">
-                        <div className="flex-1 grid grid-cols-5 gap-4">
+                        <div className="flex-1 grid grid-cols-5 gap-8">
                             {reviews.reviews?.allReviews?.map((review, index) => (
-                                <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md ">
+                                <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md shadow-2xl">
                                     <Link href={`/Album/?id=${review?.id}`}>
                                         <Image src={review?.image} />
                                     </Link>

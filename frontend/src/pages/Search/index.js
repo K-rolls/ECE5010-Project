@@ -129,15 +129,12 @@ const Search = () => {
               ))}
             </div>
 
-            <Button
-              aria-label="Next page"
-
-              backgroundColor="white"
-              color="grey.300"
+            <button
+              className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white shadow-2xl"
               onClick={() => handleSearch(localStorage.getItem(searchTerm), 1)}
             >
               Next Page
-            </Button>
+            </button>
           </div>
         </div>
 
