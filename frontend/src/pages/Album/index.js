@@ -99,7 +99,7 @@ const Album = () => {
 
         data = await response.json();
         data = data[1];
-        // console.log(data);
+        console.log(data);
         setData(prevState => ({ ...prevState, albumData: data }));
       } catch (error) {
         fetchAlbumData();
@@ -113,12 +113,6 @@ const Album = () => {
     }
   }, [id]);
 
-  // {
-  //   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IktpcmtsYW5kIiwiVXNlcl9JRCI6IjE4NTMxNmIxLTc1NTYtMzIxNS1hZDdhLTUxMDM2YjZjZWZiMyIsImlhdCI6MTY3OTk1NDAzMH0.V8RtAKHi4vzv0UDhThfA6C27e_ooaugw7fEieCmN3vY",
-  //     "albumID": "7CGhx630DIjdJqaBDVKc5j",
-  //       "review": "I love this album i am definitely Kirkland",
-  //         "rating": 10
-  // }
   function getCookie(name) {
     try {
       const cookies = document.cookie.split("; ");
@@ -193,7 +187,7 @@ const Album = () => {
     overflow-auto
     min-h-screen
     min-w-screen
-    bg-slate-400
+    bg-slate-500
     flex
     justify-center
   "
@@ -229,19 +223,50 @@ const Album = () => {
           <div className="flex flex-col space-y-1">
             <Text className="font-permanent-marker text-2xl pl-2">Stats</Text>
             <div className="flex bg-background/90 p-6 rounded-xl border-4 border-mainblue">
-              <div className=" text-xl flex flex-col space-y-1 items-start">
-                <Text className="font-permanent-marker" color="white">
-                  Average Rating: {data.avg}★
-                </Text>
-                <Text className="font-permanent-marker" color="white">
-                  Number of Reviews: {reviews.reviews?.numReviews}
-                </Text>
-                <Text className="font-permanent-marker" color="white">
-                  Release Date: {data.albumData?.releaseDate}
-                </Text>
-                <Text className="font-permanent-marker" color="white">
-                  Number of Tracks: {data.albumData?.numTracks}
-                </Text>
+              <div className=" text-xl flex flex-col w-full space-y-1 items-start">
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Average Rating :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.avg}★
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Number of Reviews :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {reviews.reviews?.numReviews}
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+
+                  <Text className="font-permanent-marker" color="white">
+                    Release Date :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.albumData?.releaseDate}
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+
+                  <Text className="font-permanent-marker" color="white">
+                    Number of Tracks :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.albumData?.numTracks}
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+
+                  <Text className="font-permanent-marker" color="white">
+                    Album Type :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.albumData?.type}
+                  </Text>
+                </div>
               </div>
             </div>
             <Text className="font-permanent-marker text-2xl pl-2">
@@ -309,7 +334,7 @@ const Album = () => {
             <Text className="font-permanent-marker self-end text-2xl pr-2">
               User Reviews
             </Text>
-            <div className="flex flex-1 bg-background/90 p-6 rounded-xl border-4 border-mainblue max-h-[620px]">
+            <div className="flex flex-1 bg-background/90 p-6 rounded-xl border-4 border-mainblue">
               <div className="flex h-[100%] flex-col space-y-3 overflow-y-auto p-1 justify-start items-center">
                 {/* {data.reviews.allReviews.map((allReviews) => (
                   <UserReviewTile key={allReviews.id} review={allReviews} />
