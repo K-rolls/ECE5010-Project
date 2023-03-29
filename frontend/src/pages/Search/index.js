@@ -1,15 +1,11 @@
-import {
-  Image,
-  Button,
-  useToast
-} from "@chakra-ui/react";
+import { Image, useToast } from "@chakra-ui/react";
 import Router from "next/router";
 import { useState } from "react";
 import AlbumTile from "../../components/AlbumTile.js";
-import NavBar from '../../components/NavBar';
-import SearchBar from '../../components/SearchBar';
-
-import Link from 'next/link';
+import NavBar from "../../components/NavBar";
+import SearchBar from "../../components/SearchBar";
+import CustomButton from "../../components/CustomButton";
+import Link from "next/link";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,7 +74,7 @@ const Search = () => {
 
   const handleAlbumClick = (album) => {
     console.log("Album clicked:", album);
-  }
+  };
 
   try {
     var searchResults = localStorage.getItem("searchResults");
@@ -101,9 +97,9 @@ const Search = () => {
                     justify-center
                     overflow-y-scroll
                     "
-      ><NavBar />
+      >
+        <NavBar />
         <div className="flex flex-col space-y-2 justify-center items-center">
-
           <div className="flex flex-col justify-center items-center space-y-10 p-8">
             <Link href="/home">
               <Image src="/SquareLogo.png" className="h-48 w-48" />
@@ -111,7 +107,11 @@ const Search = () => {
             <SearchBar />
             <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
-                <AlbumTile key={index} album={JSON.stringify(album)} onClick={() => handleAlbumClick(album)}>
+                <AlbumTile
+                  key={index}
+                  album={JSON.stringify(album)}
+                  onClick={() => handleAlbumClick(album)}
+                >
                   <div className="p-4">
                     {album.image ? (
                       <Image
@@ -128,17 +128,13 @@ const Search = () => {
                 </AlbumTile>
               ))}
             </div>
-
-            <button
-              className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white shadow-2xl"
+            <CustomButton
+              text="Next Page"
               onClick={() => handleSearch(localStorage.getItem(searchTerm), 1)}
-            >
-              Next Page
-            </button>
+            />
           </div>
         </div>
-
-      </div >
+      </div>
     );
   } catch (error) {
     console.error(error);
