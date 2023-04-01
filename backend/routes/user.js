@@ -193,9 +193,11 @@ router.post("/getReviewed", async (request, response) => {
     topRatedAlbums = await database("reviews")
       .select("Album_ID")
       .where({ user_id: uuid })
-      .groupBy("Album_ID")
-      .orderByRaw("rating desc, id desc")
+      .orderByRaw("CAST(rating AS INTEGER) DESC, id DESC")
       .limit(4);
+
+
+    console.log(topRatedAlbums);
   } catch (error) {
     return response.status(500).json({
       success: false,
@@ -226,7 +228,13 @@ router.post("/getReviewed", async (request, response) => {
     );
     const topRatedImages = albumData.data.filter((album) =>
       topRatedAlbums.map((review) => review.Album_ID).includes(album.id)
-    );
+    ).sort((a, b) => {
+      const aIndex = topRatedAlbums.findIndex((review) => review.Album_ID === a.id);
+      const bIndex = topRatedAlbums.findIndex((review) => review.Album_ID === b.id);
+      return aIndex - bIndex;
+    });
+
+    console.log(topRatedImages);
 
     return response.json({
       recents: recentImages,
