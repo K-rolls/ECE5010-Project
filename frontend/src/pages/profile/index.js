@@ -1,7 +1,8 @@
-import { Avatar, Image, Text, Button, Link } from "@chakra-ui/react";
+import { Avatar, Image, Text, Link } from "@chakra-ui/react";
 import Router from "next/router";
 import NavBar from "../../components/NavBar";
 import { useState, useEffect } from "react";
+import CustomButton from "@/components/CustomButton";
 
 const Profile = () => {
   const [reviews, setReviews] = useState({});
@@ -21,20 +22,17 @@ const Profile = () => {
       return null;
     } catch (error) {
       console.error(error);
-      // Router.useRouter().push("/");
       return null;
     }
   }
 
   const token = getCookie("token");
-  //console.log(token);
 
   useEffect(() => {
     async function fetchReviews() {
-      // let data.reviews.allReviews.entries = {};
       try {
         var req = {
-          "token": token,
+          token: token,
         };
         console.log(req);
 
@@ -51,7 +49,6 @@ const Profile = () => {
         var recentReviews = data.recents;
         var allReviews = data.reviewed;
         var topFour = data.topRated;
-        // topFour = topFour.reverse();
         console.log(recentReviews);
 
         setReviews((prevState) => ({
@@ -71,13 +68,15 @@ const Profile = () => {
   return (
     <div
       className="
+        min-h-screen
+        max-w-screen
         h-screen
-        w-screen 
         bg-slate-500
         flex
         items-start
-        p-10
+        p-7
         justify-center
+overflow-y-auto
         "
     >
       <NavBar />
@@ -100,7 +99,10 @@ const Profile = () => {
 
         <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
           {reviews.reviews?.topFour?.map((review, index) => (
-            <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md ">
+            <div
+              key={index}
+              className="h-[175px] w-[175px] border-4 border-white rounded-md "
+            >
               <Link href={`/Album/?id=${review?.id}`}>
                 <Image src={review?.image} />
               </Link>
@@ -118,20 +120,21 @@ const Profile = () => {
 
           <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
             {reviews.reviews?.recentReviews?.map((review, index) => (
-              <div key={index} className="h-[175px] w-[175px] border-4 border-white rounded-md ">
+              <div
+                key={index}
+                className="h-[175px] w-[175px] border-4 border-white rounded-md "
+              >
                 <Link href={`/Album/?id=${review?.id}`}>
                   <Image src={review?.image} />
                 </Link>
               </div>
             ))}
           </div>
-          <div className="p-12">
-            <button
+          <div className="p-4">
+            <CustomButton
+              text="View All"
               onClick={() => Router.push("/Collection")}
-              className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-12 w-32 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white shadow-2xl"
-            >
-              View All
-            </button>
+            />
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 # To-do List
+- [x] fix floating point decimal places on ALbum page
 ## Backend
 - [x] Fix router
 - [x] add classes to spotify request 
@@ -25,11 +26,11 @@
 - [x] create login
 - [x] create home page
   - [x] search bar
-- [ ] profile page
+- [x] profile page
 - [x] album page
   - [x] submit review/rating
 - [x] connect all pages
-- [ ] album collection page
+- [x] album collection page
 - [x] implement profile page
 - [x] implement album page
 - [x] implement search to album page
@@ -39,3 +40,4 @@
 - [x] logout
 - [ ] home page
 - [ ] friends page
+- [ ] user profile page

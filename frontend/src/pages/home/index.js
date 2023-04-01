@@ -19,13 +19,15 @@ const Home = () => {
   return (
     <div
       className="
-        h-screen
-        w-screen 
-        bg-slate-500
-        flex
-        items-start
-        p-10
-        justify-center
+      min-h-screen
+      max-w-screen
+      h-screen
+      bg-slate-500
+      flex
+      items-start
+      p-7
+      justify-center
+      overflow-y-auto 
         "
     >
       <div
