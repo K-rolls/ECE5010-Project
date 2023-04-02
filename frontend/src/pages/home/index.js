@@ -100,10 +100,6 @@ const Home = () => {
                 </div>
               </Stack>
             )}
-            <CustomButton
-              text="More Reviews"
-              onClick={handleClick}
-            />
           </div>
 
           <style>
@@ -114,7 +110,10 @@ const Home = () => {
             `}
           </style>
 
-
+          <CustomButton
+            text="More Reviews"
+            onClick={handleClick}
+          />
         </div>
       </div>
     </div >
