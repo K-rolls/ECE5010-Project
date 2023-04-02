@@ -191,12 +191,12 @@ const Album = () => {
         bg-slate-500
         flex
         items-start
-        p-7
+        p-4
         justify-center
         overflow-y-auto  "
     >
       <NavBar />
-      <div className="flex flex-col space-y-4 justify-center items-center">
+      <div className="flex flex-col space-y-2 justify-center items-center">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
           <img
             src={data.albumData && data.albumData.image}
@@ -276,7 +276,7 @@ const Album = () => {
               Write a review!
             </Text>
             <form onSubmit={handleSubmit}>
-              <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue min-h-[400px] min-w-[400px]">
+              <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue min-h-[360px] min-w-[400px]">
                 <div className="flex flex-col grow space-y-2 justify-center items-center p-4">
                   <Slider
                     onChange={(val) => setSliderValue(val)}
@@ -316,17 +316,11 @@ const Album = () => {
                     focusBorderColor="#d299ff"
                     _hover={false}
                     resize="none"
-                    minHeight="180px"
+                    minHeight="164px"
                     maxLength="255"
                   />
-                  <div className="pt-4">
+                  <div className="pt-4 pb-0">
                     <CustomButton text="Submit" type="submit" />
-                    {/* <button
-                      type="submit"
-                      className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-10 w-28 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
-                    >
-                      Submit
-                    </button> */}
                   </div>
                 </div>
               </div>
@@ -337,12 +331,22 @@ const Album = () => {
               User Reviews
             </Text>
             <div className="flex flex-1 bg-background p-6 rounded-xl border-4 border-mainblue">
-              <div className="flex h-[100%] flex-col space-y-3 overflow-y-auto p-1 justify-start items-center">
+              <div style={{ height: "570px", overflowY: "scroll", scrollbarWidth: "none", borderRadius: "10px", padding: "10px", scrollPadding: "10px" }}>
                 {reviews.reviews?.allReviews.map((allReviews) => (
-                  <UserReviewTile key={allReviews.id} review={allReviews} />
+                  <div className="pb-2">
+                    <UserReviewTile key={allReviews.id} review={allReviews} />
+                  </div>
                 ))}
               </div>
+              <style>
+                {`
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    `}
+              </style>
             </div>
+
           </div>
         </div>
       </div>

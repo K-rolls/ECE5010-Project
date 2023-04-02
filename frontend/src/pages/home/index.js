@@ -1,13 +1,11 @@
 import {
-  Text,
+  Spinner,
   Stack,
-  Divider,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import NavBar from '../../components/NavBar';
 import SearchBar from '../../components/SearchBar';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import FeedReviewTile from '../../components/FeedReviewTile';
 import CustomButton from '../../components/CustomButton';
 
@@ -15,6 +13,7 @@ const Home = () => {
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [len, setLen] = useState(1);
+  const scrollableDivRef = useRef(null);
 
   try {
     localStorage.setItem("searchTerm", "null");
@@ -54,8 +53,10 @@ const Home = () => {
     console.log("clicked: " + len);
     if (len < 0) {
       setLen(1);
+      scrollableDivRef.current.scrollTo(0, 0);
     } else {
       setLen(len + 1);
+      scrollableDivRef.current.scrollTo(0, 0);
     }
   }
 
@@ -82,14 +83,21 @@ const Home = () => {
           <img src="/SquareLogo.png" className="h-48 w-48"></img>
 
           <SearchBar />
-
-          <div style={{ height: "calc(100vh - 100px)", overflowY: "scroll", scrollbarWidth: "none", borderRadius: "10px", padding: "10px" }}>
+          <div className='shadow-bottom'>
+            <div style={{ height: "calc(100vh - 100px)", overflowY: "scroll", scrollbarWidth: "none", borderRadius: "10px", padding: "10px", flexGrow: 1 }} ref={scrollableDivRef}>
             {isLoading ? (
-              <p>Loading...</p>
-            ) : (
-              <Stack spacing={10}>
+                <Spinner
+                  thickness='4px'
+                  speed='0.65s'
+                  emptyColor='gray.200'
+                  color='blue.500'
+                  size='xl'
+                />
+              ) : (
                 <div>
                     {reviews?.map(({ album, Review, rating, username, index }) => (
+                    <div className='pb-2'>
+
                     <FeedReviewTile
                       key={index}
                       album={album}
@@ -97,12 +105,19 @@ const Home = () => {
                       rating={rating}
                       username={username}
                     />
+                    </div>
+
                   ))}
                 </div>
-              </Stack>
-            )}
-          </div>
 
+            )}
+              <div className="flex flex-col justify-center items-center space-y-5">
+                <CustomButton
+                  text="More Reviews"
+                  onClick={handleClick}
+                />
+              </div>
+            </div>
           <style>
             {`
               ::-webkit-scrollbar {
@@ -110,11 +125,7 @@ const Home = () => {
               }
             `}
           </style>
-
-          <CustomButton
-            text="More Reviews"
-            onClick={handleClick}
-          />
+          </div>
         </div>
       </div>
     </div >

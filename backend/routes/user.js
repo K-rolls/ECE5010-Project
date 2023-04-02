@@ -229,10 +229,10 @@ router.post("/getReviewed", async (request, response) => {
 router.post("/getAllReviews", async (request, response) => {
   try {
     const numReviews = request.body.num;
-    console.log(numReviews);
+    // console.log(numReviews);
     const offset = (numReviews > 0) ? (numReviews - 1) * 10 : 0;
     const countResult = await database("reviews").count("id as count").first();
-    console.log(countResult.count, offset);
+    // console.log(countResult.count, offset);
     const count = countResult.count;
     if (offset >= count) {
       // The requested offset exceeds the number of entries in the database
