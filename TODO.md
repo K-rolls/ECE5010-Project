@@ -1,4 +1,5 @@
 # To-do List
+- [x] fix floating point decimal places on ALbum page
 ## Backend
 - [x] Fix router
 - [x] add classes to spotify request 
@@ -46,3 +47,4 @@
 - [x] logout
 - [ ] home page
 - [ ] friends page
+- [ ] user profile page

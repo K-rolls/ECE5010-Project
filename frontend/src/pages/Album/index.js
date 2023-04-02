@@ -9,11 +9,11 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { useRouter, Router } from "next/router";
+import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import UserReviewTile from "../../components/UserReviewTile.js";
-import NavBar from '../../components/NavBar';
-
+import NavBar from "../../components/NavBar";
+import CustomButton from "@/components/CustomButton.js";
 
 const Album = () => {
   const [sliderValue, setSliderValue] = useState(0);
@@ -27,24 +27,24 @@ const Album = () => {
   useEffect(() => {
     async function fetchReviews() {
       try {
-        var response = await fetch(
-          "http://localhost:5000/spotify/getReviews",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              album_id: id,
-            },
-          }
-        );
+        var response = await fetch("http://localhost:5000/spotify/getReviews", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            album_id: id,
+          },
+        });
         const data = await response.json();
         var numReviews = Object.values(data.data).length;
         var allReviews = data.data;
 
-        setReviews(prevState => ({ ...prevState, reviews: { numReviews, allReviews } }));
+        setReviews((prevState) => ({
+          ...prevState,
+          reviews: { numReviews, allReviews },
+        }));
       } catch (error) {
         console.error(error);
-        setReviews(prevState => ({ ...prevState, reviews: null }));
+        setReviews((prevState) => ({ ...prevState, reviews: null }));
       }
     }
     async function getAverage() {
@@ -60,12 +60,14 @@ const Album = () => {
           }
         );
         const data = await response.json();
-        const value = data.data;
-
-        setData(prevState => ({ ...prevState, avg: value }));
+        var value = data?.data;
+        if (value !== undefined) {
+          value = Math.round(value * 100) / 100;
+        }
+        setData((prevState) => ({ ...prevState, avg: value }));
       } catch (error) {
         console.error(error);
-        setData(prevState => ({ ...prevState, avg: null }));
+        setData((prevState) => ({ ...prevState, avg: null }));
       }
     }
     async function fetchAlbumData() {
@@ -88,7 +90,7 @@ const Album = () => {
 
         data = await response.json();
         data = data[1];
-        setData(prevState => ({ ...prevState, albumData: data }));
+        setData((prevState) => ({ ...prevState, albumData: data }));
       } catch (error) {
         fetchAlbumData();
         getAverage();
@@ -115,38 +117,32 @@ const Album = () => {
       return null;
     } catch (error) {
       console.error(error);
-      // Router.useRouter().push("/");
       return null;
     }
   }
 
   const token = getCookie("token");
-  console.log(token);
 
   async function makeReview(review, rating) {
     try {
       var req = {
-        "token": token,
-        "albumID": id,
-        "review": review,
-        "rating": rating,
+        token: token,
+        albumID: id,
+        review: review,
+        rating: rating,
       };
 
-      const response = await fetch(
-        "http://localhost:5000/user/makeReview",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(req),
-        }
-      );
+      const response = await fetch("http://localhost:5000/user/makeReview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req),
+      });
       const success = await response.json();
       console.log(success);
       return success;
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
       return error;
     }
@@ -189,18 +185,23 @@ const Album = () => {
   return (
     <div
       className="
-    overflow-auto
-    min-h-screen
-    min-w-screen
-    bg-slate-500
-    flex
-    justify-center
-  "
+        min-h-screen
+        max-w-screen
+        h-screen
+        bg-slate-500
+        flex
+        items-start
+        p-7
+        justify-center
+        overflow-y-auto  "
     >
-      <div className="flex flex-col space-y-4 justify-center items-center p-10">
-        <NavBar />
+      <NavBar />
+      <div className="flex flex-col space-y-4 justify-center items-center">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
-          <img src={data.albumData && data.albumData.image} className="h-40 w-40"></img>
+          <img
+            src={data.albumData && data.albumData.image}
+            className="h-40 w-40"
+          ></img>
         </div>
         <div className="flex flex-col justify-center items-center space-y-0">
           <div>
@@ -227,7 +228,7 @@ const Album = () => {
         <div className="flex flex-row space-x-2">
           <div className="flex flex-col space-y-1">
             <Text className="font-permanent-marker text-2xl pl-2">Stats</Text>
-            <div className="flex bg-background/90 p-6 rounded-xl border-4 border-mainblue">
+            <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue">
               <div className=" text-xl flex flex-col w-full space-y-1 items-start">
                 <div className="flex flex-row w-full justify-between items-between">
                   <Text className="font-permanent-marker" color="white">
@@ -246,7 +247,6 @@ const Album = () => {
                   </Text>
                 </div>
                 <div className="flex flex-row w-full justify-between items-between">
-
                   <Text className="font-permanent-marker" color="white">
                     Release Date :
                   </Text>
@@ -255,7 +255,6 @@ const Album = () => {
                   </Text>
                 </div>
                 <div className="flex flex-row w-full justify-between items-between">
-
                   <Text className="font-permanent-marker" color="white">
                     Number of Tracks :
                   </Text>
@@ -264,7 +263,6 @@ const Album = () => {
                   </Text>
                 </div>
                 <div className="flex flex-row w-full justify-between items-between">
-
                   <Text className="font-permanent-marker" color="white">
                     Album Type :
                   </Text>
@@ -278,7 +276,7 @@ const Album = () => {
               Write a review!
             </Text>
             <form onSubmit={handleSubmit}>
-              <div className="flex bg-background/90 p-6 rounded-xl border-4 border-mainblue min-h-[400px] min-w-[400px]">
+              <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue min-h-[400px] min-w-[400px]">
                 <div className="flex flex-col grow space-y-2 justify-center items-center p-4">
                   <Slider
                     onChange={(val) => setSliderValue(val)}
@@ -322,14 +320,13 @@ const Album = () => {
                     maxLength="255"
                   />
                   <div className="pt-4">
-                    {/* <Link href={`/Album/?id=${nextId}`}> */}
-                    <button
+                    <CustomButton text="Submit" type="submit" />
+                    {/* <button
                       type="submit"
                       className="font-permanent-marker bg-mainblue hover:bg-accentlavender h-10 w-28 hover:scale-105 opacity-100 rounded-lg font-extrabold text-background hover:text-white"
                     >
                       Submit
-                    </button>
-                    {/* </Link> */}
+                    </button> */}
                   </div>
                 </div>
               </div>
@@ -339,11 +336,8 @@ const Album = () => {
             <Text className="font-permanent-marker self-end text-2xl pr-2">
               User Reviews
             </Text>
-            <div className="flex flex-1 bg-background/90 p-6 rounded-xl border-4 border-mainblue">
+            <div className="flex flex-1 bg-background p-6 rounded-xl border-4 border-mainblue">
               <div className="flex h-[100%] flex-col space-y-3 overflow-y-auto p-1 justify-start items-center">
-                {/* {data.reviews.allReviews.map((allReviews) => (
-                  <UserReviewTile key={allReviews.id} review={allReviews} />
-                ))} */}
                 {reviews.reviews?.allReviews.map((allReviews) => (
                   <UserReviewTile key={allReviews.id} review={allReviews} />
                 ))}
