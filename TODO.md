@@ -46,9 +46,8 @@
 - [x] user sessions
 - [x] logout
 - [x] home page
-- [ ] user profile page
+- [ ] user profile page customization
 - [ ] tracklist
-- [ ] profile customization 
 - [ ] album search
 - [ ] search filtering for albums
 - [x] fix album page
