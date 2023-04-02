@@ -225,5 +225,44 @@ router.post("/getReviewed", async (request, response) => {
   }
 });
 
+// gets all reviews and their associated album data
+router.post("/getAllReviews", async (request, response) => {
+  try {
+    const numReviews = request.body.num;
+    console.log(numReviews);
+    const offset = (numReviews > 0) ? (numReviews - 1) * 10 : 0;
+    const countResult = await database("reviews").count("id as count").first();
+    console.log(countResult.count, offset);
+    const count = countResult.count;
+    if (offset >= count) {
+      // The requested offset exceeds the number of entries in the database
+      return response.json({ success: false, error: "Requested offset exceeds the number of entries in the database" });
+    }
+
+    const reviews = await database("reviews").select("*").orderByRaw("id DESC").limit(10).offset(offset);
+    // console.log(reviews);
+    const albumIds = reviews.map(review => review.Album_ID);
+    // console.log(albumIds);
+    const albumDataResponse = await axios.post('http://localhost:5000/spotify/getAlbums', { Reviewed: albumIds });
+    const albumData = albumDataResponse.data.slice(1);
+
+    const reviewsWithAlbumData = [];
+
+    for (let i = 0; i < reviews.length; i++) {
+      const review = reviews[i];
+      const album = albumData.find(album => album.id === review.Album_ID);
+
+      const user = await database("users").select("username").where({ User_ID: review.User_ID }).first();
+      const username = user ? user.username : "unknown";
+
+      reviewsWithAlbumData.push({ ...review, album, username });
+    }
+
+    return response.json({ reviews: reviewsWithAlbumData });
+  } catch (error) {
+    return response.json({ error: error.message });
+  }
+});
+
 
 module.exports = router;
