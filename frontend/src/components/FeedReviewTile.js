@@ -1,57 +1,39 @@
 import { Image, Text, Button } from "@chakra-ui/react";
-import { AlbumTile } from "./AlbumTile.js";
+import Link from "next/link";
 
-function FeedReviewTile({ review, album }) {
-
-    // var albumArt = JSON.parse(album);
-
-    var reviewData = review;
-    console.log(review, album);
-
-    // const reviewData = review?.data;
-    // const { username, rating, Review } = reviewData?.data;
-    const username = "Kirkland"
-    const rating = "6"
-    const Review = "CUM"
-
+function FeedReviewTile({ album, review, rating, username }) {
     const handleAlbumClick = (album) => {
         console.log("Album clicked:", album);
     };
 
     return (
-        < div className="border-2 p-3 rounded-md border-accentlavender bg-white w-[350px]" >
-            <div className="flex flex-col space-y-2">
-                <div className="flex flex-row justify-between overflow-hidden">
-                    <AlbumTile
-                        // key={index}
-                        album={JSON.stringify(album)}
-                        onClick={() => handleAlbumClick(album)}
+        <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[600px] max-h-[250px] border-mainblue">
+            <div className="flex flex-row space-x-4">
+                <Link href={`/Album/?id=${album.id}`}>
+                    <button
+                        // disabled={loading}
+                        className="border-[4px] border-white rounded-md"
                     >
-                        <div className="p-4">
-                            {album.image ? (
-                                <Image
-                                    src={album.image}
-                                    alt={album.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-500">
-                                    <span className="text-xl">No Image</span>
-                                </div>
-                            )}
+                        <Image src={album.image} alt={album.name} boxSize="167px" objectFit="cover" />
+                    </button>
+                </Link>
+                <div className="flex flex-col space-y-2 text-white max-w-[500px]">
+                    <div className="flex flex-row overflow-hidden space-x-2">
+                        <img src="/favicon-32x32.png" alt="profile picture" className="w-8 h-8 rounded-full" />
+                        <Text className="font-permanent-marker">{username}</Text>
+                        <Text className="flex font-permanent-marker justify-end">{rating}★</Text>
+                    </div>
+                    {review && (
+                        <div className="border-2 p-3 rounded-md border-accentlavender text-black bg-white w-[500px]">
+                            <Text>{review}</Text>
                         </div>
-                    </AlbumTile>
-                    <Text className=" max-w-[120px] font-permanent-marker">{username}</Text>
-                    <Text className=" font-permanent-marker">{rating}★</Text>
+                    )}
+
                 </div>
-                <Text>
-                    {Review}
-                </Text>
+
             </div>
-        </div >
-
+        </div>
     );
-
 }
 
 export default FeedReviewTile;

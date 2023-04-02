@@ -16,8 +16,8 @@ class Search {
     }
 
     async getSpotifyToken() {
-        const client_id = '01c778890a1a46348091aa2b929d8a2f';
-        const client_secret = '81e7861416dd4463b1053da21d575f8b';
+        const client_id = '285835dbab1546fa8f45b13521cc5506';
+        const client_secret = '918e2614bbfb4983830528e84d22d9dc';
 
         const authOptions = {
             method: 'POST',
@@ -145,8 +145,8 @@ router.get('/', (request, response) => {
 
 // gets token as a route incase needed
 router.get('/token', async (request, response) => {
-    const client_id = '01c778890a1a46348091aa2b929d8a2f';
-    const client_secret = '81e7861416dd4463b1053da21d575f8b';
+    const client_id = '285835dbab1546fa8f45b13521cc5506';
+    const client_secret = '918e2614bbfb4983830528e84d22d9dc';
 
     const authOptions = {
         method: 'POST',
@@ -189,48 +189,40 @@ router.post("/getAlbums", async (request, response) => {
     try {
         const indices = Object.values(request.body.Reviewed);
         const len = indices.length;
+        const albumIds = indices.join(',');
 
         const tokenResponse = await axios.get('http://localhost:5000/spotify/token');
         const token = tokenResponse.data.token;
 
-        const albumPromises = indices.map(async albumId => {
-            const albumUrl = `https://api.spotify.com/v1/albums/${albumId}`;
-            const searchOptions = {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
+        const albumUrl = `https://api.spotify.com/v1/albums?ids=${albumIds}`;
+        const searchOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        };
+        const albumResponse = await axios.get(albumUrl, searchOptions);
+        const albumData = albumResponse.data.albums.map(album => {
+            const { name, artists, id, images, release_date, total_tracks, album_type } = album;
+            return {
+                name,
+                artists: artists.map(artist => artist.name).join(", "),
+                id,
+                image: images[0].url,
+                releaseDate: release_date,
+                numTracks: total_tracks,
+                type: album_type
             };
-            try {
-                const albumResponse = await axios.get(albumUrl, searchOptions);
-                const { name, artists, id, images, release_date, total_tracks, album_type } = albumResponse.data;
-
-                const albumDataItem = {
-                    name,
-                    artists: artists.map(artist => artist.name).join(", "),
-                    id,
-                    image: images[0].url,
-                    releaseDate: release_date,
-                    numTracks: total_tracks,
-                    type: album_type
-                };
-
-                return albumDataItem;
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
         });
-
-        const albumData = [{ len: len }, ...(await Promise.all(albumPromises)).filter(item => item !== null)];
-
+        albumData.unshift({ len: len });
         return response.json(albumData);
     } catch (error) {
         console.error(error);
         return response.status(500).send(error.message);
     }
 });
+
 
 router.get("/averageRating", async (request, response) => {
     const albumId = request.headers.album_id;
