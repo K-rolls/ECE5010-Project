@@ -30,24 +30,25 @@ const Home = () => {
       try {
         const response = await axios.post("http://localhost:5000/user/getAllReviews", {
           "num": len,
-          // add any other headers you need here
         });
+        if (response.data.success === false) {
+          setLen(1);
+        }
         if (typeof response.data === 'object') {
-          setReviews(response.data.reviews); // Wrap the object in an array
+          setReviews(response.data.reviews);
         } else if (Array.isArray(response.data)) {
           setReviews(response.data.reviews);
         }
         setIsLoading(false);
+
       } catch (error) {
-        if (error.message === "Requested offset exceeds the number of entries in the database") {
-          console.error(error);
-          setLen(1);
-        }
+        console.error(error);
+        setLen(1);
       }
     }
-
     fetchReviews();
   }, [len]);
+
 
   function handleClick() {
     console.log("clicked: " + len);
@@ -88,7 +89,7 @@ const Home = () => {
             ) : (
               <Stack spacing={10}>
                 <div>
-                  {reviews.map(({ album, Review, rating, username, index }) => (
+                    {reviews?.map(({ album, Review, rating, username, index }) => (
                     <FeedReviewTile
                       key={index}
                       album={album}
