@@ -1,11 +1,13 @@
-import { Avatar, Image, Text, Link } from "@chakra-ui/react";
+import { Avatar, Image, Text, Link, Spinner } from "@chakra-ui/react";
 import Router from "next/router";
-import NavBar from "../../components/NavBar";
+import NavBar from "@/components/NavBar";
 import { useState, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 
 const Profile = () => {
   const [reviews, setReviews] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
   var user = false;
   function getCookie(name) {
     try {
@@ -58,6 +60,8 @@ const Profile = () => {
       } catch (error) {
         console.error(error);
         setReviews((prevState) => ({ ...prevState, reviews: null }));
+      } finally {
+        setIsLoading(false);
       }
     }
     if (token) {
@@ -96,18 +100,25 @@ overflow-y-auto
             Favourites{" "}
           </Text>
         </div>
-
-        <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
-          {reviews.reviews?.topFour?.map((review, index) => (
-            <div
-              key={index}
-              className="h-[175px] w-[175px] border-4 border-white rounded-md "
-            >
-              <Link href={`/Album/?id=${review?.id}`}>
-                <Image src={review?.image} />
-              </Link>
+        <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <Spinner thickness="4px" speed="0.65s" color="white" size="xl" />
             </div>
-          ))}
+          ) : (
+            <div className="flex flex-row items-center space-x-8 ">
+              {reviews.reviews?.topFour?.map((review, index) => (
+                <div
+                  key={index}
+                  className="h-[175px] w-[175px] border-4 border-white rounded-md "
+                >
+                  <Link href={`/Album/?id=${review?.id}`}>
+                    <Image src={review?.image} />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}{" "}
         </div>
 
         <div className="flex flex-col justify-center items-center space-y-2">
@@ -118,18 +129,32 @@ overflow-y-auto
             </Text>
           </div>
 
-          <div className="flex flex-row items-center space-x-8 bg-background p-4 rounded-xl border-mainblue border-4 shadow-2xl">
-            {reviews.reviews?.recentReviews?.map((review, index) => (
-              <div
-                key={index}
-                className="h-[175px] w-[175px] border-4 border-white rounded-md "
-              >
-                <Link href={`/Album/?id=${review?.id}`}>
-                  <Image src={review?.image} />
-                </Link>
+          <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <Spinner
+                  thickness="4px"
+                  speed="0.65s"
+                  color="white"
+                  size="xl"
+                />
               </div>
-            ))}
+            ) : (
+              <div className="flex flex-row items-center space-x-8 ">
+                {reviews.reviews?.recentReviews?.map((review, index) => (
+                  <div
+                    key={index}
+                    className="h-[175px] w-[175px] border-4 border-white rounded-md "
+                  >
+                    <Link href={`/Album/?id=${review?.id}`}>
+                      <Image src={review?.image} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}{" "}
           </div>
+
           <div className="p-4">
             <CustomButton
               text="View All"

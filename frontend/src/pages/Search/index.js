@@ -1,11 +1,12 @@
 import { Image, useToast } from "@chakra-ui/react";
-import Router from "next/router";
 import { useState } from "react";
-import AlbumTile from "../../components/AlbumTile.js";
-import NavBar from "../../components/NavBar";
-import SearchBar from "../../components/SearchBar";
-import CustomButton from "../../components/CustomButton";
+import Router from "next/router";
 import Link from "next/link";
+import NavBar from "@/components/NavBar";
+import SearchBar from "@/components/SearchBar";
+import AlbumTile from "@/components/AlbumTile";
+import ScaledLogo from "@/components/ScaledLogo";
+import CustomButton from "@/components/CustomButton";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,21 +89,21 @@ const Search = () => {
     return (
       <div
         className="
-                    h-screen
-                    w-screen 
-                    bg-slate-500
-                    flex
-                    items-start
-                    p-10
-                    justify-center
-                    overflow-y-scroll
-                    "
+          min-h-screen
+          max-w-screen
+          h-screen
+          bg-slate-500
+          flex
+          items-start
+          justify-center
+          overflow-y-auto 
+          "
       >
         <NavBar />
-        <div className="flex flex-col space-y-2 justify-center items-center">
-          <div className="flex flex-col justify-center items-center space-y-10 p-8">
+        <div className="flex flex-col space-y-2 justify-center items-center p-8">
+          <div className="flex flex-col justify-center items-center space-y-5">
             <Link href="/home">
-              <Image src="/SquareLogo.png" className="h-48 w-48" />
+              <ScaledLogo />
             </Link>
             <SearchBar />
             <div className="flex-1 grid grid-cols-5 gap-4">
@@ -134,6 +135,13 @@ const Search = () => {
             />
           </div>
         </div>
+        <style>
+          {`
+              ::-webkit-scrollbar {
+                display: none;
+              }
+            `}
+        </style>
       </div>
     );
   } catch (error) {

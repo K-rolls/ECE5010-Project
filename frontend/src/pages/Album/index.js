@@ -11,8 +11,8 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import UserReviewTile from "../../components/UserReviewTile.js";
-import NavBar from "../../components/NavBar";
+import UserReviewTile from "@components/UserReviewTile.js";
+import NavBar from "@components/NavBar";
 import CustomButton from "@/components/CustomButton.js";
 
 const Album = () => {
