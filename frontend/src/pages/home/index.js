@@ -2,12 +2,13 @@ import {
   Spinner,
   Stack,
 } from '@chakra-ui/react';
-import axios from 'axios';
-import NavBar from '../../components/NavBar';
-import SearchBar from '../../components/SearchBar';
-import { useEffect, useState, useRef } from 'react';
-import FeedReviewTile from '../../components/FeedReviewTile';
-import CustomButton from '../../components/CustomButton';
+import axios from "axios";
+import { useEffect, useState, useRef } from "react";
+import NavBar from "@/components/NavBar";
+import SearchBar from "@/components/SearchBar";
+import FeedReviewTile from "@/components/FeedReviewTile";
+import CustomButton from "@/components/CustomButton";
+import ScaledLogo from "@/components/ScaledLogo";
 
 const Home = () => {
   const [reviews, setReviews] = useState([]);
@@ -27,27 +28,30 @@ const Home = () => {
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const response = await axios.post("http://localhost:5000/user/getAllReviews", {
-          "num": len,
-        });
+        const response = await axios.post(
+          "http://localhost:5000/user/getAllReviews",
+          {
+            num: len,
+          }
+        );
         if (response.data.success === false) {
           setLen(1);
-        }
-        if (typeof response.data === 'object') {
+          setIsLoading(true);
+        } else if (typeof response.data === "object") {
           setReviews(response.data.reviews);
+          setIsLoading(false);
         } else if (Array.isArray(response.data)) {
           setReviews(response.data.reviews);
+          setIsLoading(false);
         }
-        setIsLoading(false);
-
       } catch (error) {
         console.error(error);
         setLen(1);
+        setIsLoading(true);
       }
     }
     fetchReviews();
   }, [len]);
-
 
   function handleClick() {
     console.log("clicked: " + len);
@@ -65,61 +69,56 @@ const Home = () => {
   return (
     <div
       className="
-      min-h-screen
-      max-w-screen
-      h-screen
-      bg-slate-500
-      flex
-      items-start
-      justify-center
-      overflow-y-auto 
+        min-h-screen
+        max-w-screen
+        h-screen
+        bg-slate-500
+        flex
+        items-start
+        justify-center
+        overflow-y-auto 
         "
     >
-      <div
-        className="flex flex-col justify-center items-center p-10 "
-      >
-        <NavBar />
-        <div
-          className="flex flex-col justify-center items-center space-y-5"
-        >
-          <img src="/SquareLogo.png" className="h-48 w-48"></img>
-
+      <NavBar />
+      <div className="flex flex-col space-y-2 justify-center items-center p-8">
+        <div className="flex flex-col justify-center items-center space-y-5">
+          <ScaledLogo />
           <SearchBar />
-          <div className='shadow-bottom'>
-            <div style={{ height: "calc(100vh - 100px)", overflowY: "scroll", scrollbarWidth: "none", borderRadius: "10px", padding: "10px", flexGrow: 1 }} ref={scrollableDivRef}>
+          <div
+            className="rounded-lg ps-4 pb-4 flex-grow"
+            ref={scrollableDivRef}
+            style={{ maxHeight: "calc(100vh - 100px)" }}
+          >
             {isLoading ? (
+              <div className="flex justify-center items-center h-full pb-4">
                 <Spinner
-                  thickness='4px'
-                  speed='0.65s'
-                  emptyColor='gray.200'
-                  color='blue.500'
-                  size='xl'
+                  thickness="4px"
+                  speed="0.65s"
+                  emptyColor="white"
+                  color="#0B4981"
+                  size="xl"
                 />
-              ) : (
-                <div>
-                    {reviews?.map(({ album, Review, rating, username, index }) => (
-                    <div className='pb-2'>
-
+              </div>
+            ) : (
+              <div>
+                {reviews?.map(({ album, Review, rating, username, index }) => (
+                  <div className="pb-4">
                     <FeedReviewTile
                       key={index}
                       album={album}
                       review={Review}
                       rating={rating}
                       username={username}
+                      style={{ cursor: "pointer" }}
                     />
-                    </div>
-
-                  ))}
-                </div>
-
-            )}
-              <div className="flex flex-col justify-center items-center space-y-5">
-                <CustomButton
-                  text="More Reviews"
-                  onClick={handleClick}
-                />
+                  </div>
+                ))}
               </div>
+            )}
+            <div className="flex flex-col justify-center items-center space-y-5 pb-4">
+              <CustomButton text="More Reviews" onClick={handleClick} />
             </div>
+          </div>
           <style>
             {`
               ::-webkit-scrollbar {
@@ -127,10 +126,9 @@ const Home = () => {
               }
             `}
           </style>
-          </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
