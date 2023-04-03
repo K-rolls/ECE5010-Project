@@ -101,8 +101,15 @@ const Home = () => {
                 </div>
               ))}
             </div>
+            <style>
+              {`
+              ::-webkit-scrollbar {
+                display: none;
+              }
+            `}
+            </style>
           </div>
-          <div className="p-12">
+          <div className="p-8">
             <CustomButton
               text="Review More"
               onClick={() => Router.push("/home")}

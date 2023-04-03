@@ -50,4 +50,5 @@
 - [ ] tracklist
 - [ ] album search
 - [ ] search filtering for albums
+- [ ] add loading states for profile page and user collection page
 - [x] fix album page

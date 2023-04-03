@@ -340,10 +340,10 @@ const Album = () => {
               </div>
               <style>
                 {`
-      ::-webkit-scrollbar {
-        display: none;
-      }
-    `}
+              ::-webkit-scrollbar {
+                display: none;
+              }
+            `}
               </style>
             </div>
 

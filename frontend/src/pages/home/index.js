@@ -54,9 +54,11 @@ const Home = () => {
     if (len < 0) {
       setLen(1);
       scrollableDivRef.current.scrollTo(0, 0);
+      setIsLoading(true);
     } else {
       setLen(len + 1);
       scrollableDivRef.current.scrollTo(0, 0);
+      setIsLoading(true);
     }
   }
 
