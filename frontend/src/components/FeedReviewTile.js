@@ -1,4 +1,12 @@
-import { Image, Text, Button } from "@chakra-ui/react";
+import {
+    Image, Text, Button, Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+} from "@chakra-ui/react";
 import Link from "next/link";
 
 function FeedReviewTile({ album, review, rating, username }) {
@@ -7,7 +15,7 @@ function FeedReviewTile({ album, review, rating, username }) {
     };
 
     return (
-        <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[600px] max-h-[250px] border-mainblue">
+        <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[300px] max-h-[250px] border-mainblue">
             <div className="flex flex-row space-x-4">
                 <Link href={`/Album/?id=${album.id}`}>
                     <button
@@ -24,7 +32,7 @@ function FeedReviewTile({ album, review, rating, username }) {
                         <Text className="flex font-permanent-marker justify-end">{rating}★</Text>
                     </div>
                     {review && (
-                        <div className="border-2 p-3 rounded-md border-accentlavender text-black bg-white w-[500px]">
+                        <div className="border-2 p-3 rounded-md border-accentlavender text-black bg-white w-[200px]">
                             <Text>{review}</Text>
                         </div>
                     )}
