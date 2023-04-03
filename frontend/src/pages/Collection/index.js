@@ -1,11 +1,13 @@
-import { Image, Link } from "@chakra-ui/react";
+import { Image, Link, Spinner } from "@chakra-ui/react";
 import Router from "next/router";
-import NavBar from "../../components/NavBar";
+import NavBar from "@/components/NavBar";
 import { useState, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
 
 const Home = () => {
   const [reviews, setReviews] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  var data = [];
   var user = false;
 
   function getCookie(name) {
@@ -31,6 +33,7 @@ const Home = () => {
 
   useEffect(() => {
     async function fetchReviews() {
+      setIsLoading(true);
       try {
         var req = {
           token: token,
@@ -45,7 +48,7 @@ const Home = () => {
           body: JSON.stringify(req),
         });
 
-        const data = await response.json();
+        data = await response.json();
         console.log(data);
         var recentReviews = data.recents;
         var allReviews = data.reviewed;
@@ -59,48 +62,62 @@ const Home = () => {
       } catch (error) {
         console.error(error);
         setReviews((prevState) => ({ ...prevState, reviews: null }));
+      } finally {
+        setIsLoading(false);
       }
     }
     if (token) {
       fetchReviews(token);
     }
-  }, [token]);
-  console.log(reviews);
+  }, []);
+
   return (
     <div
       className="
-      min-h-screen
+      max-h-screen
       max-w-screen
       h-screen
       bg-slate-500
       flex
       items-start
-      p-7
+      p-2
       justify-center
       overflow-y-auto 
         "
     >
       <div className="flex flex-col space-y-2 justify-center items-center">
         <NavBar />
-        <div className="flex flex-col justify-center items-center space-y-10 p-8">
+        <div className="flex flex-col justify-center items-center space-y-10 p-2">
           <div className="flex self-center">
             <heading className="text-white text-4xl font-permanent-marker">
               Recently Reviewed
             </heading>
           </div>
-          <div className="p-8 bg-background border-4 border-mainblue rounded-xl shadow-2xl max-h-[665px] overflow-y-auto">
-            <div className="flex-1 grid grid-cols-5 gap-8">
-              {reviews.reviews?.allReviews?.map((review, index) => (
-                <div
-                  key={index}
-                  className="h-[175px] w-[175px] border-4 border-white rounded-md shadow-2xl"
-                >
-                  <Link href={`/Album/?id=${review?.id}`}>
-                    <Image src={review?.image} />
-                  </Link>
-                </div>
-              ))}
-            </div>
+          <div className="p-8 bg-background border-4 border-mainblue rounded-xl shadow-2xl max-h-[660px] overflow-y-auto">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <Spinner
+                  thickness="4px"
+                  speed="0.65s"
+                  color="white"
+                  size="xl"
+                />
+              </div>
+            ) : (
+              <div className="flex-1 grid grid-cols-5 gap-8">
+                {reviews.reviews?.allReviews?.map((review, index) => (
+                  <div
+                    key={index}
+                    className="h-[175px] w-[175px] border-4 border-white rounded-md shadow-2xl"
+                  >
+                    <Link href={`/Album/?id=${review?.id}`}>
+                      <Image src={review?.image} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <style>
               {`
               ::-webkit-scrollbar {
@@ -109,7 +126,7 @@ const Home = () => {
             `}
             </style>
           </div>
-          <div className="p-8">
+          <div className="pb-4">
             <CustomButton
               text="Review More"
               onClick={() => Router.push("/home")}

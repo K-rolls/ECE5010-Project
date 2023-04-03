@@ -1,20 +1,15 @@
-// import { useState } from "react";
-import { Image, Text, Button } from "@chakra-ui/react";
-// import Router from "next/router";
+import { Image } from "@chakra-ui/react";
 import Link from "next/link";
 
 function AlbumTile({ album, onClick }) {
-  // console.log(album);
-  // const [loading, setLoading] = useState(false);
   var albumData = JSON.parse(album);
   const { id, name, artists, image, releaseDate } = albumData;
 
   return (
-    <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 border-mainblue">
+    <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 border-mainblue shadow-2xl">
       <Link href={`/Album/?id=${id}`}>
         <button
           onClick={onClick}
-          // disabled={loading}
           className="border-[4px] border-white rounded-md"
         >
           <Image src={image} alt={name} boxSize="175px" objectFit="cover" />
