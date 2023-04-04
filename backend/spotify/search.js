@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-// Define the search strategy interface
+// Define the search "abstract" interface
 class SearchStrategy {
     constructor(query, page = 0) {
         this.q = query;

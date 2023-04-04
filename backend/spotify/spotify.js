@@ -2,143 +2,6 @@ const axios = require("axios");
 const express = require("express");
 const router = express.Router();
 const database = require("../db/db.js");
-
-class Search {
-  constructor(query) {
-    this.query = query;
-  }
-
-  async search() {
-    const token = await this.getSpotifyToken();
-    const q = this.query.makeQuery();
-    const searchResults = await this.searchSpotifyAlbum(q, token);
-    return searchResults;
-  }
-
-  async getSpotifyToken() {
-    const client_id = "285835dbab1546fa8f45b13521cc5506";
-    const client_secret = "918e2614bbfb4983830528e84d22d9dc";
-
-    const authOptions = {
-      method: "POST",
-      headers: {
-        Authorization:
-          "Basic " +
-          new Buffer.from(client_id + ":" + client_secret).toString("base64"),
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      data: "grant_type=client_credentials",
-    };
-
-    try {
-      const tokenResponse = await axios(
-        "https://accounts.spotify.com/api/token",
-        authOptions
-      );
-      const data = tokenResponse.data;
-      const token = data.access_token;
-      return token;
-    } catch (error) {
-      console.error("Error retrieving Spotify token:", error);
-      return null;
-    }
-  }
-
-  async searchSpotifyAlbum(query, token) {
-    const searchOptions = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        q: query,
-        type: "album",
-        limit: 20, //! can be changed to fill site
-        market: "CA",
-        offset: this.query.getPage() * 20,
-      },
-    };
-
-    try {
-      const searchResponse = await axios(
-        "https://api.spotify.com/v1/search",
-        searchOptions
-      );
-      const data = searchResponse.data;
-      const searchResults = data.albums.items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        artists: item.artists.map((artist) => artist.name).join(", "),
-        image: item.images[0]?.url,
-        releaseDate: item.release_date,
-      }));
-
-      return searchResults;
-    } catch (error) {
-      console.error("Error:", error);
-      return null;
-    }
-  }
-}
-
-class Query {
-  constructor(q, decade = null, page) {
-    switch (decade) {
-      case 0:
-        decade = "year:2020-2029";
-        break;
-      case 1:
-        decade = "year:2010-2019";
-        break;
-      case 2:
-        decade = "year:2000-2009";
-        break;
-      case 3:
-        decade = "year:1990-1999";
-        break;
-      case 4:
-        decade = "year:1980-1989";
-        break;
-      case 5:
-        decade = "year:1970-1979";
-        break;
-      case 6:
-        decade = "year:1960-1969";
-        break;
-      case 7:
-        decade = "year:1950-1959";
-        break;
-      case 8:
-        decade = "year:1940-1949";
-        break;
-      case 9:
-        decade = "year:1930-1939";
-        break;
-      default:
-        decade = "";
-    }
-
-    if (q === null && decade === null) {
-      console.error("Bad search query");
-    } else if (q === null && decade !== null) {
-      console.log("q is null");
-      this.q = decade;
-    } else if (q !== null) {
-      console.log("q is not null");
-      this.q = q;
-    }
-    this.page = page;
-  }
-
-  makeQuery() {
-    return this.q;
-  }
-
-  getPage() {
-    return this.page;
-  }
-}
 const AlbumQuery = require("./query.js").albumQuery;
 const ArtistQuery = require("./query.js").artistQuery;
 const SearchStrategy = require("./search.js");
@@ -319,10 +182,10 @@ router.post("/getArtist", async (request, response) => {
 });
 
 router.get("/averageRating", async (request, response) => {
-  const albumId = request.headers.album_id;
+  const albumId = request.headers.content_id;
   const reviews = await database("reviews")
     .select("reviews.*")
-    .where({ album_id: albumId })
+    .where({ content_ID: albumId })
     .join("users", "reviews.User_ID", "=", "users.User_ID");
   const ratings = reviews.map((review) => review.rating);
   const avgRatings = ratings.reduce((a, b) => a + b, 0) / ratings.length;
@@ -333,12 +196,12 @@ router.get("/averageRating", async (request, response) => {
 });
 
 router.get("/getReviews", async (request, response) => {
-  const albumId = request.headers.album_id;
+  const albumId = request.headers.content_id;
 
   try {
     const reviews = await database("reviews")
       .select("reviews.*", "users.username")
-      .where({ album_id: albumId })
+      .where({ content_ID: albumId })
       .join("users", "reviews.User_ID", "=", "users.User_ID");
 
     return response.json({

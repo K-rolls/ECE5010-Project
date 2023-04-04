@@ -24,8 +24,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// https://stackoverflow.com/questions/3748/storing-images-in-db-yea-or-nay
 router.post(
-  "/profilePic",
+  "/setProfilePic",
   upload.single("profilePic"),
   async (request, res) => {
     try {
@@ -161,10 +162,10 @@ router.post("/makeReview", async (request, response) => {
 
     await database.transaction(async (trx) => {
       const existingRow = await database("lookUp")
-        .select("User_ID", "Album_ID")
+        .select("User_ID", "content_ID")
         .where({
           User_ID: userID,
-          Album_ID: albumID,
+          content_ID: albumID,
         })
         .first()
         .transacting(trx);
@@ -173,7 +174,7 @@ router.post("/makeReview", async (request, response) => {
         await database("reviews")
           .where({
             User_ID: userID,
-            Album_ID: albumID,
+            content_ID: albumID,
           })
           .update({
             review: review,
@@ -189,14 +190,14 @@ router.post("/makeReview", async (request, response) => {
         await database("lookUp")
           .insert({
             User_ID: userID,
-            Album_ID: albumID,
+            content_ID: albumID,
           })
           .transacting(trx);
 
         await database("reviews")
           .insert({
             User_ID: userID,
-            Album_ID: albumID,
+            content_ID: albumID,
             review: review,
             rating: rating,
           })
@@ -225,21 +226,21 @@ router.post("/getReviewed", async (request, response) => {
   try {
     // Get all reviewed albums in order of most recent to least recent
     const reviewedAlbums = await database("reviews")
-      .select("Album_ID")
+      .select("content_ID")
       .where({ user_id: uuid })
       .orderBy("id", "desc");
 
     // Get the top four reviewed albums
-    const recents = reviewedAlbums.slice(0, 4).map((review) => review.Album_ID);
+    const recents = reviewedAlbums.slice(0, 4).map((review) => review.content_ID);
 
     // Get the top rated albums based on the user's reviews
     const topRatedAlbums = await database("reviews")
-      .select("Album_ID")
+      .select("content_ID")
       .where({ user_id: uuid })
       .orderByRaw("CAST(rating AS INTEGER) DESC, id DESC")
       .limit(4);
 
-    const albumIds = reviewedAlbums.map((review) => review.Album_ID);
+    const albumIds = reviewedAlbums.map((review) => review.content_ID);
 
     // Get the metadata associated with the top four albums and all reviewed albums
     const albumData = await axios.post(
@@ -265,14 +266,14 @@ router.post("/getReviewed", async (request, response) => {
     );
     const topRatedImages = albumData.data
       .filter((album) =>
-        topRatedAlbums.map((review) => review.Album_ID).includes(album.id)
+        topRatedAlbums.map((review) => review.content_ID).includes(album.id)
       )
       .sort((a, b) => {
         const aIndex = topRatedAlbums.findIndex(
-          (review) => review.Album_ID === a.id
+          (review) => review.content_ID === a.id
         );
         const bIndex = topRatedAlbums.findIndex(
-          (review) => review.Album_ID === b.id
+          (review) => review.content_ID === b.id
         );
         return aIndex - bIndex;
       });
@@ -313,7 +314,7 @@ router.post("/getAllReviews", async (request, response) => {
       .limit(10)
       .offset(offset);
     // console.log(reviews);
-    const albumIds = reviews.map((review) => review.Album_ID);
+    const albumIds = reviews.map((review) => review.content_ID);
     // console.log(albumIds);
     const albumDataResponse = await axios.post(
       "http://localhost:5000/spotify/getAlbums",
@@ -325,7 +326,7 @@ router.post("/getAllReviews", async (request, response) => {
 
     for (let i = 0; i < reviews.length; i++) {
       const review = reviews[i];
-      const album = albumData.find((album) => album.id === review.Album_ID);
+      const album = albumData.find((album) => album.id === review.content_ID);
 
       const user = await database("users")
         .select("username")
@@ -339,6 +340,49 @@ router.post("/getAllReviews", async (request, response) => {
     return response.json({ reviews: reviewsWithAlbumData });
   } catch (error) {
     return response.json({ error: error.message });
+  }
+});
+
+router.get("/getProfilePic", async (req, res) => {
+  try {
+    const { User_ID } = req.query;
+    console.log(User_ID);
+    if (!User_ID) {
+      return res.status(409).json({ error: "User_ID not supplied" });
+    }
+
+    const user = await database("users")
+      .select("username", "profilePicture")
+      .where({ User_ID })
+      .first();
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const profilePicturePath = user.profilePicture;
+    const fileName = path.basename(
+      profilePicturePath,
+      path.extname(profilePicturePath)
+    );
+    const defaultPath = "../backend/uploads/default-profile-picture.png";
+
+    const filePath = fileName
+      ? `../backend/uploads/${fileName}${path.extname(profilePicturePath)}`
+      : defaultPath;
+
+    try {
+      if (fs.existsSync(filePath)) {
+        return res.json({ profilePicture: filePath });
+      } else {
+        // File doesn't exist
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return res.json({ profilePicture: filePath });
+  } catch (error) {
+    return res.json({ error: error.message });
   }
 });
 
