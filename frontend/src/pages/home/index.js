@@ -1,4 +1,5 @@
-import { Spinner, Text } from "@chakra-ui/react";
+import { Spinner, Text, Box } from "@chakra-ui/react";
+import { RadioGroup } from "@headlessui/react";
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import NavBar from "@/components/NavBar";
@@ -13,6 +14,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [len, setLen] = useState(1);
   const scrollableDivRef = useRef(null);
+  const [selection, setSelection] = useState("albums");
 
   try {
     localStorage.setItem("searchTerm", "null");
@@ -82,10 +84,44 @@ const Home = () => {
       <div className="flex flex-col space-y-2 justify-center items-center p-8">
         <div className="flex flex-col justify-center items-center space-y-5">
           <ScaledLogo />
-          <SearchBar />
+          <SearchBar selection={selection} />
+          <RadioGroup value={selection} onChange={setSelection}>
+            <div className="flex flex-row space-x-2">
+              <div className="cursor-pointer">
+                <RadioGroup.Option value="albums">
+                  {({ checked }) => (
+                    <Box
+                      className={
+                        checked
+                          ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
+                          : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
+                      }
+                    >
+                      Albums
+                    </Box>
+                  )}
+                </RadioGroup.Option>
+              </div>
+              <div className="cursor-pointer">
+                <RadioGroup.Option value="artists">
+                  {({ checked }) => (
+                    <Box
+                      className={
+                        checked
+                          ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
+                          : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
+                      }
+                    >
+                      Artists
+                    </Box>
+                  )}
+                </RadioGroup.Option>
+              </div>
+            </div>
+          </RadioGroup>
           <div className="font-permanent-marker text-white text-3xl ">
             <Text>Recently Reviewed</Text>
-          </div>{" "}
+          </div>
           <div
             className="rounded-lg ps-4 pb-4 flex-grow"
             ref={scrollableDivRef}
@@ -103,10 +139,10 @@ const Home = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
-                  {reviews
-                    .filter((review) => review.isAlbum === 0) // filter reviews with isAlbum equal to '0'
-                    .map(({ artist, review, rating, username, index }) => (
-                      <div className="pb-0">
+                {reviews
+                  .filter((review) => review.isAlbum === 0) // filter reviews with isAlbum equal to '0'
+                  .map(({ artist, review, rating, username, index }) => (
+                    <div className="pb-0">
                       <FeedArtistReviewTile
                         key={index}
                         artist={artist}
@@ -117,13 +153,13 @@ const Home = () => {
                       />
                     </div>
                   ))}
-                  {reviews
-                    .filter((review) => review.isAlbum === 1) // filter reviews with isAlbum equal to '1'
-                    .map(({ album, review, rating, username, index }) => (
-                      <div className="pb-0">
-                        <FeedAlbumReviewTile
-                          key={index}
-                          album={album}
+                {reviews
+                  .filter((review) => review.isAlbum === 1) // filter reviews with isAlbum equal to '1'
+                  .map(({ album, review, rating, username, index }) => (
+                    <div className="pb-0">
+                      <FeedAlbumReviewTile
+                        key={index}
+                        album={album}
                         review={review}
                         rating={rating}
                         username={username}
@@ -136,7 +172,6 @@ const Home = () => {
             <div className="flex flex-col justify-center items-center space-y-5 pt-4 pb-4">
               <CustomButton text="More Reviews" onClick={handleClick} />
             </div>
-
           </div>
           <style>
             {`

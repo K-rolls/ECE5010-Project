@@ -12,14 +12,15 @@ import {
   Divider,
   List,
   ListItem,
-  UnorderedList
+  UnorderedList,
+  IconButton,
+  Icon,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import UserReviewTile from "@/components/UserReviewTile.js";
 import NavBar from "@/components/NavBar";
 import CustomButton from "@/components/CustomButton.js";
-import { Dialog } from "@headlessui/react";
 
 const Artist = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,17 +32,32 @@ const Artist = () => {
   const router = useRouter();
   const { id } = router.query;
   const toast = useToast();
-  
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseOver = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseOut = () => {
+    setIsHovered(false);
+  };
+
+  const imgSrc = isHovered
+    ? "/Spotify_Icon_RGB_Green.png"
+    : "/Spotify_Icon_RGB_Black.png";
+
   useEffect(() => {
-    function renderGenres() {
-      var genreList = [];
-        for (let i = 0; i < data.artistData?.genres.length; i++){
-            let genreID = i;
-            let genreName = data.artistData.genres[i];
-            genreList.push({key:genreID, g:genreName})
-        }
-        setGenres(genreList);
-      }
+    // function renderGenres() {
+    //   var genreList = [];
+    //   for (let i = 0; i < data.artistData?.genres.length; i++) {
+    //     let genreID = i;
+    //     let genreName = data.artistData?.genres[i];
+    //     genreList.push({ key: genreID, g: genreName });
+    //     console.log(genreList);
+    //   }
+    //   setGenres(genreList);
+    // }
 
     async function fetchReviews() {
       try {
@@ -108,7 +124,7 @@ const Artist = () => {
 
         data = await response.json();
         data = data[1];
-        setData((prevState) => ({ ...prevState, artistData: data}));
+        setData((prevState) => ({ ...prevState, artistData: data }));
       } catch (error) {
         fetchartistData();
         getAverage();
@@ -118,13 +134,13 @@ const Artist = () => {
       fetchartistData();
       getAverage();
       fetchReviews();
-      renderGenres();
+      //renderGenres();
     }
   }, [id]);
 
   function getCookie(name) {
     try {
-      const cookies = document.cookie.split("; ");
+      const cookies = document?.cookie.split("; ");
       for (let i = 0; i < cookies.length; i++) {
         const parts = cookies[i].split("=");
         const cookieName = parts[0];
@@ -195,7 +211,6 @@ const Artist = () => {
     setReviewValue("");
   }
 
-
   // Handle input change
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
@@ -218,7 +233,7 @@ const Artist = () => {
         overflow-y-auto  "
     >
       <NavBar />
-      <Dialog
+      {/* <Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className="relative z-50"
@@ -243,15 +258,15 @@ const Artist = () => {
             <Dialog.Description>
               <Text className="flex text-xl max-w-[550px]">
                 <UnorderedList>
-                {genres.map((genre) => (
+                  {genres.map((genre) => (
                     <ListItem key={genre.key}>{genre.g}</ListItem>
-                ))}
+                  ))}
                 </UnorderedList>
               </Text>
             </Dialog.Description>
           </Dialog.Panel>
         </div>
-      </Dialog>
+      </Dialog> */}
       <div className="flex flex-col space-y-2 justify-center items-center">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
           <img
@@ -260,7 +275,7 @@ const Artist = () => {
           ></img>
         </div>
         <div className="flex flex-col justify-center items-center space-y-0">
-          <div>
+          <div className="flex flex-row space-x-2">
             <Text
               className="flex font-permanent-marker"
               color="white"
@@ -269,7 +284,17 @@ const Artist = () => {
               {" "}
               {data.artistData?.name}{" "}
             </Text>
+            <Link target="_blank" href={data.artistData?.spotifyLink}>
+              <button
+                className="flex pt-1 h-10 w-10 rounded-full"
+                onMouseOver={handleMouseOver}
+                onMouseOut={handleMouseOut}
+              >
+                <img className="bg-white rounded-full" src={imgSrc} />
+              </button>
+            </Link>
           </div>
+
           <div>
             <Text
               className="flex font-permanent-marker"
@@ -285,7 +310,7 @@ const Artist = () => {
           <div className="flex flex-col space-y-1">
             <Text className="font-permanent-marker text-2xl pl-2">Stats</Text>
             <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue">
-              <div className=" text-xl flex flex-col w-full space-y-1 items-start">
+              <div className=" text-xl flex flex-col w-full space-y-4 items-start">
                 <div className="flex flex-row w-full justify-between items-between">
                   <Text className="font-permanent-marker" color="white">
                     Average Rating :
@@ -318,12 +343,13 @@ const Artist = () => {
                     {`${data.artistData?.genres[0]}`}
                   </Text>
                 </div>
-                <button
+
+                {/* <button
                   onClick={() => setIsOpen(true)}
                   className="font-permanent-marker text-accentlavender hover:text-white"
                 >
                   See all genres
-                </button>
+                </button> */}
               </div>
             </div>
             <Text className="font-permanent-marker text-2xl pl-2">
