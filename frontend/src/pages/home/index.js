@@ -104,35 +104,30 @@ const Home = () => {
             ) : (
               <div className="grid grid-cols-2 gap-4">
                   {reviews
-                    .filter((review) => review.isAlbum === 0) // filter reviews with isAlbum equal to '0'
-                    .map(({ artist, review, rating, username, index }) => (
-                      <div className="pb-0">
-                      <FeedArtistReviewTile
-                        key={index}
-                        artist={artist}
-                        review={review}
-                        rating={rating}
-                        username={username}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </div>
-                  ))}
-                  {reviews
-                    .filter((review) => review.isAlbum === 1) // filter reviews with isAlbum equal to '1'
-                    .map(({ album, review, rating, username, index }) => (
-                      <div className="pb-0">
-                        <FeedAlbumReviewTile
-                          key={index}
-                          album={album}
-                        review={review}
-                        rating={rating}
-                        username={username}
-                        style={{ cursor: "pointer" }}
-                      />
+                    .sort((a, b) => a.index - b.index) // sort reviews by their index property
+                    .map(({ isAlbum, artist, album, review, rating, username, index }) => (
+                      <div className="pb-0" key={index}>
+                        {isAlbum ? (
+                          <FeedAlbumReviewTile
+                            album={album}
+                            review={review}
+                            rating={rating}
+                            username={username}
+                            style={{ cursor: "pointer" }}
+                          />
+                      ) : (
+                        <FeedArtistReviewTile
+                          artist={artist}
+                          review={review}
+                          rating={rating}
+                          username={username}
+                          style={{ cursor: "pointer" }}
+                        />
+                      )}
                     </div>
                   ))}
               </div>
-            )}
+            )} 
             <div className="flex flex-col justify-center items-center space-y-5 pt-4 pb-4">
               <CustomButton text="More Reviews" onClick={handleClick} />
             </div>
