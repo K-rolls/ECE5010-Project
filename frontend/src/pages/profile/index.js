@@ -47,7 +47,7 @@ const Profile = () => {
         });
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         var recentReviews = data.recents;
         var allReviews = data.reviewed;
         var topFour = data.topRated;

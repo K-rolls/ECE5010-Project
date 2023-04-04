@@ -256,77 +256,134 @@ router.post("/makeReview", async (request, response) => {
   }
 });
 
-router.post("/getReviewed", async (request, response) => {
+// Helper function to format a review object
+function formatReview(review, imagesById) {
+  const isAlbum = review.isAlbum === 1;
+  const contentKey = isAlbum ? 'album' : 'artist';
+  return {
+    id: review.content_ID,
+    type: contentKey,
+    name: review[contentKey + '_name'],
+    image: imagesById[review.content_ID],
+    rating: review.rating
+  };
+}
+
+router.post('/getReviewed', async (request, response) => {
   const { token } = request.body;
   const decodedToken = jwt.decode(token);
-  const uuid = decodedToken ? decodedToken.User_ID : null;
+  const uuid = decodedToken?.User_ID || null;
 
   try {
-    // Get all reviewed albums in order of most recent to least recent
-    const reviewedAlbums = await database("reviews")
-      .select("content_ID")
-      .where({ user_id: uuid })
-      .orderBy("id", "desc");
+    const allReviews = await database('reviews')
+      .select('*')
+      .where({ 'reviews.User_ID': uuid })
+      .join('lookUp', 'lookUp.content_ID', 'reviews.content_ID')
+      .select('lookUp.isAlbum')
+      .orderBy('reviews.id', 'desc');
+    // return response.json(allReviews);
 
-    // Get the top four reviewed albums
-    const recents = reviewedAlbums
-      .slice(0, 4)
+    // recently reviewed content
+    const recents = allReviews.filter((review) => review.User_ID === uuid).slice(0, 4).map((review) => ({ content_ID: review.content_ID, isAlbum: review.isAlbum }));
+
+    const reviewedAlbums = allReviews.filter((review) => review.isAlbum === 1 && review.User_ID === uuid);
+    const reviewedArtists = allReviews.filter((review) => review.isAlbum === 0 && review.User_ID === uuid);
+
+    const albumIds = allReviews.filter((review) => review.isAlbum === 1 && review.User_ID === uuid)
+      .map((review) => review.content_ID);
+    const artistIds = allReviews.filter((review) => review.isAlbum === 0 && review.User_ID === uuid)
       .map((review) => review.content_ID);
 
-    // Get the top rated albums based on the user's reviews
-    const topRatedAlbums = await database("reviews")
-      .select("content_ID")
-      .where({ user_id: uuid })
-      .orderByRaw("CAST(rating AS INTEGER) DESC, id DESC")
-      .limit(4);
+    let albumData = [];
+    let artistData = [];
+    let recentData = [];
 
-    const albumIds = reviewedAlbums.map((review) => review.content_ID);
+    if (albumIds.length > 0) {
+      const albumDataResponse = await axios.post('http://localhost:5000/spotify/getAlbums', { Reviewed: albumIds });
+      albumData.push(...albumDataResponse.data.slice(1));
+    }
 
-    // Get the metadata associated with the top four albums and all reviewed albums
-    const albumData = await axios.post(
-      "http://localhost:5000/spotify/getAlbums",
-      {
-        Reviewed: albumIds,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "http://localhost:3000",
-          "Access-Control-Allow-Credentials": true,
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Origin, Content-Type, Accept",
-        },
+    if (artistIds.length > 0) {
+      const artistDataResponse = await axios.post('http://localhost:5000/spotify/getArtist', { Reviewed: artistIds });
+      artistData.push(...artistDataResponse.data.slice(1));
+    }
+
+    const albumReviewData = albumData.map((item) => ({
+      image: item.image,
+      content_ID: item.id,
+      review: reviewedAlbums.find((review) => review.content_ID === item.id)
+    })).sort((a, b) => b.review.id - a.review.id).sort((a, b) => b.review.rating - a.review.rating)
+      .slice(0, 4);
+
+    const artistReviewData = artistData.map((item) => ({
+      image: item.image,
+      content_ID: item.id,
+      review: reviewedArtists.find((review) => review.content_ID === item.id)
+
+    })).sort((a, b) => b.review.id - a.review.id).sort((a, b) => b.review.rating - a.review.rating)
+      .slice(0, 4);
+
+    for (var i = 0; i < recents.length; i++) {
+      // console.log(recents[i].isAlbum);
+      if (recents[i].isAlbum === 1) {
+        const albumDataResponse = await axios.post('http://localhost:5000/spotify/getAlbums', { Reviewed: [recents[i].content_ID] });
+        recentData.push(albumDataResponse.data.slice(1));
+      } else if (recents[i].isAlbum === 0) {
+        const artistDataResponse = await axios.post('http://localhost:5000/spotify/getArtist', { Reviewed: [recents[i].content_ID] });
+        recentData.push(artistDataResponse.data.slice(1));
       }
-    );
+    }
 
-    const reviewedImages = albumData.data.filter((album) =>
-      albumIds.includes(album.id)
-    );
-    const recentImages = albumData.data.filter((album) =>
-      recents.includes(album.id)
-    );
-    const topRatedImages = albumData.data
-      .filter((album) =>
-        topRatedAlbums.map((review) => review.content_ID).includes(album.id)
-      )
-      .sort((a, b) => {
-        const aIndex = topRatedAlbums.findIndex(
-          (review) => review.content_ID === a.id
-        );
-        const bIndex = topRatedAlbums.findIndex(
-          (review) => review.content_ID === b.id
-        );
-        return aIndex - bIndex;
-      });
+    const recentDataWithImageAndID = recentData.map((item) => ({
+      image: item[0].image,
+      content_ID: item[0].id,
+    }));
+
+    const userReviews = allReviews.filter((review) => review.User_ID === uuid)
+
+    const allReviewData = userReviews.map((item) => ({
+      content_ID: item.content_ID,
+      id: item.id,
+      isAlbum: item.isAlbum,
+    }));
+    // console.log(allReviewData);
+    // Match content_ID to image from album or artist list above
+
+    const albumReviewDataWithImage = allReviewData.filter(item => item.isAlbum === 1).map(item => {
+
+      const albumFound = albumData.find(album => album.id === item.content_ID);
+      return {
+        content_ID: item.content_ID,
+        image: albumFound?.image,
+        id: item.id,
+      }
+    });
+
+    const artistReviewDataWithImage = allReviewData.filter(item => item.isAlbum === 0).map(item => {
+      const artist = artistData.find(artist => artist.id === item.content_ID);
+      return {
+        content_ID: item.content_ID,
+        image: artist?.image,
+        id: item.id,
+      }
+    });
+    const reviewed = albumReviewDataWithImage.concat(artistReviewDataWithImage);
+    const sortedReviewed = reviewed.sort((a, b) => b.id - a.id);
 
     return response.json({
-      recents: recentImages,
-      reviewed: reviewedImages,
-      topRated: topRatedImages,
+      recentDataWithImageAndID,
+      albumReviewData,
+      artistReviewData,
+      sortedReviewed
     });
+
   } catch (error) {
-    return response.status(500).json({
+    console.error(error);
+    return response.json({
       success: false,
-      message: error.message,
+      message: "Internal server error",
+      error: error.message,
+      data: error,
     });
   }
 });
