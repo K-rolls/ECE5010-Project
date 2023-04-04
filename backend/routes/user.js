@@ -154,6 +154,18 @@ router.get("/welcome", authenticate, (request, response) => {
   return response.json({ message: `Welcome ${request.user.username}!` });
 });
 
+async function isAlbum(albumId) {
+  try {
+    const albumDataResponse = await axios.post(
+      "http://localhost:5000/spotify/getAlbums",
+      { Reviewed: [albumId] }
+    );
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 router.post("/makeReview", async (request, response) => {
   try {
     const { token, albumID, review, rating } = request.body;
@@ -169,31 +181,57 @@ router.post("/makeReview", async (request, response) => {
         })
         .first()
         .transacting(trx);
+      console.log(existingRow);
+      const isEntryAlbum = await isAlbum(albumID);
+      console.log(isEntryAlbum);
 
       if (existingRow) {
-        await database("reviews")
-          .where({
-            User_ID: userID,
-            content_ID: albumID,
-          })
-          .update({
-            review: review,
-            rating: rating,
-          })
-          .transacting(trx);
+        if (isEntryAlbum) {
+          await database("reviews")
+            .where({
+              User_ID: userID,
+              content_ID: albumID,
+            })
+            .update({
+              review: review,
+              rating: rating,
+            })
+            .transacting(trx);
+        } else {
+          await database("reviews")
+            .where({
+              User_ID: userID,
+              content_ID: albumID,
+            })
+            .update({
+              review: review,
+              rating: rating,
+            })
+            .transacting(trx);
+        } 
 
         return response.json({
           success: true,
           message: "Review updated successfully",
         });
       } else {
-        await database("lookUp")
-          .insert({
-            User_ID: userID,
-            content_ID: albumID,
-          })
-          .transacting(trx);
-
+        if (isEntryAlbum) {
+          await database("lookUp")
+            .insert({
+              User_ID: userID,
+              content_ID: albumID,
+              isAlbum: 1,
+            })
+            .transacting(trx);
+        } else {
+          await database("lookUp")
+            .insert({
+              User_ID: userID,
+              content_ID: albumID,
+              isAlbum: 0,
+            })
+            .transacting(trx);
+        }  
         await database("reviews")
           .insert({
             User_ID: userID,
@@ -231,7 +269,9 @@ router.post("/getReviewed", async (request, response) => {
       .orderBy("id", "desc");
 
     // Get the top four reviewed albums
-    const recents = reviewedAlbums.slice(0, 4).map((review) => review.content_ID);
+    const recents = reviewedAlbums
+      .slice(0, 4)
+      .map((review) => review.content_ID);
 
     // Get the top rated albums based on the user's reviews
     const topRatedAlbums = await database("reviews")
@@ -295,10 +335,8 @@ router.post("/getReviewed", async (request, response) => {
 router.post("/getAllReviews", async (request, response) => {
   try {
     const numReviews = request.body.num;
-    // console.log(numReviews);
     const offset = numReviews > 0 ? (numReviews - 1) * 10 : 0;
     const countResult = await database("reviews").count("id as count").first();
-    // console.log(countResult.count, offset);
     const count = countResult.count;
     if (offset >= count) {
       // The requested offset exceeds the number of entries in the database
@@ -308,36 +346,76 @@ router.post("/getAllReviews", async (request, response) => {
       });
     }
 
-    const reviews = await database("reviews")
+    // Retrieve all reviews
+    const content_IDs = await database("lookUp")
       .select("*")
       .orderByRaw("id DESC")
       .limit(10)
       .offset(offset);
     // console.log(reviews);
-    const albumIds = reviews.map((review) => review.content_ID);
-    // console.log(albumIds);
-    const albumDataResponse = await axios.post(
-      "http://localhost:5000/spotify/getAlbums",
-      { Reviewed: albumIds }
-    );
-    const albumData = albumDataResponse.data.slice(1);
 
-    const reviewsWithAlbumData = [];
+    // Extract album and artist IDs from reviews
+    const albumIds = content_IDs.filter(review => review.isAlbum).map(review => review.content_ID);
+    const artistIds = content_IDs.filter(review => !review.isAlbum).map(review => review.content_ID);
 
-    for (let i = 0; i < reviews.length; i++) {
-      const review = reviews[i];
-      const album = albumData.find((album) => album.id === review.content_ID);
+    // Make batch requests for album and artist data
+    let albumData = [];
+    let artistData = [];
 
+    if (albumIds.length > 0) {
+      const albumDataResponse = await axios.post(
+        "http://localhost:5000/spotify/getAlbums",
+        { Reviewed: albumIds }
+      );
+      albumData = albumDataResponse.data.slice(1);
+    }
+
+    if (artistIds.length > 0) {
+      const artistDataResponse = await axios.post(
+        "http://localhost:5000/spotify/getArtist",
+        { Reviewed: artistIds }
+      );
+      artistData = artistDataResponse.data;
+    }
+
+    // Combine review, rating, and album/artist data
+    const allReviewData = await Promise.all(content_IDs.map(async review => {
       const user = await database("users")
         .select("username")
         .where({ User_ID: review.User_ID })
         .first();
       const username = user ? user.username : "unknown";
 
-      reviewsWithAlbumData.push({ ...review, album, username });
-    }
+      let contentData;
+      if (review.isAlbum) {
+        contentData = albumData.find(album => album.id === review.content_ID);
+        const contentReviewData = await database("reviews")
+          .select("Review", "rating")
+          .where({ content_ID: review.content_ID, User_ID: review.User_ID });
 
-    return response.json({ reviews: reviewsWithAlbumData });
+        return {
+          ...review,
+          album: review.isAlbum ? contentData : null,
+          username,
+          review: contentReviewData.length > 0 ? contentReviewData[0].Review : null,
+          rating: contentReviewData.length > 0 ? contentReviewData[0].rating : null,
+        }
+      } else {
+        contentData = artistData.find(artist => artist.id === review.content_ID);
+        const contentReviewData = await database("reviews")
+          .select("Review", "rating")
+          .where({ content_ID: review.content_ID }, { User_ID: review.User_ID });
+        return {
+          ...review,
+          artist: !review.isAlbum ? contentData : null,
+          username,
+          review: contentReviewData.length > 0 ? contentReviewData[0].Review : null,
+          rating: contentReviewData.length > 0 ? contentReviewData[0].rating : null,
+        }
+      }
+    }));
+
+    return response.json(allReviewData);
   } catch (error) {
     return response.json({ error: error.message });
   }

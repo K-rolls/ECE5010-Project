@@ -1,12 +1,10 @@
-import {
-  Spinner,
-  Stack,
-} from '@chakra-ui/react';
+import { Spinner, Text } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import NavBar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
-import FeedReviewTile from "@/components/FeedReviewTile";
+import FeedAlbumReviewTile from "@/components/FeedAlbumReviewTile";
+import FeedArtistReviewTile from "@/components/FeedArtistReviewTile";
 import CustomButton from "@/components/CustomButton";
 import ScaledLogo from "@/components/ScaledLogo";
 
@@ -34,14 +32,15 @@ const Home = () => {
             num: len,
           }
         );
+        console.log(response.data);
         if (response.data.success === false) {
           setLen(1);
           setIsLoading(true);
         } else if (typeof response.data === "object") {
-          setReviews(response.data.reviews);
+          setReviews(response.data);
           setIsLoading(false);
         } else if (Array.isArray(response.data)) {
-          setReviews(response.data.reviews);
+          setReviews(response.data);
           setIsLoading(false);
         }
       } catch (error) {
@@ -84,6 +83,9 @@ const Home = () => {
         <div className="flex flex-col justify-center items-center space-y-5">
           <ScaledLogo />
           <SearchBar />
+          <div className="font-permanent-marker text-white text-3xl ">
+            <Text>Recently Reviewed</Text>
+          </div>{" "}
           <div
             className="rounded-lg ps-4 pb-4 flex-grow"
             ref={scrollableDivRef}
@@ -100,24 +102,41 @@ const Home = () => {
                 />
               </div>
             ) : (
-              <div>
-                {reviews?.map(({ album, Review, rating, username, index }) => (
-                  <div className="pb-4">
-                    <FeedReviewTile
-                      key={index}
-                      album={album}
-                      review={Review}
-                      rating={rating}
-                      username={username}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-4">
+                  {reviews
+                    .filter((review) => review.isAlbum === 0) // filter reviews with isAlbum equal to '0'
+                    .map(({ artist, review, rating, username, index }) => (
+                      <div className="pb-0">
+                      <FeedArtistReviewTile
+                        key={index}
+                        artist={artist}
+                        review={review}
+                        rating={rating}
+                        username={username}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
+                  ))}
+                  {reviews
+                    .filter((review) => review.isAlbum === 1) // filter reviews with isAlbum equal to '1'
+                    .map(({ album, review, rating, username, index }) => (
+                      <div className="pb-0">
+                        <FeedAlbumReviewTile
+                          key={index}
+                          album={album}
+                        review={review}
+                        rating={rating}
+                        username={username}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </div>
+                  ))}
               </div>
             )}
-            <div className="flex flex-col justify-center items-center space-y-5 pb-4">
+            <div className="flex flex-col justify-center items-center space-y-5 pt-4 pb-4">
               <CustomButton text="More Reviews" onClick={handleClick} />
             </div>
+
           </div>
           <style>
             {`
