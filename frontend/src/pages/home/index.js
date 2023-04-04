@@ -1,7 +1,4 @@
-import {
-  Spinner,
-  Stack,
-} from '@chakra-ui/react';
+import { Spinner, Text } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import NavBar from "@/components/NavBar";
@@ -84,6 +81,9 @@ const Home = () => {
         <div className="flex flex-col justify-center items-center space-y-5">
           <ScaledLogo />
           <SearchBar />
+          <div className="font-permanent-marker text-white text-3xl ">
+            <Text>Recently Reviewed</Text>
+          </div>{" "}
           <div
             className="rounded-lg ps-4 pb-4 flex-grow"
             ref={scrollableDivRef}
@@ -100,9 +100,9 @@ const Home = () => {
                 />
               </div>
             ) : (
-              <div>
+              <div className="grid grid-cols-2 gap-4">
                 {reviews?.map(({ album, Review, rating, username, index }) => (
-                  <div className="pb-4">
+                  <div className="pb-0">
                     <FeedReviewTile
                       key={index}
                       album={album}
@@ -115,7 +115,7 @@ const Home = () => {
                 ))}
               </div>
             )}
-            <div className="flex flex-col justify-center items-center space-y-5 pb-4">
+            <div className="flex flex-col justify-center items-center space-y-5 pt-4 pb-4">
               <CustomButton text="More Reviews" onClick={handleClick} />
             </div>
           </div>

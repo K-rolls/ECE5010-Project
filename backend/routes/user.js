@@ -231,7 +231,9 @@ router.post("/getReviewed", async (request, response) => {
       .orderBy("id", "desc");
 
     // Get the top four reviewed albums
-    const recents = reviewedAlbums.slice(0, 4).map((review) => review.content_ID);
+    const recents = reviewedAlbums
+      .slice(0, 4)
+      .map((review) => review.content_ID);
 
     // Get the top rated albums based on the user's reviews
     const topRatedAlbums = await database("reviews")
@@ -291,14 +293,24 @@ router.post("/getReviewed", async (request, response) => {
   }
 });
 
+async function isResponseSuccessful(albumId) {
+  try {
+    const albumDataResponse = await axios.post(
+      "http://localhost:5000/spotify/getAlbums",
+      { Reviewed: albumIds }
+    );
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 // gets all reviews and their associated album data
 router.post("/getAllReviews", async (request, response) => {
   try {
     const numReviews = request.body.num;
-    // console.log(numReviews);
     const offset = numReviews > 0 ? (numReviews - 1) * 10 : 0;
     const countResult = await database("reviews").count("id as count").first();
-    // console.log(countResult.count, offset);
     const count = countResult.count;
     if (offset >= count) {
       // The requested offset exceeds the number of entries in the database
@@ -313,35 +325,61 @@ router.post("/getAllReviews", async (request, response) => {
       .orderByRaw("id DESC")
       .limit(10)
       .offset(offset);
-    // console.log(reviews);
-    const albumIds = reviews.map((review) => review.content_ID);
-    // console.log(albumIds);
-    const albumDataResponse = await axios.post(
-      "http://localhost:5000/spotify/getAlbums",
-      { Reviewed: albumIds }
-    );
-    const albumData = albumDataResponse.data.slice(1);
 
-    const reviewsWithAlbumData = [];
+    const albums = [];
+    const artists = [];
 
     for (let i = 0; i < reviews.length; i++) {
       const review = reviews[i];
-      const album = albumData.find((album) => album.id === review.content_ID);
+      const albumId = review.content_ID;
 
-      const user = await database("users")
-        .select("username")
-        .where({ User_ID: review.User_ID })
-        .first();
-      const username = user ? user.username : "unknown";
+      // Check if the album data is available and valid
+      const isSuccessful = await isResponseSuccessful(albumId);
+      try {
+        if (isSuccessful) {
+          const albumDataResponse = await axios.post(
+            "http://localhost:5000/spotify/getAlbums",
+            { Reviewed: [albumId] }
+          );
+          const albumData = albumDataResponse.data.slice(1);
+          const album = albumData[0];
 
-      reviewsWithAlbumData.push({ ...review, album, username });
+          const user = await database("users")
+            .select("username")
+            .where({ User_ID: review.User_ID })
+            .first();
+          const username = user ? user.username : "unknown";
+
+          const reviewData = { ...review, album, username, isSuccessful };
+          albums.push(reviewData);
+        } else if (!isSuccessful) {
+          const artistDataResponse = await axios.post(
+            "http://localhost:5000/spotify/getArtist",
+            { Reviewed: [albumId] }
+          );
+          const artistData = artistDataResponse.data;
+          const artist = artistData[0];
+
+          const user = await database("users")
+            .select("username")
+            .where({ User_ID: review.User_ID })
+            .first();
+          const username = user ? user.username : "unknown";
+
+          const reviewData = { ...review, artist, username, isSuccessful };
+          artists.push(reviewData);
+        }
+      } catch (error) {
+        continue;
+      }
     }
-
-    return response.json({ reviews: reviewsWithAlbumData });
+    return response.json({ Albums: albums, Artists: artists });
   } catch (error) {
     return response.json({ error: error.message });
   }
 });
+
+
 
 router.get("/getProfilePic", async (req, res) => {
   try {

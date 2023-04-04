@@ -21,10 +21,8 @@ function FeedReviewTile({ album, review, rating, username }) {
   const handleAlbumClick = (album) => {
     console.log("Album clicked:", album);
   };
-
+  console.log(album);
   const [isOpen, setIsOpen] = useState(false);
-
-  const openReviewModal = () => {};
 
   return (
     <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[300px] max-h-[250px] border-mainblue">
@@ -65,7 +63,10 @@ function FeedReviewTile({ album, review, rating, username }) {
           onClose={() => setIsOpen(false)}
           className="relative z-50"
         >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div
+            className="fixed inset-0 bg-black/70 blur-6xl"
+            aria-hidden="true"
+          />
 
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Dialog.Panel className="text-white min-w-[500px] min-h-[200px] bg-black border-accentlavender border-[7px] p-8 overflow-auto text-justify rounded-2xl">
@@ -74,6 +75,11 @@ function FeedReviewTile({ album, review, rating, username }) {
                   <div className="flex flex-row justify-center">
                     <div className="font-permanent-marker">{album.name}</div>
                   </div>
+                  <Link href={`/Album/?id=${album.id}`}>
+                    <div className="text-2xl sfont-permanent-marker flex justify-center">
+                      By: {album.artists}
+                    </div>
+                  </Link>
                   <div className="py-4">
                     <Divider orientation="horizontal" />
                   </div>

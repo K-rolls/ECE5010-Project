@@ -46,6 +46,7 @@
 - [x] implement profile page
 - [x] implement album page
 - [x] implement search to album page
+- [x] implement artist page
 # final submission
 - [x] user sessions
 - [x] logout

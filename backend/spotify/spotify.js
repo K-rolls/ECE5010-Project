@@ -176,7 +176,7 @@ router.post("/getArtist", async (request, response) => {
     artistData.unshift({ len: len });
     return response.json(artistData);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return response.status(500).send(error.message);
   }
 });
