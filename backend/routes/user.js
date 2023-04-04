@@ -154,6 +154,18 @@ router.get("/welcome", authenticate, (request, response) => {
   return response.json({ message: `Welcome ${request.user.username}!` });
 });
 
+async function isAlbum(albumId) {
+  try {
+    const albumDataResponse = await axios.post(
+      "http://localhost:5000/spotify/getAlbums",
+      { Reviewed: [albumId] }
+    );
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 router.post("/makeReview", async (request, response) => {
   try {
     const { token, albumID, review, rating } = request.body;
@@ -169,31 +181,57 @@ router.post("/makeReview", async (request, response) => {
         })
         .first()
         .transacting(trx);
+      console.log(existingRow);
+      const isEntryAlbum = await isAlbum(albumID);
+      console.log(isEntryAlbum);
 
       if (existingRow) {
-        await database("reviews")
-          .where({
-            User_ID: userID,
-            content_ID: albumID,
-          })
-          .update({
-            review: review,
-            rating: rating,
-          })
-          .transacting(trx);
+        if (isEntryAlbum) {
+          await database("reviews")
+            .where({
+              User_ID: userID,
+              content_ID: albumID,
+            })
+            .update({
+              review: review,
+              rating: rating,
+            })
+            .transacting(trx);
+        } else {
+          await database("reviews")
+            .where({
+              User_ID: userID,
+              content_ID: albumID,
+            })
+            .update({
+              review: review,
+              rating: rating,
+            })
+            .transacting(trx);
+        } 
 
         return response.json({
           success: true,
           message: "Review updated successfully",
         });
       } else {
-        await database("lookUp")
-          .insert({
-            User_ID: userID,
-            content_ID: albumID,
-          })
-          .transacting(trx);
-
+        if (isEntryAlbum) {
+          await database("lookUp")
+            .insert({
+              User_ID: userID,
+              content_ID: albumID,
+              isAlbum: 1,
+            })
+            .transacting(trx);
+        } else {
+          await database("lookUp")
+            .insert({
+              User_ID: userID,
+              content_ID: albumID,
+              isAlbum: 0,
+            })
+            .transacting(trx);
+        }  
         await database("reviews")
           .insert({
             User_ID: userID,
@@ -293,18 +331,6 @@ router.post("/getReviewed", async (request, response) => {
   }
 });
 
-async function isResponseSuccessful(albumId) {
-  try {
-    const albumDataResponse = await axios.post(
-      "http://localhost:5000/spotify/getAlbums",
-      { Reviewed: albumIds }
-    );
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 // gets all reviews and their associated album data
 router.post("/getAllReviews", async (request, response) => {
   try {
@@ -320,66 +346,80 @@ router.post("/getAllReviews", async (request, response) => {
       });
     }
 
-    const reviews = await database("reviews")
+    // Retrieve all reviews
+    const content_IDs = await database("lookUp")
       .select("*")
       .orderByRaw("id DESC")
       .limit(10)
       .offset(offset);
+    // console.log(reviews);
 
-    const albums = [];
-    const artists = [];
+    // Extract album and artist IDs from reviews
+    const albumIds = content_IDs.filter(review => review.isAlbum).map(review => review.content_ID);
+    const artistIds = content_IDs.filter(review => !review.isAlbum).map(review => review.content_ID);
 
-    for (let i = 0; i < reviews.length; i++) {
-      const review = reviews[i];
-      const albumId = review.content_ID;
+    // Make batch requests for album and artist data
+    let albumData = [];
+    let artistData = [];
 
-      // Check if the album data is available and valid
-      const isSuccessful = await isResponseSuccessful(albumId);
-      try {
-        if (isSuccessful) {
-          const albumDataResponse = await axios.post(
-            "http://localhost:5000/spotify/getAlbums",
-            { Reviewed: [albumId] }
-          );
-          const albumData = albumDataResponse.data.slice(1);
-          const album = albumData[0];
-
-          const user = await database("users")
-            .select("username")
-            .where({ User_ID: review.User_ID })
-            .first();
-          const username = user ? user.username : "unknown";
-
-          const reviewData = { ...review, album, username, isSuccessful };
-          albums.push(reviewData);
-        } else if (!isSuccessful) {
-          const artistDataResponse = await axios.post(
-            "http://localhost:5000/spotify/getArtist",
-            { Reviewed: [albumId] }
-          );
-          const artistData = artistDataResponse.data;
-          const artist = artistData[0];
-
-          const user = await database("users")
-            .select("username")
-            .where({ User_ID: review.User_ID })
-            .first();
-          const username = user ? user.username : "unknown";
-
-          const reviewData = { ...review, artist, username, isSuccessful };
-          artists.push(reviewData);
-        }
-      } catch (error) {
-        continue;
-      }
+    if (albumIds.length > 0) {
+      const albumDataResponse = await axios.post(
+        "http://localhost:5000/spotify/getAlbums",
+        { Reviewed: albumIds }
+      );
+      albumData = albumDataResponse.data.slice(1);
     }
-    return response.json({ Albums: albums, Artists: artists });
+
+    if (artistIds.length > 0) {
+      const artistDataResponse = await axios.post(
+        "http://localhost:5000/spotify/getArtist",
+        { Reviewed: artistIds }
+      );
+      artistData = artistDataResponse.data;
+    }
+
+    // Combine review, rating, and album/artist data
+    const allReviewData = await Promise.all(content_IDs.map(async review => {
+      const user = await database("users")
+        .select("username")
+        .where({ User_ID: review.User_ID })
+        .first();
+      const username = user ? user.username : "unknown";
+
+      let contentData;
+      if (review.isAlbum) {
+        contentData = albumData.find(album => album.id === review.content_ID);
+        const contentReviewData = await database("reviews")
+          .select("Review", "rating")
+          .where({ content_ID: review.content_ID, User_ID: review.User_ID });
+
+        return {
+          ...review,
+          album: review.isAlbum ? contentData : null,
+          username,
+          review: contentReviewData.length > 0 ? contentReviewData[0].Review : null,
+          rating: contentReviewData.length > 0 ? contentReviewData[0].rating : null,
+        }
+      } else {
+        contentData = artistData.find(artist => artist.id === review.content_ID);
+        const contentReviewData = await database("reviews")
+          .select("Review", "rating")
+          .where({ content_ID: review.content_ID }, { User_ID: review.User_ID });
+        return {
+          ...review,
+          artist: !review.isAlbum ? contentData : null,
+          username,
+          review: contentReviewData.length > 0 ? contentReviewData[0].Review : null,
+          rating: contentReviewData.length > 0 ? contentReviewData[0].rating : null,
+        }
+      }
+    }));
+
+    return response.json(allReviewData);
   } catch (error) {
     return response.json({ error: error.message });
   }
 });
-
-
 
 router.get("/getProfilePic", async (req, res) => {
   try {

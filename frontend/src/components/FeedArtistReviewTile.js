@@ -17,31 +17,35 @@ import Link from "next/link";
 import { useState } from "react";
 import CustomButton from "./CustomButton";
 
-function FeedReviewTile({ album, review, rating, username }) {
-  const handleAlbumClick = (album) => {
-    console.log("Album clicked:", album);
+function FeedReviewTile({ artist, review, rating, username }) {
+  const handleartistClick = (artist) => {
+    console.log("artist clicked:", artist);
   };
-  console.log(album);
+  // console.log(artist);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[300px] max-h-[250px] border-mainblue">
+    <div className="artist-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 snap-y min-w-[300px] max-h-[250px] border-accentlavender">
       <div className="flex flex-row space-x-4">
-        <Link href={`/Album/?id=${album.id}`}>
+        <Link href={`/Artist/?id=${artist.id}`}>
           <button
             // disabled={loading}
             className="border-[4px] border-white rounded-md"
           >
             <Image
-              src={album.image}
-              alt={album.name}
+              src={artist.image}
+              alt={artist.name}
               boxSize="167px"
               objectFit="cover"
             />
           </button>
         </Link>
         <div className="flex flex-col space-y-4 text-white text-xl max-w-[500px] justify-center items-center">
+          <div className="font-permanent-marker text-white text-2xl">
+            Artist
+          </div>
           <div className="flex flex-row overflow-hidden space-x-2">
+
             <img
               src="/favicon-32x32.png"
               alt="profile picture"
@@ -54,10 +58,13 @@ function FeedReviewTile({ album, review, rating, username }) {
               {rating}★
             </Text>
           </div>
-          {review && (
-            <CustomButton text="Read Review" onClick={() => setIsOpen(true)} />
-          )}
+          <div className="font-permanent-marker text-white text-base">
+            {review && (
+              <CustomButton text="Read Review" onClick={() => setIsOpen(true)} />
+            )}
+          </div>
         </div>
+
         <Dialog
           open={isOpen}
           onClose={() => setIsOpen(false)}
@@ -72,12 +79,9 @@ function FeedReviewTile({ album, review, rating, username }) {
             <Dialog.Panel className="text-white min-w-[500px] min-h-[200px] bg-black border-accentlavender border-[7px] p-8 overflow-auto text-justify rounded-2xl">
               <Dialog.Title>
                 <div className="text-3xl flex flex-col font-permanent-marker">
-                  <div className="flex flex-row justify-center">
-                    <div className="font-permanent-marker">{album.name}</div>
-                  </div>
-                  <Link href={`/Album/?id=${album.id}`}>
-                    <div className="text-2xl sfont-permanent-marker flex justify-center">
-                      By: {album.artists}
+                  <Link href={`/Artist/?id=${artist.id}`}>
+                    <div className="flex flex-row justify-center">
+                      <div className="font-permanent-marker">{artist.name}</div>
                     </div>
                   </Link>
                   <div className="py-4">
@@ -107,7 +111,6 @@ function FeedReviewTile({ album, review, rating, username }) {
                   </div>
                 </div>
               </Dialog.Title>
-              {/* ... */}
             </Dialog.Panel>
           </div>
         </Dialog>
@@ -125,7 +128,7 @@ export default FeedReviewTile;
     <ModalHeader>
       <div className="flex flex-col font-permanent-marker">
         <div className="flex flex-row">
-          <div className="font-permanent-marker">{album.name}</div>
+          <div className="font-permanent-marker">{artist.name}</div>
         </div>
         <div className="flex flex-row">
           <div className="font-permanent-marker text-clip w-[95px] whitespace-nowrap overflow-hidden">

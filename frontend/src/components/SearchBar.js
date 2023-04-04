@@ -17,7 +17,7 @@ function SearchBar(props) {
   const toast = useToast();
   const router = useRouter();
   const [selection, setSelection] = useState("albums");
-  var searchURLiiiiiiiii;
+  var searchURL;
 
   async function makeSearch(searchTerm) {
     console.log(selection);
@@ -85,7 +85,7 @@ function SearchBar(props) {
           handleSearch();
         }}
       >
-        <div className="flex flex-col justify-center items-center space-y-2">
+        <div className="flex flex-col justify-center items-center space-y-2" style={{ cursor: "pointer" }}>
           {" "}
           <InputGroup
             size="md"
