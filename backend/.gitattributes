@@ -1,0 +1,2 @@
+.gitattributes
+./db/ECE5010-projectdb.db3  merge=keepTheir
