@@ -31,7 +31,7 @@ const Album = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            album_id: id,
+            content_ID: id,
           },
         });
         const data = await response.json();
@@ -55,7 +55,7 @@ const Album = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              album_id: id,
+              content_ID: id,
             },
           }
         );
