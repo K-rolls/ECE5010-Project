@@ -29,7 +29,8 @@
 - [x] clean up existing routes to use axios correctly
 - [x] refactor backend to better use the spotify api so we don't get rate limiting issues
 - [x] add Get artist
-- [ ] refactor database to ID from Album_ID
+- [x] refactor database to ID from Album_ID
+- [ ] /get profile page route
 
 ## Frontend
 - [x] flesh out welcome
