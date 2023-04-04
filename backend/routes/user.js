@@ -4,8 +4,60 @@ const database = require("../db/db.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
-// const spotify = require('../spotify/spotify.js');
 const { v3: uuidv3 } = require("uuid");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (request, file, cb) {
+    cb(null, path.resolve(__dirname, "../uploads/"));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const parsed = path.parse(file.originalname);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({ storage: storage });
+
+router.post(
+  "/profilePic",
+  upload.single("profilePic"),
+  async (request, res) => {
+    try {
+      const { userId } = request.body.User_ID;
+      console.log(userId);
+      const existingUser = await database("users").where({
+        User_ID: request.body.User_ID,
+      });
+      console.log(existingUser);
+      if (!existingUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const profilePicturePath = request.file.path;
+      const parsed = path.parse(profilePicturePath);
+      const filename = parsed.name;
+      const newFilePath = `../backend/uploads/${filename}.webp`;
+
+      const result = await database("users")
+        .where({ User_ID: request.body.User_ID })
+        .update({ profilePicture: newFilePath }, [
+          "User_ID",
+          "username",
+          "profilePicture",
+        ]);
+      console.log(result);
+      return res.json({ user: result[0] });
+    } catch (error) {
+      return res.json({ error: error.message });
+    }
+  }
+);
 
 router.post("/signUp", async (request, response) => {
   try {
@@ -13,17 +65,22 @@ router.post("/signUp", async (request, response) => {
     const namespace = "666f849c-326f-4922-8252-c97cef969af5";
     const user_id = uuidv3(user.username, namespace);
 
-    const existingUser = await database("users").where({ username: user.username }).first();
+    const existingUser = await database("users")
+      .where({ username: user.username })
+      .first();
     if (existingUser) {
       return response.status(409).json({ error: "Username already taken" });
     }
 
     const hashed_password = await bcrypt.hash(user.password, 12);
-    const users = await database("users").insert({
-      user_id: user_id,
-      username: user.username,
-      password_hash: hashed_password
-    }).returning("*");
+    const users = await database("users")
+      .insert({
+        User_ID: user_id,
+        username: user.username,
+        password_hash: hashed_password,
+        profilePicture: "../uploads/default-profile-picture.png",
+      })
+      .returning("*");
 
     const createdUser = users[0];
     return response.json({ user: createdUser });
@@ -44,8 +101,7 @@ router.post("/login", (request, response) => {
         Promise.resolve(retrievedUser),
       ]);
       const areSamePasswords = results[0];
-      if (!areSamePasswords)
-        throw new Error("wrong Password!");
+      if (!areSamePasswords) throw new Error("wrong Password!");
       const retrievedUser_1 = results[1];
       // console.log(results)
       const payload = {
@@ -56,8 +112,7 @@ router.post("/login", (request, response) => {
       const secret = "SECRET";
       return await new Promise((resolve, reject) => {
         jwt.sign(payload, secret, (error, token) => {
-          if (error)
-            reject(new Error("Sign in error!"));
+          if (error) reject(new Error("Sign in error!"));
           resolve({ token, User_ID: retrievedUser_1.User_ID }); // Include user_id in response
         });
       });
@@ -187,16 +242,20 @@ router.post("/getReviewed", async (request, response) => {
     const albumIds = reviewedAlbums.map((review) => review.Album_ID);
 
     // Get the metadata associated with the top four albums and all reviewed albums
-    const albumData = await axios.post("http://localhost:5000/spotify/getAlbums", {
-      Reviewed: albumIds,
-    }, {
-      headers: {
-        "Access-Control-Allow-Origin": "http://localhost:3000",
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Origin, Content-Type, Accept"
+    const albumData = await axios.post(
+      "http://localhost:5000/spotify/getAlbums",
+      {
+        Reviewed: albumIds,
+      },
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "http://localhost:3000",
+          "Access-Control-Allow-Credentials": true,
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Origin, Content-Type, Accept",
+        },
       }
-    });
+    );
 
     const reviewedImages = albumData.data.filter((album) =>
       albumIds.includes(album.id)
@@ -204,18 +263,24 @@ router.post("/getReviewed", async (request, response) => {
     const recentImages = albumData.data.filter((album) =>
       recents.includes(album.id)
     );
-    const topRatedImages = albumData.data.filter((album) =>
-      topRatedAlbums.map((review) => review.Album_ID).includes(album.id)
-    ).sort((a, b) => {
-      const aIndex = topRatedAlbums.findIndex((review) => review.Album_ID === a.id);
-      const bIndex = topRatedAlbums.findIndex((review) => review.Album_ID === b.id);
-      return aIndex - bIndex;
-    });
+    const topRatedImages = albumData.data
+      .filter((album) =>
+        topRatedAlbums.map((review) => review.Album_ID).includes(album.id)
+      )
+      .sort((a, b) => {
+        const aIndex = topRatedAlbums.findIndex(
+          (review) => review.Album_ID === a.id
+        );
+        const bIndex = topRatedAlbums.findIndex(
+          (review) => review.Album_ID === b.id
+        );
+        return aIndex - bIndex;
+      });
 
     return response.json({
       recents: recentImages,
       reviewed: reviewedImages,
-      topRated: topRatedImages
+      topRated: topRatedImages,
     });
   } catch (error) {
     return response.status(500).json({
@@ -230,29 +295,42 @@ router.post("/getAllReviews", async (request, response) => {
   try {
     const numReviews = request.body.num;
     // console.log(numReviews);
-    const offset = (numReviews > 0) ? (numReviews - 1) * 10 : 0;
+    const offset = numReviews > 0 ? (numReviews - 1) * 10 : 0;
     const countResult = await database("reviews").count("id as count").first();
     // console.log(countResult.count, offset);
     const count = countResult.count;
     if (offset >= count) {
       // The requested offset exceeds the number of entries in the database
-      return response.json({ success: false, error: "Requested offset exceeds the number of entries in the database" });
+      return response.json({
+        success: false,
+        error: "Requested offset exceeds the number of entries in the database",
+      });
     }
 
-    const reviews = await database("reviews").select("*").orderByRaw("id DESC").limit(10).offset(offset);
+    const reviews = await database("reviews")
+      .select("*")
+      .orderByRaw("id DESC")
+      .limit(10)
+      .offset(offset);
     // console.log(reviews);
-    const albumIds = reviews.map(review => review.Album_ID);
+    const albumIds = reviews.map((review) => review.Album_ID);
     // console.log(albumIds);
-    const albumDataResponse = await axios.post('http://localhost:5000/spotify/getAlbums', { Reviewed: albumIds });
+    const albumDataResponse = await axios.post(
+      "http://localhost:5000/spotify/getAlbums",
+      { Reviewed: albumIds }
+    );
     const albumData = albumDataResponse.data.slice(1);
 
     const reviewsWithAlbumData = [];
 
     for (let i = 0; i < reviews.length; i++) {
       const review = reviews[i];
-      const album = albumData.find(album => album.id === review.Album_ID);
+      const album = albumData.find((album) => album.id === review.Album_ID);
 
-      const user = await database("users").select("username").where({ User_ID: review.User_ID }).first();
+      const user = await database("users")
+        .select("username")
+        .where({ User_ID: review.User_ID })
+        .first();
       const username = user ? user.username : "unknown";
 
       reviewsWithAlbumData.push({ ...review, album, username });
@@ -263,6 +341,5 @@ router.post("/getAllReviews", async (request, response) => {
     return response.json({ error: error.message });
   }
 });
-
 
 module.exports = router;

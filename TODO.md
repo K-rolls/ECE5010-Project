@@ -21,12 +21,15 @@
   - [x] average rating
 # final submission
 - [x] write get all reviews and associated album data route
-- [ ] add new column to /users for profile customization 
-- [ ] write new routes for /users/setProfilePic
+- [x] add new column to /users for profile customization 
+- [x] write new routes for /users/profilePic
 - [x] implement stratgey pattern for /spotify/search{album} or artist
 - [ ] add new route / update existing route to get tracklist from album id
+- [ ] add discography per artist
 - [x] clean up existing routes to use axios correctly
 - [x] refactor backend to better use the spotify api so we don't get rate limiting issues
+- [x] add Get artist
+- [ ] refactor database to ID from Album_ID
 
 ## Frontend
 - [x] flesh out welcome
@@ -50,5 +53,5 @@
 - [ ] tracklist
 - [ ] album search
 - [ ] search filtering for albums
-- [ ] add loading states for profile page and user collection page
+- [x] add loading states for profile page and user collection page
 - [x] fix album page

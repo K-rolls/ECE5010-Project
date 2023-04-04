@@ -78,12 +78,12 @@ class AlbumSearchStrategy extends SearchStrategy {
         try {
             const searchResponse = await axios('https://api.spotify.com/v1/search', searchOptions);
             const { albums: { items } } = searchResponse.data;
-            const searchResults = items.map(item => ({
-                id: item.id,
-                name: item.name,
-                artists: item.artists.map(artist => artist.name).join(', '),
-                image: item.images[0]?.url,
-                releaseDate: item.release_date
+            const searchResults = items.map((item) => ({
+              id: item.id,
+              name: item.name,
+              artists: item.artists.map((artist) => artist.name).join(", "),
+              image: item.images[0]?.url,
+              releaseDate: item.release_date,
             }));
 
             return searchResults;
