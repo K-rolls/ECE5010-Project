@@ -107,10 +107,10 @@ const Home = () => {
                 {reviews.reviews?.allReviews?.map((review, index) => (
                   <div
                     key={index}
-                    className="h-[175px] w-[175px] border-4 border-white rounded-md shadow-2xl"
+                    className="flex border-4 border-white rounded-md shadow-2xl"
                   >
                     <Link href={review?.isAlbum ? `/Album/?id=${review?.content_ID}` : `/Artist/?id=${review?.content_ID}`}>
-                      <Image src={review?.image} />
+                      <Image src={review?.image} className="h-[170px] w-[170px]" />
                     </Link>
                   </div>
                 ))}

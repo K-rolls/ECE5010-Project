@@ -116,10 +116,10 @@ overflow-y-auto
               {reviews.reviews?.topFourAlbums?.map((review, index) => (
                 <div
                   key={index}
-                  className="h-[175px] w-[175px] border-4 border-white rounded-md "
+                  className="flex border-4 border-white rounded-md "
                 >
                   <Link href={`/Album/?id=${review?.content_ID}`}>
-                    <Image src={review?.image} />
+                    <Image src={review?.image} className="h-[170px] w-[170px]" />
                   </Link>
                 </div>
               ))}
@@ -142,10 +142,10 @@ overflow-y-auto
                 {reviews.reviews?.topFourArtists?.map((review, index) => (
                 <div
                   key={index}
-                  className="h-[175px] w-[175px] border-4 border-white rounded-md "
+                    className="flex border-4 border-white rounded-md "
                 >
                     <Link href={`/Artist/?id=${review?.content_ID}`}>
-                    <Image src={review?.image} />
+                      <Image src={review?.image} className="h-[170px] w-[170px]" />
                   </Link>
                 </div>
               ))}
