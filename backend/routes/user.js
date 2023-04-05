@@ -356,6 +356,7 @@ router.post('/getReviewed', async (request, response) => {
         content_ID: item.content_ID,
         image: albumFound?.image,
         id: item.id,
+        isAlbum: item.isAlbum,
       }
     });
 
@@ -365,6 +366,7 @@ router.post('/getReviewed', async (request, response) => {
         content_ID: item.content_ID,
         image: artist?.image,
         id: item.id,
+        isAlbum: item.isAlbum,
       }
     });
     const reviewed = albumReviewDataWithImage.concat(artistReviewDataWithImage);
