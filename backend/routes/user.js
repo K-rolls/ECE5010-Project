@@ -10,7 +10,7 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: function (request, file, cb) {
-    cb(null, path.resolve(__dirname, "../uploads/"));
+    cb(null, path.resolve(__dirname, "../../frontend/public/uploads/"));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -25,10 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // https://stackoverflow.com/questions/3748/storing-images-in-db-yea-or-nay
-router.post(
-  "/setProfilePic",
-  upload.single("profilePic"),
-  async (request, res) => {
+router.post("/setProfilePic", upload.single("profilePic"), async (request, res) => {
     try {
       const { userId } = request.body.User_ID;
       console.log(userId);
@@ -43,7 +40,7 @@ router.post(
       const profilePicturePath = request.file.path;
       const parsed = path.parse(profilePicturePath);
       const filename = parsed.name;
-      const newFilePath = `../backend/uploads/${filename}.webp`;
+      const newFilePath = `/uploads/${filename}${path.extname(profilePicturePath)}`;
 
       const result = await database("users")
         .where({ User_ID: request.body.User_ID })
@@ -502,10 +499,10 @@ router.get("/getProfilePic", async (req, res) => {
       profilePicturePath,
       path.extname(profilePicturePath)
     );
-    const defaultPath = "../backend/uploads/default-profile-picture.png";
+    const defaultPath = "/uploads/default-profile-picture.png";
 
     const filePath = fileName
-      ? `../backend/uploads/${fileName}${path.extname(profilePicturePath)}`
+      ? `/${fileName}${path.extname(profilePicturePath)}`
       : defaultPath;
 
     try {

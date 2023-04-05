@@ -1,12 +1,17 @@
 import { Avatar, Image, Text, Link, Spinner } from "@chakra-ui/react";
+import { Dialog } from "@headlessui/react";
 import Router from "next/router";
 import NavBar from "@/components/NavBar";
 import { useState, useEffect } from "react";
 import CustomButton from "@/components/CustomButton";
+import jwt from "jsonwebtoken";
+import axios from "axios";
 
 const Profile = () => {
   const [reviews, setReviews] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [profilePic, setProfilePic] = useState(["/uploads/default-profile-picture.png"]);
 
   var user = false;
   function getCookie(name) {
@@ -27,8 +32,48 @@ const Profile = () => {
       return null;
     }
   }
-
   const token = getCookie("token");
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [userId, setUserId] = useState("");
+
+  const handleFileInputChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const decodedToken = jwt.decode(token);
+    const userID = decodedToken ? decodedToken.User_ID : null;
+    console.log(userID);
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append('profilePic', selectedFile);
+    formData.append('User_ID', userID);
+
+    try {
+      const response = await axios.post('http://localhost:5000/user/setProfilePic', formData);
+      setProfilePic(response.data.user.profilePicture);
+      // console.log(response.data.user.profilePicture);
+      setIsOpen(false)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  async function getProfilePic() {
+    const decodedToken = jwt.decode(token);
+    const userID = decodedToken ? decodedToken.User_ID : null;
+    console.log(userID);
+    try {
+      const response = await fetch(`http://localhost:5000/user/getProfilePic/?User_ID=${userID}`);
+      const data = await response.json();
+      // console.log(data);
+      return "/uploads" + data.profilePicture;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     async function fetchReviews() {
@@ -47,17 +92,12 @@ const Profile = () => {
         });
 
         const data = await response.json();
-        // console.log(data);
-        /**recentDataWithImageAndID,
-      albumReviewData,
-      artistReviewData,
-      sortedReviewed */
         var recentReviews = data.recentDataWithImageAndID;
         var allReviews = data.sortedReviewed;
         var topFourAlbums = data.albumReviewData;
         var topFourArtists = data.artistReviewData;
 
-        console.log(recentReviews);
+        // console.log(recentReviews);
 
         setReviews((prevState) => ({
           ...prevState,
@@ -68,6 +108,9 @@ const Profile = () => {
         setReviews((prevState) => ({ ...prevState, reviews: null }));
       } finally {
         setIsLoading(false);
+        const profilePicPath = await getProfilePic();
+        console.log(profilePicPath);
+        setProfilePic(profilePicPath);
       }
     }
     if (token) {
@@ -94,11 +137,12 @@ overflow-y-auto
         className="flex flex-col space-y-2 justify-center items-center
          "
       >
+        {/* <img src="/uploads/profilePic-1680656337117-809641989.png"></img> */}
         <Avatar
           className="flex items-center"
           size="2xl"
           name="Default"
-          src="/ProfileDefault.png"
+          src={profilePic}
         />
         <div className="flex self-start font-permanent-marker">
           <Text className="flex" color="white" fontSize="xl">
@@ -132,7 +176,7 @@ overflow-y-auto
             Favourite Artists{" "}
           </Text>
         </div>
-        <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
+        <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-accentlavender border-4 shadow-2xl">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
               <Spinner thickness="4px" speed="0.65s" color="white" size="xl" />
@@ -154,38 +198,7 @@ overflow-y-auto
         </div>
 
         <div className="flex flex-col justify-center items-center space-y-2">
-          {/* <div className="flex self-start font-permanent-marker">
-            <Text className="flex" color="white" fontSize="xl">
-              {" "}
-              Recents{" "}
-            </Text>
-          </div> */}
-
-          {/* <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-full">
-                <Spinner
-                  thickness="4px"
-                  speed="0.65s"
-                  color="white"
-                  size="xl"
-                />
-              </div>
-            ) : (
-              <div className="flex flex-row items-center space-x-8 ">
-                {reviews.reviews?.allReviews?.map((review, index) => (
-                  <div
-                    key={index}
-                    className="h-[175px] w-[175px] border-4 border-white rounded-md "
-                  >
-                    <Image src={review?.image} />
-                  </div>
-                ))}
-              </div>
-            )}{" "}
-          </div> */}
-
-          <div className="p-8">
+          <div className="flex flex-row space-x-2 p-8">
             <button
               onClick={() => Router.push("/Collection")}
               className="
@@ -203,8 +216,70 @@ overflow-y-auto
             >
               {"View All Reviews"}
             </button>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="
+          font-permanent-marker 
+          bg-mainblue 
+          hover:bg-accentlavender 
+          h-12 
+          w-48 
+          hover:scale-105 
+          opacity-100 
+          rounded-lg 
+          font-extrabold 
+          text-background 
+          hover:text-white"
+            >
+              {"Edit Profile"}
+            </button>
           </div>
         </div>
+        <Dialog
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          className="relative z-50"
+        >
+          <div
+            className="fixed inset-0 bg-black/70 blur-6xl"
+            aria-hidden="true"
+          />
+
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="text-white min-w-[500px] min-h-[200px] bg-black border-accentlavender border-[7px] p-8 overflow-auto text-justify rounded-2xl">
+              <Dialog.Title>
+                <div className="text-3xl flex flex-col font-permanent-marker">
+                  Change your profile picture?
+                </div>
+              </Dialog.Title>
+              <Dialog.Description>
+                <div className="flex space-y-2 text-xl max-w-[550px] pt-4">
+                  <form className="flex flex-col space-y-8 justify-center items-center" onSubmit={handleSubmit}>
+                    <label>
+                      Profile Picture:
+                      <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleFileInputChange} className="pl-2" />
+                    </label>
+                    <button type="submit" className="
+                        font-permanent-marker 
+                        bg-mainblue 
+                        hover:bg-accentlavender 
+                        h-18 
+                        w-48 
+                        hover:scale-105 
+                        opacity-100 
+                        rounded-lg 
+                        font-extrabold
+                        text-lg
+                        text-background 
+                        hover:text-white">
+                      Upload Profile Picture
+                    </button>
+                  </form></div>
+              </Dialog.Description>
+
+            </Dialog.Panel>
+          </div>
+        </Dialog>
       </div>
     </div>
   );
