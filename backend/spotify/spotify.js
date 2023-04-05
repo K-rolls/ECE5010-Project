@@ -93,23 +93,29 @@ router.post("/getAlbums", async (request, response) => {
   try {
     const indices = Object.values(request.body.Reviewed);
     const len = indices.length;
-    const albumIds = indices.join(",");
+    const chunkSize = 20;
 
-    const tokenResponse = await axios.get(
-      "http://localhost:5000/spotify/token"
-    );
+    const tokenResponse = await axios.get("http://localhost:5000/spotify/token");
     const token = tokenResponse.data.token;
 
-    const albumUrl = `https://api.spotify.com/v1/albums?ids=${albumIds}`;
-    const searchOptions = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const albumResponse = await axios.get(albumUrl, searchOptions);
-    const albumData = albumResponse.data.albums.map((album) => {
+    let albumDataArray = [];
+
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = indices.slice(i, i + chunkSize);
+      const albumIds = chunk.join(",");
+      const albumUrl = `https://api.spotify.com/v1/albums?ids=${albumIds}`;
+      const searchOptions = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      const albumResponse = await axios.get(albumUrl, searchOptions);
+      albumDataArray.push(...albumResponse.data.albums);
+    }
+    // return response.json(albumDataArray.length);
+    const albumData = albumDataArray.map((album) => {
       const {
         name,
         artists,
@@ -144,25 +150,40 @@ router.post("/getArtist", async (request, response) => {
   try {
     const indices = Object.values(request.body.Reviewed);
     const len = indices.length;
-    const artistIds = indices.join(",");
+    const chunkSize = 20;
 
     const tokenResponse = await axios.get(
       "http://localhost:5000/spotify/token"
     );
     const token = tokenResponse.data.token;
 
-    const artistUrl = `https://api.spotify.com/v1/artists?ids=${artistIds}`;
-    const searchOptions = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const artistResponse = await axios.get(artistUrl, searchOptions);
-    const artistData = artistResponse.data.artists.map((item) => {
-      const { id, name, genres, images, popularity, followers, external_urls } =
-        item;
+    let artistsDataArray = [];
+
+    for (let i = 0; i < len; i += chunkSize) {
+      const chunk = indices.slice(i, i + chunkSize);
+      const artistIds = chunk.join(",");
+      const artistUrl = `https://api.spotify.com/v1/artists?ids=${artistIds}`;
+      const searchOptions = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      const artistResponse = await axios.get(artistUrl, searchOptions);
+      artistsDataArray.push(...artistResponse.data.artists);
+    }
+
+    const artistData = artistsDataArray.map((item) => {
+      const {
+        id,
+        name,
+        genres,
+        images,
+        popularity,
+        followers,
+        external_urls
+      } = item;
       return {
         id: id,
         name: name,
@@ -176,7 +197,7 @@ router.post("/getArtist", async (request, response) => {
     artistData.unshift({ len: len });
     return response.json(artistData);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return response.status(500).send(error.message);
   }
 });

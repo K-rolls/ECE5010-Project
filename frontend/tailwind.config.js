@@ -13,7 +13,7 @@ module.exports = {
         mainblue: "#94C1D2",
         accentlavender: "#d299ff",
         background: "#0B4981",
-        background2: "#881337"
+        background2: "#881337",
       },
     },
   },

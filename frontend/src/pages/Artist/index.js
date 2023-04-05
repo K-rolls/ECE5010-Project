@@ -1,13 +1,20 @@
 import {
-    Text,
-    Slider,
-    SliderTrack,
-    SliderFilledTrack,
-    SliderThumb,
-    SliderMark,
-    Box,
-    Textarea,
-    useToast,
+  Text,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderMark,
+  Box,
+  Textarea,
+  useToast,
+  Link,
+  Divider,
+  List,
+  ListItem,
+  UnorderedList,
+  IconButton,
+  Icon,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -16,175 +23,205 @@ import NavBar from "@/components/NavBar";
 import CustomButton from "@/components/CustomButton.js";
 
 const Artist = () => {
-    const [sliderValue, setSliderValue] = useState(0);
-    const [reviewValue, setReviewValue] = useState("");
-    const [data, setData] = useState({});
-    const [reviews, setReviews] = useState({});
-    const router = useRouter();
-    const { id } = router.query;
-    const toast = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0);
+  const [reviewValue, setReviewValue] = useState("");
+  const [data, setData] = useState({});
+  const [reviews, setReviews] = useState({});
+  const [genres, setGenres] = useState([]);
+  const router = useRouter();
+  const { id } = router.query;
+  const toast = useToast();
 
-    useEffect(() => {
-        async function fetchReviews() {
-            // try {
-            //     var response = await fetch("http://localhost:5000/spotify/getReviews", {
-            //         method: "GET",
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //             album_id: id,
-            //         },
-            //     });
-            //     const data = await response.json();
-            //     var numReviews = Object.values(data.data).length;
-            //     var allReviews = data.data;
+  const [isHovered, setIsHovered] = useState(false);
 
-            // setReviews((prevState) => ({
-            //     ...prevState,
-            //     reviews: { numReviews, allReviews },
-            //     }));
-            // } catch (error) {
-            //     console.error(error);
-            //     setReviews((prevState) => ({ ...prevState, reviews: null }));
-            // }
-        }
-        async function getAverage() {
-            // try {
-            //     var response = await fetch(
-            //         "http://localhost:5000/spotify/averageRating",
-            //         {
-            //             method: "GET",
-            //             headers: {
-            //                 "Content-Type": "application/json",
-            //                 album_id: id,
-            //             },
-            //         }
-            //     );
-            //     const data = await response.json();
-            //     var value = data?.data;
-            //     if (value !== undefined) {
-            //         value = Math.round(value * 100) / 100;
-            //     }
-            //     setData((prevState) => ({ ...prevState, avg: value }));
-            // } catch (error) {
-            //     console.error(error);
-            //     setData((prevState) => ({ ...prevState, avg: null }));
-            // }
-        }
-        async function fetchartistData() {
-            // try {
-            //     var data;
-            //     const req = {
-            //         Reviewed: [id],
-            //     };
+  const handleMouseOver = () => {
+    setIsHovered(true);
+  };
 
-            //     const response = await fetch(
-            //         "http://localhost:5000/spotify/getAlbums",
-            //         {
-            //             method: "POST",
-            //             headers: {
-            //                 "Content-Type": "application/json",
-            //             },
-            //             body: JSON.stringify(req),
-            //         }
-            //     );
+  const handleMouseOut = () => {
+    setIsHovered(false);
+  };
 
-            //     data = await response.json();
-            //     data = data[1];
-            //     setData((prevState) => ({ ...prevState, artistData: data }));
-            // } catch (error) {
-            //     fetc artistData();
-            //     getAverage();
-            // }
-        }
-        if (id) {
-            fetc.artistData();
-            getAverage();
-            fetchReviews();
-        }
-    }, [id]);
+  const imgSrc = isHovered
+    ? "/Spotify_Icon_RGB_Green.png"
+    : "/Spotify_Icon_RGB_Black.png";
 
-    function getCookie(name) {
-        try {
-            const cookies = document.cookie.split("; ");
-            for (let i = 0; i < cookies.length; i++) {
-                const parts = cookies[i].split("=");
-                const cookieName = parts[0];
-                const cookieValue = parts[1];
-                if (cookieName === name) {
-                    return cookieValue;
-                }
-            }
-            return null;
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
+  useEffect(() => {
+    // function renderGenres() {
+    //   var genreList = [];
+    //   for (let i = 0; i < data.artistData?.genres.length; i++) {
+    //     let genreID = i;
+    //     let genreName = data.artistData?.genres[i];
+    //     genreList.push({ key: genreID, g: genreName });
+    //     console.log(genreList);
+    //   }
+    //   setGenres(genreList);
+    // }
+
+    async function fetchReviews() {
+      try {
+        var response = await fetch("http://localhost:5000/spotify/getReviews", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            content_id: id,
+          },
+        });
+        const data = await response.json();
+        var numReviews = Object.values(data.data).length;
+        var allReviews = data.data;
+
+        setReviews((prevState) => ({
+          ...prevState,
+          reviews: { numReviews, allReviews },
+        }));
+      } catch (error) {
+        console.error(error);
+        setReviews((prevState) => ({ ...prevState, reviews: null }));
+      }
     }
-
-    const token = getCookie("token");
-
-    async function makeReview(review, rating) {
-        // try {
-        //     var req = {
-        //         token: token,
-        //         albumID: id,
-        //         review: review,
-        //         rating: rating,
-        //     };
-
-        //     const response = await fetch("http://localhost:5000/user/makeReview", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify(req),
-        //     });
-        //     const success = await response.json();
-        //     console.log(success);
-        //     return success;
-        // } catch (error) {
-        //     console.error(error);
-        //     return error;
-        // }
+    async function getAverage() {
+      try {
+        var response = await fetch(
+          "http://localhost:5000/spotify/averageRating",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              content_id: id,
+            },
+          }
+        );
+        const data = await response.json();
+        var value = data?.data;
+        if (value !== undefined) {
+          value = Math.round(value * 100) / 100;
+        }
+        setData((prevState) => ({ ...prevState, avg: value }));
+      } catch (error) {
+        console.error(error);
+        setData((prevState) => ({ ...prevState, avg: null }));
+      }
     }
+    async function fetchartistData() {
+      try {
+        var data;
+        const req = {
+          Reviewed: [id],
+        };
 
-    async function handleSubmit(event) {
-        // event.preventDefault();
-        // let review = reviewValue;
-        // let rating = sliderValue;
-        // console.log(review);
-        // console.log(rating);
-        // var reviewed = await makeReview(review, rating);
-        // if (reviewed.success) {
-        //     toast({
-        //         title: reviewed.message,
-        //         status: "success",
-        //         set: 5000,
-        //         isClosable: true,
-        //         position: "top",
-        //     });
-        //     setTimeout(() => window.location.reload(), 750);
-        // } else {
-        //     toast({
-        //         title: reviewed.message,
-        //         status: "error",
-        //         duration: 5000,
-        //         isClosable: true,
-        //         position: "top",
-        //     });
-        // }
-        // setReviewValue("");
+        const response = await fetch(
+          "http://localhost:5000/spotify/getArtist",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(req),
+          }
+        );
+
+        data = await response.json();
+        data = data[1];
+        setData((prevState) => ({ ...prevState, artistData: data }));
+      } catch (error) {
+        fetchartistData();
+        getAverage();
+      }
     }
+    if (id) {
+      fetchartistData();
+      getAverage();
+      fetchReviews();
+      //renderGenres();
+    }
+  }, [id]);
 
-    // Handle input change
-    let handleInputChange = (e) => {
-        // let inputValue = e.target.value;
-        // setReviewValue(inputValue);
-    };
+  function getCookie(name) {
+    try {
+      const cookies = document?.cookie.split("; ");
+      for (let i = 0; i < cookies.length; i++) {
+        const parts = cookies[i].split("=");
+        const cookieName = parts[0];
+        const cookieValue = parts[1];
+        if (cookieName === name) {
+          return cookieValue;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 
-    return (
-        <div
-            className="
+  const token = getCookie("token");
+
+  async function makeReview(review, rating) {
+    try {
+      var req = {
+        token: token,
+        albumID: id,
+        review: review,
+        rating: rating,
+      };
+
+      const response = await fetch("http://localhost:5000/user/makeReview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req),
+      });
+      const success = await response.json();
+      console.log(success);
+      return success;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    let review = reviewValue;
+    let rating = sliderValue;
+    console.log(review);
+    console.log(rating);
+    var reviewed = await makeReview(review, rating);
+    if (reviewed.success) {
+      toast({
+        title: reviewed.message,
+        status: "success",
+        set: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setTimeout(() => window.location.reload(), 750);
+    } else {
+      toast({
+        title: reviewed.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    setReviewValue("");
+  }
+
+  // Handle input change
+  let handleInputChange = (e) => {
+    let inputValue = e.target.value;
+    setReviewValue(inputValue);
+  };
+
+  // console.log(data.artistData.genres);
+
+  return (
+    <div
+      className="
         min-h-screen
         max-w-screen
         h-screen
@@ -194,159 +231,215 @@ const Artist = () => {
         p-4
         justify-center
         overflow-y-auto  "
-        >
-            <NavBar />
-            <div className="flex flex-col space-y-2 justify-center items-center">
-                <div className=" border-[6px] shadow-xl border-white rounded-md ">
-                    <img
-                        src={data.artistData && data.artistData.image}
-                        className="h-40 w-40"
-                    ></img>
+    >
+      <NavBar />
+      {/* <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="relative z-50"
+      >
+        <div
+          className="fixed inset-0 bg-black/70 blur-6xl"
+          aria-hidden="true"
+        />
+
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="text-white min-w-[500px] min-h-[200px] bg-black border-accentlavender border-[7px] p-8 overflow-auto text-justify rounded-2xl">
+            <Dialog.Title>
+              <div className="text-3xl flex flex-col font-permanent-marker">
+                <div className="flex flex-row justify-center">
+                  <div className="font-permanent-marker">All Genres</div>
                 </div>
-                <div className="flex flex-col justify-center items-center space-y-0">
-                    <div>
-                        <Text
-                            className="flex font-permanent-marker"
-                            color="white"
-                            fontSize="3xl"
-                        >
-                            {" "}
-                            {data.artistData?.name}{" "}
-                        </Text>
-                    </div>
-                    <div>
-                        <Text
-                            className="flex font-permanent-marker"
-                            color="white"
-                            fontSize="xl"
-                        >
-                            {" "}
-                            {data.artistData?.artists}{" "}
-                        </Text>
-                    </div>
+                <div className="py-4">
+                  <Divider orientation="horizontal" />
                 </div>
-                <div className="flex flex-row space-x-2">
-                    <div className="flex flex-col space-y-1">
-                        <Text className="font-permanent-marker text-2xl pl-2">Stats</Text>
-                        <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue">
-                            <div className=" text-xl flex flex-col w-full space-y-1 items-start">
-                                <div className="flex flex-row w-full justify-between items-between">
-                                    <Text className="font-permanent-marker" color="white">
-                                        Average Rating :
-                                    </Text>
-                                    <Text className="font-permanent-marker" color="white">
-                                        {data.avg}★
-                                    </Text>
-                                </div>
-                                <div className="flex flex-row w-full justify-between items-between">
-                                    <Text className="font-permanent-marker" color="white">
-                                        Number of Reviews :
-                                    </Text>
-                                    <Text className="font-permanent-marker" color="white">
-                                        {reviews.reviews?.numReviews}
-                                    </Text>
-                                </div>
-                                <div className="flex flex-row w-full justify-between items-between">
-                                    <Text className="font-permanent-marker" color="white">
-                                        Spotify Followers :
-                                    </Text>
-                                    <Text className="font-permanent-marker" color="white">
-                                        {data.artistData?.followers}
-                                    </Text>
-                                </div>
-                                <div className="flex flex-row w-full justify-between items-between">
-                                    <Text className="font-permanent-marker" color="white">
-                                        Genre :
-                                    </Text>
-                                    <Text className="font-permanent-marker" color="white">
-                                        {`${data.artistData?.genres[0]}`}
-                                    </Text>
-                                </div>
-                                <button className="font-permanent-marker text-accentlavender hover:text-white">
-                                    See all genres
-                                </button>
-                            </div>
-                        </div>
-                        <Text className="font-permanent-marker text-2xl pl-2">
-                            Write a review!
-                        </Text>
-                        <form onSubmit={handleSubmit}>
-                            <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue min-h-[360px] min-w-[400px]">
-                                <div className="flex flex-col grow space-y-2 justify-center items-center p-4">
-                                    <Slider
-                                        onChange={(val) => setSliderValue(val)}
-                                        defaultValue={0}
-                                        min={0}
-                                        max={10}
-                                        step={1}
-                                    >
-                                        <SliderMark
-                                            value={sliderValue}
-                                            textAlign="center"
-                                            bg="#d299ff"
-                                            color="white"
-                                            mt="-10"
-                                            ml="-5"
-                                            w="10"
-                                            className="font-permanent-marker rounded-xl"
-                                        >
-                                            {sliderValue}
-                                        </SliderMark>
-                                        <SliderTrack bg="blue.100">
-                                            <Box position="relative" right={10} />
-                                            <SliderFilledTrack bg="#d299ff" />
-                                        </SliderTrack>
-                                        <SliderThumb boxSize={4} />
-                                    </Slider>
-                                    <Text className="text-white font-permanent-marker self-start">
-                                        Review:
-                                    </Text>
-                                    <Textarea
-                                        value={reviewValue}
-                                        onChange={handleInputChange}
-                                        placeholder="Leave a Review!"
-                                        backgroundColor="white"
-                                        borderColor="#d299ff"
-                                        borderWidth={3}
-                                        focusBorderColor="#d299ff"
-                                        _hover={false}
-                                        resize="none"
-                                        minHeight="164px"
-                                        maxLength="255"
-                                    />
-                                    <div className="pt-4 pb-0">
-                                        <CustomButton text="Submit" type="submit" />
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                        <Text className="font-permanent-marker self-end text-2xl pr-2">
-                            User Reviews
-                        </Text>
-                        <div className="flex flex-1 bg-background p-6 rounded-xl border-4 border-mainblue">
-                            <div style={{ height: "570px", overflowY: "scroll", scrollbarWidth: "none", borderRadius: "10px", padding: "10px", scrollPadding: "10px" }}>
-                                {reviews.reviews?.allReviews.map((allReviews) => (
-                                    <div className="pb-2">
-                                        <UserReviewTile key={allReviews.id} review={allReviews} />
-                                    </div>
-                                ))}
-                            </div>
-                            <style>
-                                {`
+              </div>
+            </Dialog.Title>
+            <Dialog.Description>
+              <Text className="flex text-xl max-w-[550px]">
+                <UnorderedList>
+                  {genres.map((genre) => (
+                    <ListItem key={genre.key}>{genre.g}</ListItem>
+                  ))}
+                </UnorderedList>
+              </Text>
+            </Dialog.Description>
+          </Dialog.Panel>
+        </div>
+      </Dialog> */}
+      <div className="flex flex-col space-y-2 justify-center items-center">
+        <div className=" border-[6px] shadow-xl border-white rounded-md ">
+          <img
+            src={data.artistData && data.artistData.image}
+            className="h-40 w-40"
+          ></img>
+        </div>
+        <div className="flex flex-col justify-center items-center space-y-0">
+          <div className="flex flex-row space-x-2">
+            <Text
+              className="flex font-permanent-marker"
+              color="white"
+              fontSize="3xl"
+            >
+              {" "}
+              {data.artistData?.name}{" "}
+            </Text>
+            <Link target="_blank" href={data.artistData?.spotifyLink}>
+              <button
+                className="flex pt-1 h-10 w-10 rounded-full"
+                onMouseOver={handleMouseOver}
+                onMouseOut={handleMouseOut}
+              >
+                <img className="bg-white rounded-full" src={imgSrc} />
+              </button>
+            </Link>
+          </div>
+
+          <div>
+            <Text
+              className="flex font-permanent-marker"
+              color="white"
+              fontSize="xl"
+            >
+              {" "}
+              {data.artistData?.artists}{" "}
+            </Text>
+          </div>
+        </div>
+        <div className="flex flex-row space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Text className="font-permanent-marker text-2xl pl-2">Stats</Text>
+            <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue">
+              <div className=" text-xl flex flex-col w-full space-y-4 items-start">
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Average Rating :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.avg}★
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Number of Reviews :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {reviews.reviews?.numReviews}
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Spotify Followers :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {data.artistData?.followers}
+                  </Text>
+                </div>
+                <div className="flex flex-row w-full justify-between items-between">
+                  <Text className="font-permanent-marker" color="white">
+                    Top Genre :
+                  </Text>
+                  <Text className="font-permanent-marker" color="white">
+                    {`${data.artistData?.genres[0]}`}
+                  </Text>
+                </div>
+
+                {/* <button
+                  onClick={() => setIsOpen(true)}
+                  className="font-permanent-marker text-accentlavender hover:text-white"
+                >
+                  See all genres
+                </button> */}
+              </div>
+            </div>
+            <Text className="font-permanent-marker text-2xl pl-2">
+              Write a review!
+            </Text>
+            <form onSubmit={handleSubmit}>
+              <div className="flex bg-background p-6 rounded-xl border-4 border-mainblue min-h-[360px] min-w-[400px]">
+                <div className="flex flex-col grow space-y-2 justify-center items-center p-4">
+                  <Slider
+                    onChange={(val) => setSliderValue(val)}
+                    defaultValue={0}
+                    min={0}
+                    max={10}
+                    step={1}
+                  >
+                    <SliderMark
+                      value={sliderValue}
+                      textAlign="center"
+                      bg="#d299ff"
+                      color="white"
+                      mt="-10"
+                      ml="-5"
+                      w="10"
+                      className="font-permanent-marker rounded-xl"
+                    >
+                      {sliderValue}
+                    </SliderMark>
+                    <SliderTrack bg="blue.100">
+                      <Box position="relative" right={10} />
+                      <SliderFilledTrack bg="#d299ff" />
+                    </SliderTrack>
+                    <SliderThumb boxSize={4} />
+                  </Slider>
+                  <Text className="text-white font-permanent-marker self-start">
+                    Review:
+                  </Text>
+                  <Textarea
+                    value={reviewValue}
+                    onChange={handleInputChange}
+                    placeholder="Leave a Review!"
+                    backgroundColor="white"
+                    borderColor="#d299ff"
+                    borderWidth={3}
+                    focusBorderColor="#d299ff"
+                    _hover={false}
+                    resize="none"
+                    minHeight="164px"
+                    maxLength="255"
+                  />
+                  <div className="pt-4 pb-0">
+                    <CustomButton text="Submit" type="submit" />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <Text className="font-permanent-marker self-end text-2xl pr-2">
+              User Reviews
+            </Text>
+            <div className="flex flex-1 bg-background p-6 rounded-xl border-4 border-mainblue">
+              <div
+                style={{
+                  height: "570px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  borderRadius: "10px",
+                  padding: "10px",
+                  scrollPadding: "10px",
+                }}
+              >
+                {reviews.reviews?.allReviews.map((allReviews) => (
+                  <div className="pb-2">
+                    <UserReviewTile key={allReviews.id} review={allReviews} />
+                  </div>
+                ))}
+              </div>
+              <style>
+                {`
               ::-webkit-scrollbar {
                 display: none;
               }
             `}
-                            </style>
-                        </div>
-
-                    </div>
-                </div>
+              </style>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Artist;

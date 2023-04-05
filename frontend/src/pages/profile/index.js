@@ -47,15 +47,21 @@ const Profile = () => {
         });
 
         const data = await response.json();
-        console.log(data);
-        var recentReviews = data.recents;
-        var allReviews = data.reviewed;
-        var topFour = data.topRated;
+        // console.log(data);
+        /**recentDataWithImageAndID,
+      albumReviewData,
+      artistReviewData,
+      sortedReviewed */
+        var recentReviews = data.recentDataWithImageAndID;
+        var allReviews = data.sortedReviewed;
+        var topFourAlbums = data.albumReviewData;
+        var topFourArtists = data.artistReviewData;
+
         console.log(recentReviews);
 
         setReviews((prevState) => ({
           ...prevState,
-          reviews: { topFour, recentReviews, allReviews },
+          reviews: { topFourAlbums, topFourArtists, recentReviews, allReviews },
         }));
       } catch (error) {
         console.error(error);
@@ -97,7 +103,7 @@ overflow-y-auto
         <div className="flex self-start font-permanent-marker">
           <Text className="flex" color="white" fontSize="xl">
             {" "}
-            Favourites{" "}
+            Favourite Albums{" "}
           </Text>
         </div>
         <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
@@ -107,12 +113,38 @@ overflow-y-auto
             </div>
           ) : (
             <div className="flex flex-row items-center space-x-8 ">
-              {reviews.reviews?.topFour?.map((review, index) => (
+              {reviews.reviews?.topFourAlbums?.map((review, index) => (
                 <div
                   key={index}
                   className="h-[175px] w-[175px] border-4 border-white rounded-md "
                 >
-                  <Link href={`/Album/?id=${review?.id}`}>
+                  <Link href={`/Album/?id=${review?.content_ID}`}>
+                    <Image src={review?.image} />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}{" "}
+        </div>
+        <div className="flex self-start font-permanent-marker">
+          <Text className="flex" color="white" fontSize="xl">
+            {" "}
+            Favourite Artists{" "}
+          </Text>
+        </div>
+        <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <Spinner thickness="4px" speed="0.65s" color="white" size="xl" />
+            </div>
+          ) : (
+            <div className="flex flex-row items-center space-x-8 ">
+                {reviews.reviews?.topFourArtists?.map((review, index) => (
+                <div
+                  key={index}
+                  className="h-[175px] w-[175px] border-4 border-white rounded-md "
+                >
+                    <Link href={`/Artist/?id=${review?.content_ID}`}>
                     <Image src={review?.image} />
                   </Link>
                 </div>
@@ -122,14 +154,14 @@ overflow-y-auto
         </div>
 
         <div className="flex flex-col justify-center items-center space-y-2">
-          <div className="flex self-start font-permanent-marker">
+          {/* <div className="flex self-start font-permanent-marker">
             <Text className="flex" color="white" fontSize="xl">
               {" "}
               Recents{" "}
             </Text>
-          </div>
+          </div> */}
 
-          <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
+          {/* <div className="bg-background pt-4 pb-4 pr-8 pl-8 rounded-xl border-mainblue border-4 shadow-2xl">
             {isLoading ? (
               <div className="flex justify-center items-center h-full">
                 <Spinner
@@ -141,25 +173,36 @@ overflow-y-auto
               </div>
             ) : (
               <div className="flex flex-row items-center space-x-8 ">
-                {reviews.reviews?.recentReviews?.map((review, index) => (
+                {reviews.reviews?.allReviews?.map((review, index) => (
                   <div
                     key={index}
                     className="h-[175px] w-[175px] border-4 border-white rounded-md "
                   >
-                    <Link href={`/Album/?id=${review?.id}`}>
-                      <Image src={review?.image} />
-                    </Link>
+                    <Image src={review?.image} />
                   </div>
                 ))}
               </div>
             )}{" "}
-          </div>
+          </div> */}
 
-          <div className="p-4">
-            <CustomButton
-              text="View All"
+          <div className="p-8">
+            <button
               onClick={() => Router.push("/Collection")}
-            />
+              className="
+          font-permanent-marker 
+          bg-mainblue 
+          hover:bg-accentlavender 
+          h-12 
+          w-48 
+          hover:scale-105 
+          opacity-100 
+          rounded-lg 
+          font-extrabold 
+          text-background 
+          hover:text-white"
+            >
+              {"View All Reviews"}
+            </button>
           </div>
         </div>
       </div>

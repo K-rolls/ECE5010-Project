@@ -48,16 +48,15 @@ const Home = () => {
           body: JSON.stringify(req),
         });
 
-        data = await response.json();
-        console.log(data);
-        var recentReviews = data.recents;
-        var allReviews = data.reviewed;
-        var topFour = data.topRated;
-        console.log(recentReviews);
+        const data = await response.json();
+        var recentReviews = data.recentDataWithImageAndID;
+        var allReviews = data.sortedReviewed;
+        var topFourAlbums = data.albumReviewData;
+        var topFourArtists = data.artistReviewData;
 
         setReviews((prevState) => ({
           ...prevState,
-          reviews: { topFour, recentReviews, allReviews },
+          reviews: { recentReviews, allReviews },
         }));
       } catch (error) {
         console.error(error);
@@ -110,7 +109,7 @@ const Home = () => {
                     key={index}
                     className="h-[175px] w-[175px] border-4 border-white rounded-md shadow-2xl"
                   >
-                    <Link href={`/Album/?id=${review?.id}`}>
+                    <Link href={review?.isAlbum ? `/Album/?id=${review?.content_ID}` : `/Artist/?id=${review?.content_ID}`}>
                       <Image src={review?.image} />
                     </Link>
                   </div>
