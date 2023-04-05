@@ -13,10 +13,13 @@ router.get("/", (request, response) => {
   return response.json({
     "Spotify endpoints": [
       { "/token": "gets the spotify token based on app credentials" },
-      {
-        "/albumSearch":
-          "makes a search call to the spotify API based on a query or decade",
-      },
+      { "/albumSearch": "makes a search call to the spotify API based on a query or decade" },
+      { "/artistSearch": "searches for an artist based on an artist name. Uses the strategy pattern." },
+      { "/albumSearch": "searches for an album based on an album name. Uses the strategy pattern." },
+      { "/getAlbums": "gets album metadata from Spotify based on an array of album ids" },
+      { "/getArtists": "gets artist metadata from Spotify based on an array of artist ids" },
+      { "/averageRating": " calculates the average rating for any album or artist ID" },
+      { "/getReviews": "gets reviews for any album or artist ID" }
     ],
   });
 });
@@ -114,7 +117,6 @@ router.post("/getAlbums", async (request, response) => {
       const albumResponse = await axios.get(albumUrl, searchOptions);
       albumDataArray.push(...albumResponse.data.albums);
     }
-    // return response.json(albumDataArray.length);
     const albumData = albumDataArray.map((album) => {
       const {
         name,
@@ -197,7 +199,6 @@ router.post("/getArtist", async (request, response) => {
     artistData.unshift({ len: len });
     return response.json(artistData);
   } catch (error) {
-    // console.error(error);
     return response.status(500).send(error.message);
   }
 });

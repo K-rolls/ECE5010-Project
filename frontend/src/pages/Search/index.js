@@ -34,7 +34,6 @@ const Search = () => {
       decade: "",
       page: page,
     };
-    console.log(req);
     try {
       var res = await fetch(searchURL, {
         method: "POST",
@@ -88,7 +87,7 @@ const Search = () => {
   }
 
   const handleAlbumClick = (album) => {
-    console.log("Album clicked:", album);
+    //console.log("Album clicked:", album);
   };
 
   try {

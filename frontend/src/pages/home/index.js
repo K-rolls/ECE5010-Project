@@ -34,7 +34,6 @@ const Home = () => {
             num: len,
           }
         );
-        console.log(response.data);
         if (response.data.success === false) {
           setLen(1);
           setIsLoading(true);
@@ -55,7 +54,6 @@ const Home = () => {
   }, [len]);
 
   function handleClick() {
-    console.log("clicked: " + len);
     if (len < 0) {
       setLen(1);
       scrollableDivRef.current.scrollTo(0, 0);
@@ -140,7 +138,7 @@ const Home = () => {
             ) : (
               <div className="grid grid-cols-2 gap-4">
                   {reviews
-                    .sort((a, b) => a.index - b.index) // sort reviews by their index property
+                    .sort((a, b) => a.index - b.index)
                     .map(({ isAlbum, artist, album, review, rating, username, index }) => (
                       <div className="pb-0" key={index}>
                         {isAlbum ? (

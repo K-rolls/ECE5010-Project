@@ -1,7 +1,4 @@
-# To-do List
-- [x] fix floating point decimal places on ALbum page
 ## Backend
-- [x] Fix router
 - [x] add classes to spotify request 
 - [x] format data from spotify API
 - [x] write the knexfile for the database tables
@@ -24,13 +21,10 @@
 - [x] add new column to /users for profile customization 
 - [x] write new routes for /users/profilePic
 - [x] implement stratgey pattern for /spotify/search{album} or artist
-- [ ] add new route / update existing route to get tracklist from album id
-- [ ] add discography per artist
 - [x] clean up existing routes to use axios correctly
 - [x] refactor backend to better use the spotify api so we don't get rate limiting issues
 - [x] add Get artist
 - [x] refactor database to ID from Album_ID
-- [ ] /get profile page route
 
 ## Frontend
 - [x] flesh out welcome
@@ -51,9 +45,8 @@
 - [x] user sessions
 - [x] logout
 - [x] home page
-- [ ] user profile page customization
-- [ ] tracklist
-- [ ] album search
-- [ ] search filtering for albums
+- [x] user profile page customization
+- [x] album search
+- [x] search filtering for albums
 - [x] add loading states for profile page and user collection page
 - [x] fix album page

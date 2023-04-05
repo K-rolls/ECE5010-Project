@@ -140,7 +140,6 @@ const Album = () => {
         body: JSON.stringify(req),
       });
       const success = await response.json();
-      console.log(success);
       return success;
     } catch (error) {
       console.error(error);
@@ -152,8 +151,6 @@ const Album = () => {
     event.preventDefault();
     let review = reviewValue;
     let rating = sliderValue;
-    console.log(review);
-    console.log(rating);
     var reviewed = await makeReview(review, rating);
     if (reviewed.success) {
       toast({
@@ -176,7 +173,6 @@ const Album = () => {
     setReviewValue("");
   }
 
-  // Handle input change
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
     setReviewValue(inputValue);

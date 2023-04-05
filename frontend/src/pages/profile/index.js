@@ -45,7 +45,6 @@ const Profile = () => {
     event.preventDefault();
     const decodedToken = jwt.decode(token);
     const userID = decodedToken ? decodedToken.User_ID : null;
-    console.log(userID);
     event.preventDefault();
     const formData = new FormData();
     formData.append('profilePic', selectedFile);
@@ -54,7 +53,6 @@ const Profile = () => {
     try {
       const response = await axios.post('http://localhost:5000/user/setProfilePic', formData);
       setProfilePic(response.data.user.profilePicture);
-      // console.log(response.data.user.profilePicture);
       setIsOpen(false)
     } catch (error) {
       console.log(error);
@@ -64,11 +62,9 @@ const Profile = () => {
   async function getProfilePic() {
     const decodedToken = jwt.decode(token);
     const userID = decodedToken ? decodedToken.User_ID : null;
-    console.log(userID);
     try {
       const response = await fetch(`http://localhost:5000/user/getProfilePic/?User_ID=${userID}`);
       const data = await response.json();
-      // console.log(data);
       return "/uploads" + data.profilePicture;
     } catch (error) {
       console.error(error);
@@ -81,7 +77,6 @@ const Profile = () => {
         var req = {
           token: token,
         };
-        console.log(req);
 
         var response = await fetch("http://localhost:5000/user/getReviewed", {
           method: "POST",
@@ -97,8 +92,6 @@ const Profile = () => {
         var topFourAlbums = data.albumReviewData;
         var topFourArtists = data.artistReviewData;
 
-        // console.log(recentReviews);
-
         setReviews((prevState) => ({
           ...prevState,
           reviews: { topFourAlbums, topFourArtists, recentReviews, allReviews },
@@ -109,7 +102,6 @@ const Profile = () => {
       } finally {
         setIsLoading(false);
         const profilePicPath = await getProfilePic();
-        console.log(profilePicPath);
         setProfilePic(profilePicPath);
       }
     }
@@ -117,7 +109,6 @@ const Profile = () => {
       fetchReviews(token);
     }
   }, [token]);
-  console.log(reviews);
   return (
     <div
       className="
@@ -137,7 +128,6 @@ overflow-y-auto
         className="flex flex-col space-y-2 justify-center items-center
          "
       >
-        {/* <img src="/uploads/profilePic-1680656337117-809641989.png"></img> */}
         <Avatar
           className="flex items-center"
           size="2xl"

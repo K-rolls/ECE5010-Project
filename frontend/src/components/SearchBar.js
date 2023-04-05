@@ -19,7 +19,6 @@ export default function SearchBar({ selection }) {
   var searchURL;
 
   async function makeSearch(searchTerm) {
-    console.log(selection);
     if (selection == "albums") {
       isAlbum = '1';
       searchURL = "http://localhost:5000/spotify/albumSearch";
@@ -34,7 +33,6 @@ export default function SearchBar({ selection }) {
       decade: "",
       page: 0,
     };
-    console.log(req);
 
     try {
       var res = await fetch(searchURL, {
@@ -43,7 +41,6 @@ export default function SearchBar({ selection }) {
         body: JSON.stringify(req),
       });
       const data = await res.json();
-      // console.log(data);
       return data;
     } catch (e) {
       console.error(e);
@@ -116,37 +113,6 @@ export default function SearchBar({ selection }) {
               />
             </InputRightElement>
           </InputGroup>
-          {/* <RadioGroup value={selection} onChange={setSelection}>
-            <div className="flex flex-row space-x-2">
-              {" "}
-              <RadioGroup.Option value="albums">
-                {({ checked }) => (
-                  <Box
-                    className={
-                      checked
-                        ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
-                        : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
-                    }
-                  >
-                    Albums
-                  </Box>
-                )}
-              </RadioGroup.Option>
-              <RadioGroup.Option value="artists">
-                {({ checked }) => (
-                  <Box
-                    className={
-                      checked
-                        ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
-                        : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
-                    }
-                  >
-                    Artists
-                  </Box>
-                )}
-              </RadioGroup.Option>
-            </div>
-          </RadioGroup> */}
         </div>
       </form>
     </div>

@@ -48,16 +48,6 @@ const Artist = () => {
     : "/Spotify_Icon_RGB_Black.png";
 
   useEffect(() => {
-    // function renderGenres() {
-    //   var genreList = [];
-    //   for (let i = 0; i < data.artistData?.genres.length; i++) {
-    //     let genreID = i;
-    //     let genreName = data.artistData?.genres[i];
-    //     genreList.push({ key: genreID, g: genreName });
-    //     console.log(genreList);
-    //   }
-    //   setGenres(genreList);
-    // }
 
     async function fetchReviews() {
       try {
@@ -134,7 +124,6 @@ const Artist = () => {
       fetchartistData();
       getAverage();
       fetchReviews();
-      //renderGenres();
     }
   }, [id]);
 
@@ -175,7 +164,6 @@ const Artist = () => {
         body: JSON.stringify(req),
       });
       const success = await response.json();
-      console.log(success);
       return success;
     } catch (error) {
       console.error(error);
@@ -187,8 +175,6 @@ const Artist = () => {
     event.preventDefault();
     let review = reviewValue;
     let rating = sliderValue;
-    console.log(review);
-    console.log(rating);
     var reviewed = await makeReview(review, rating);
     if (reviewed.success) {
       toast({
@@ -211,13 +197,10 @@ const Artist = () => {
     setReviewValue("");
   }
 
-  // Handle input change
   let handleInputChange = (e) => {
     let inputValue = e.target.value;
     setReviewValue(inputValue);
   };
-
-  // console.log(data.artistData.genres);
 
   return (
     <div
@@ -233,40 +216,6 @@ const Artist = () => {
         overflow-y-auto  "
     >
       <NavBar />
-      {/* <Dialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        className="relative z-50"
-      >
-        <div
-          className="fixed inset-0 bg-black/70 blur-6xl"
-          aria-hidden="true"
-        />
-
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="text-white min-w-[500px] min-h-[200px] bg-black border-accentlavender border-[7px] p-8 overflow-auto text-justify rounded-2xl">
-            <Dialog.Title>
-              <div className="text-3xl flex flex-col font-permanent-marker">
-                <div className="flex flex-row justify-center">
-                  <div className="font-permanent-marker">All Genres</div>
-                </div>
-                <div className="py-4">
-                  <Divider orientation="horizontal" />
-                </div>
-              </div>
-            </Dialog.Title>
-            <Dialog.Description>
-              <Text className="flex text-xl max-w-[550px]">
-                <UnorderedList>
-                  {genres.map((genre) => (
-                    <ListItem key={genre.key}>{genre.g}</ListItem>
-                  ))}
-                </UnorderedList>
-              </Text>
-            </Dialog.Description>
-          </Dialog.Panel>
-        </div>
-      </Dialog> */}
       <div className="flex flex-col space-y-2 justify-center items-center">
         <div className=" border-[6px] shadow-xl border-white rounded-md ">
           <img
@@ -343,13 +292,6 @@ const Artist = () => {
                     {`${data.artistData?.genres[0]}`}
                   </Text>
                 </div>
-
-                {/* <button
-                  onClick={() => setIsOpen(true)}
-                  className="font-permanent-marker text-accentlavender hover:text-white"
-                >
-                  See all genres
-                </button> */}
               </div>
             </div>
             <Text className="font-permanent-marker text-2xl pl-2">

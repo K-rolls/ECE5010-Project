@@ -31,7 +31,6 @@ const NavBar = () => {
         />
       </Link>
       <div style={{ flexGrow: 1 }}></div>{" "}
-      {/* added to push last icon to bottom */}
       <Link href="/">
         <IconButton
           aria-label="Profile"

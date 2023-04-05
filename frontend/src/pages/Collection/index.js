@@ -38,7 +38,6 @@ const Home = () => {
         var req = {
           token: token,
         };
-        console.log(req);
 
         var response = await fetch("http://localhost:5000/user/getReviewed", {
           method: "POST",

@@ -1,4 +1,7 @@
-import bcrypt, uuid
+'''Used solely to generate initial seed'''
+
+import bcrypt
+import uuid
 
 password = b'password123'  # Password string to hash, must be bytes
 cost_factor = 12  # Number of rounds for hashing, recommended value is between 10 and 14

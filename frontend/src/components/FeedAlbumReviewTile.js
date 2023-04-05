@@ -19,9 +19,9 @@ import CustomButton from "./CustomButton";
 
 function FeedReviewTile({ album, review, rating, username }) {
   const handleAlbumClick = (album) => {
-    console.log("Album clicked:", album);
+    //console.log("Album clicked:", album);
   };
-  // console.log(album);
+
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -29,7 +29,6 @@ function FeedReviewTile({ album, review, rating, username }) {
       <div className="flex flex-row space-x-4">
         <Link href={`/Album/?id=${album.id}`}>
           <button
-            // disabled={loading}
             className="border-[4px] border-white rounded-md"
           >
             <Image
@@ -122,29 +121,3 @@ function FeedReviewTile({ album, review, rating, username }) {
 }
 
 export default FeedReviewTile;
-
-{
-  /* <Modal isOpen={isOpen} onClose={onClose} isCentered>
-  <ModalOverlay backdropFilter="blur(5px)" />
-  <ModalContent>
-    <ModalHeader>
-      <div className="flex flex-col font-permanent-marker">
-        <div className="flex flex-row">
-          <div className="font-permanent-marker">{album.name}</div>
-        </div>
-        <div className="flex flex-row">
-          <div className="font-permanent-marker text-clip w-[95px] whitespace-nowrap overflow-hidden">
-            {username}
-          </div>
-          <Text className="flex font-permanent-marker justify-end">
-            {rating}★
-          </Text>
-        </div>
-      </div>
-    </ModalHeader>
-    <ModalCloseButton />
-    <ModalBody>{review}</ModalBody>
-    <ModalFooter> <Button onClick={onClose}>Close</Button> </ModalFooter>
-  </ModalContent>
-</Modal> */
-}

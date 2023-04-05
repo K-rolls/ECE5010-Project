@@ -34,10 +34,8 @@ const Login = () => {
   };
 
   async function attemptLogin() {
-    console.log("Attempting login");
-    //console.log(`${usernameVal}, ${passwordVal}`);
+
     const req = { user: { username: usernameVal, password: passwordVal } };
-    //console.log(req);
     try {
       var res = await fetch(loginURL, {
         method: "POST",
@@ -45,7 +43,6 @@ const Login = () => {
         body: JSON.stringify(req),
       });
       const data = await res.json();
-      // console.log(data);
       return data;
     } catch (e) {
       console.error(e);
@@ -54,17 +51,12 @@ const Login = () => {
   }
 
   async function welcome(token) {
-    //console.log(token);
-    // const req = { token: token };
-    //console.log(req);
     try {
       var res = await fetch(welcomeURL, {
         method: "GET",
         headers: { Authorization: token },
-        // body: JSON.stringify(req),
       });
       const data = await res.json();
-      // console.log(data);
       return data;
     } catch (e) {
       console.error(e);
@@ -73,10 +65,8 @@ const Login = () => {
   }
 
   async function handleClick() {
-    // console.log("Got here");
     var response = await attemptLogin();
     if (response.message == "user not found!") {
-      //console.log(response.message);
       toast({
         title: "Error",
         description: "Incorrect username, please try again.",
@@ -86,7 +76,6 @@ const Login = () => {
         position: "top",
       });
     } else if (response.message == "wrong Password!") {
-      //console.log(response.message);
       toast({
         title: "Error",
         description: "Incorrect password, please try again.",
@@ -96,8 +85,6 @@ const Login = () => {
         position: "top",
       });
     } else {
-      //console.log(response);
-      //localStorage.setItem("token", response.token);
       document.cookie = `token=${response.token}; path=/; secure; SameSite=Strict`;
       const welcomeMessage = await welcome(response.token);
       toast({
@@ -124,7 +111,6 @@ const Login = () => {
                 password: "",
               }}
               onSubmit={() => {
-                // console.log("Got here");
                 handleClick();
               }}
             >
@@ -204,7 +190,6 @@ const Login = () => {
                           </InputRightElement>
                         </InputGroup>
                       </div>
-
                       <FormErrorMessage>{errors.password}</FormErrorMessage>
                     </FormControl>
                     <div className="pt-5">

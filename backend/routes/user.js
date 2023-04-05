@@ -26,35 +26,35 @@ const upload = multer({ storage: storage });
 
 // https://stackoverflow.com/questions/3748/storing-images-in-db-yea-or-nay
 router.post("/setProfilePic", upload.single("profilePic"), async (request, res) => {
-    try {
-      const { userId } = request.body.User_ID;
-      console.log(userId);
-      const existingUser = await database("users").where({
-        User_ID: request.body.User_ID,
-      });
-      console.log(existingUser);
-      if (!existingUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      const profilePicturePath = request.file.path;
-      const parsed = path.parse(profilePicturePath);
-      const filename = parsed.name;
-      const newFilePath = `/uploads/${filename}${path.extname(profilePicturePath)}`;
-
-      const result = await database("users")
-        .where({ User_ID: request.body.User_ID })
-        .update({ profilePicture: newFilePath }, [
-          "User_ID",
-          "username",
-          "profilePicture",
-        ]);
-      console.log(result);
-      return res.json({ user: result[0] });
-    } catch (error) {
-      return res.json({ error: error.message });
+  try {
+    const { userId } = request.body.User_ID;
+    console.log(userId);
+    const existingUser = await database("users").where({
+      User_ID: request.body.User_ID,
+    });
+    console.log(existingUser);
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
     }
+
+    const profilePicturePath = request.file.path;
+    const parsed = path.parse(profilePicturePath);
+    const filename = parsed.name;
+    const newFilePath = `/uploads/${filename}${path.extname(profilePicturePath)}`;
+
+    const result = await database("users")
+      .where({ User_ID: request.body.User_ID })
+      .update({ profilePicture: newFilePath }, [
+        "User_ID",
+        "username",
+        "profilePicture",
+      ]);
+    console.log(result);
+    return res.json({ user: result[0] });
+  } catch (error) {
+    return res.json({ error: error.message });
   }
+}
 );
 
 router.post("/signUp", async (request, response) => {
@@ -101,12 +101,10 @@ router.post("/login", (request, response) => {
       const areSamePasswords = results[0];
       if (!areSamePasswords) throw new Error("wrong Password!");
       const retrievedUser_1 = results[1];
-      // console.log(results)
       const payload = {
         username: retrievedUser_1.username,
         User_ID: retrievedUser_1.User_ID,
       };
-      //console.log(payload);
       const secret = "SECRET";
       return await new Promise((resolve, reject) => {
         jwt.sign(payload, secret, (error, token) => {
@@ -205,7 +203,7 @@ router.post("/makeReview", async (request, response) => {
               rating: rating,
             })
             .transacting(trx);
-        } 
+        }
 
         return response.json({
           success: true,
@@ -228,7 +226,7 @@ router.post("/makeReview", async (request, response) => {
               isAlbum: 0,
             })
             .transacting(trx);
-        }  
+        }
         await database("reviews")
           .insert({
             User_ID: userID,
@@ -253,19 +251,6 @@ router.post("/makeReview", async (request, response) => {
   }
 });
 
-// Helper function to format a review object
-function formatReview(review, imagesById) {
-  const isAlbum = review.isAlbum === 1;
-  const contentKey = isAlbum ? 'album' : 'artist';
-  return {
-    id: review.content_ID,
-    type: contentKey,
-    name: review[contentKey + '_name'],
-    image: imagesById[review.content_ID],
-    rating: review.rating
-  };
-}
-
 router.post('/getReviewed', async (request, response) => {
   const { token } = request.body;
   const decodedToken = jwt.decode(token);
@@ -278,7 +263,6 @@ router.post('/getReviewed', async (request, response) => {
       .join('lookUp', 'lookUp.content_ID', 'reviews.content_ID')
       .select('lookUp.isAlbum')
       .orderBy('reviews.id', 'desc');
-    // return response.json(allReviews);
 
     // recently reviewed content
     const recents = allReviews.filter((review) => review.User_ID === uuid).slice(0, 4).map((review) => ({ content_ID: review.content_ID, isAlbum: review.isAlbum }));
@@ -321,7 +305,6 @@ router.post('/getReviewed', async (request, response) => {
       .slice(0, 4);
 
     for (var i = 0; i < recents.length; i++) {
-      // console.log(recents[i].isAlbum);
       if (recents[i].isAlbum === 1) {
         const albumDataResponse = await axios.post('http://localhost:5000/spotify/getAlbums', { Reviewed: [recents[i].content_ID] });
         recentData.push(albumDataResponse.data.slice(1));
@@ -343,9 +326,8 @@ router.post('/getReviewed', async (request, response) => {
       id: item.id,
       isAlbum: item.isAlbum,
     }));
-    // console.log(allReviewData);
-    // Match content_ID to image from album or artist list above
 
+    // Match content_ID to image from album or artist list above
     const albumReviewDataWithImage = allReviewData.filter(item => item.isAlbum === 1).map(item => {
 
       const albumFound = albumData.find(album => album.id === item.content_ID);
@@ -408,7 +390,6 @@ router.post("/getAllReviews", async (request, response) => {
       .orderByRaw("id DESC")
       .limit(10)
       .offset(offset);
-    // console.log(reviews);
 
     // Extract album and artist IDs from reviews
     const albumIds = content_IDs.filter(review => review.isAlbum).map(review => review.content_ID);
@@ -509,7 +490,7 @@ router.get("/getProfilePic", async (req, res) => {
       if (fs.existsSync(filePath)) {
         return res.json({ profilePicture: filePath });
       } else {
-        // File doesn't exist
+        return res.json({ profilePicture: defaultPath });
       }
     } catch (error) {
       console.error(error);
