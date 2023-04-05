@@ -10,20 +10,22 @@ import {
 import { SearchIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { RadioGroup } from "@headlessui/react";
 
-function SearchBar(props) {
+export default function SearchBar({ selection }) {
   const [searchTerm, setSearchTerm] = useState("");
   const toast = useToast();
   const router = useRouter();
-  const [selection, setSelection] = useState("albums");
+  var isAlbum;
   var searchURL;
 
   async function makeSearch(searchTerm) {
     console.log(selection);
     if (selection == "albums") {
+      isAlbum = '1';
       searchURL = "http://localhost:5000/spotify/albumSearch";
     } else {
+      isAlbum = '0';
+      console.log("Searching for an artist");
       searchURL = "http://localhost:5000/spotify/artistSearch";
     }
 
@@ -73,7 +75,7 @@ function SearchBar(props) {
     } else {
       const searchRes = JSON.stringify(response);
       localStorage.setItem("searchResults", searchRes);
-      router.push("/Search");
+      router.push(`/Search/?isAlbum=${isAlbum}`);
     }
   }
 
@@ -85,7 +87,10 @@ function SearchBar(props) {
           handleSearch();
         }}
       >
-        <div className="flex flex-col justify-center items-center space-y-2" style={{ cursor: "pointer" }}>
+        <div
+          className="flex flex-col justify-center items-center space-y-2"
+          style={{ cursor: "pointer" }}
+        >
           {" "}
           <InputGroup
             size="md"
@@ -111,7 +116,7 @@ function SearchBar(props) {
               />
             </InputRightElement>
           </InputGroup>
-          <RadioGroup value={selection} onChange={setSelection}>
+          {/* <RadioGroup value={selection} onChange={setSelection}>
             <div className="flex flex-row space-x-2">
               {" "}
               <RadioGroup.Option value="albums">
@@ -141,11 +146,9 @@ function SearchBar(props) {
                 )}
               </RadioGroup.Option>
             </div>
-          </RadioGroup>
+          </RadioGroup> */}
         </div>
       </form>
     </div>
   );
 }
-
-export default SearchBar;

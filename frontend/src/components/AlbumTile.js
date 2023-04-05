@@ -1,13 +1,13 @@
 import { Image } from "@chakra-ui/react";
 import Link from "next/link";
 
-function AlbumTile({ album, onClick }) {
+function AlbumTile({ album, onClick, isAlbum }) {
   var albumData = JSON.parse(album);
-  const { id, name, artists, image, releaseDate } = albumData;
+  const { id, name, artists, image, followers } = albumData;
 
   return (
     <div className="album-tile flex-col p-4 space-y-2 bg-background rounded-xl border-4 border-mainblue shadow-2xl">
-      <Link href={`/Album/?id=${id}`}>
+      <Link href={isAlbum ? `/Album/?id=${id}` : `/Artist/?id=${id}`}>
         <button
           onClick={onClick}
           className="border-[4px] border-white rounded-md"
@@ -17,12 +17,12 @@ function AlbumTile({ album, onClick }) {
       </Link>
 
       <div className="flex-1 w-[183px]">
-        <div className="text-white font-permanent-marker"> Title: </div>
+        <div className="text-white font-permanent-marker">{isAlbum? "Title" : "Artist" }</div>
         <div className="text-white font-sans">{name}</div>
       </div>
       <div className="flex-1 w-[183px]">
-        <div className="text-white font-permanent-marker"> Artists: </div>
-        <div className="text-white font-sans">{artists}</div>
+        <div className="text-white font-permanent-marker">{isAlbum? "Artists" : "Followers"}</div>
+        <div className="text-white font-sans">{isAlbum? artists : followers}</div>
       </div>
     </div>
   );

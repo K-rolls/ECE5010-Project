@@ -1,20 +1,34 @@
-import { Image, useToast } from "@chakra-ui/react";
+import { Image, useToast, Box } from "@chakra-ui/react";
 import { useState } from "react";
 import Router from "next/router";
 import Link from "next/link";
+import { RadioGroup } from "@headlessui/react";
 import NavBar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
 import AlbumTile from "@/components/AlbumTile";
 import ScaledLogo from "@/components/ScaledLogo";
 import CustomButton from "@/components/CustomButton";
+import { useRouter } from "next/router";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const searchURL = "http://localhost:5000/spotify/albumSearch";
+  var searchURL;
   const toast = useToast();
   var currPage = 0;
+  const [selection, setSelection] = useState("albums");
+  var isAlbumQuery;
+  const router = useRouter();
+  const { isAlbum } = router.query;
 
-  async function makeSearch(searchTerm, page = 0) {
+  async function makeSearch(searchTerm, page = 0, selection) {
+    if (selection == "albums") {
+      isAlbumQuery = "1";
+      searchURL = "http://localhost:5000/spotify/albumSearch";
+    } else {
+      isAlbumQuery = "0";
+      console.log("Searching for an artist");
+      searchURL = "http://localhost:5000/spotify/artistSearch";
+    }
     const req = {
       q: searchTerm,
       decade: "",
@@ -35,7 +49,7 @@ const Search = () => {
     }
   }
 
-  async function handleSearch(searchTerm, page = 0) {
+  async function handleSearch(searchTerm, page = 0, typeSelection) {
     if (page === 0) {
       localStorage.setItem("currPage", 0);
     } else {
@@ -48,7 +62,7 @@ const Search = () => {
     } else {
       localStorage.setItem("searchTerm", searchTerm);
     }
-    var response = await makeSearch(searchTerm, page);
+    var response = await makeSearch(searchTerm, page, typeSelection);
     if (!searchTerm) {
       toast({
         title: "Error",
@@ -69,7 +83,7 @@ const Search = () => {
     } else {
       const searchRes = JSON.stringify(response);
       localStorage.setItem("searchResults", searchRes);
-      Router.push("/Search");
+      Router.push(`/Search/?isAlbum=${isAlbumQuery}`);
     }
   }
 
@@ -105,10 +119,46 @@ const Search = () => {
             <Link href="/home">
               <ScaledLogo />
             </Link>
-            <SearchBar />
+            <SearchBar selection={selection} />
+            <RadioGroup value={selection} onChange={setSelection}>
+              <div className="flex flex-row space-x-2">
+                {" "}
+                <div className="cursor-pointer">
+                  <RadioGroup.Option value="albums">
+                    {({ checked }) => (
+                      <Box
+                        className={
+                          checked
+                            ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
+                            : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
+                        }
+                      >
+                        Albums
+                      </Box>
+                    )}
+                  </RadioGroup.Option>
+                </div>
+                <div className="cursor-pointer">
+                  <RadioGroup.Option value="artists">
+                    {({ checked }) => (
+                      <Box
+                        className={
+                          checked
+                            ? "bg-accentlavender p-2 font-permanent-marker text-white rounded-xl"
+                            : "bg-mainblue p-2 font-permanent-marker text-background rounded-xl"
+                        }
+                      >
+                        Artists
+                      </Box>
+                    )}
+                  </RadioGroup.Option>
+                </div>
+              </div>
+            </RadioGroup>
             <div className="flex-1 grid grid-cols-5 gap-4">
               {searchResJSON.map((album, index) => (
                 <AlbumTile
+                  isAlbum={isAlbum == "1" ? true : false}
                   key={index}
                   album={JSON.stringify(album)}
                   onClick={() => handleAlbumClick(album)}
@@ -129,10 +179,14 @@ const Search = () => {
                 </AlbumTile>
               ))}
             </div>
-            <CustomButton
-              text="Next Page"
-              onClick={() => handleSearch(localStorage.getItem(searchTerm), 1)}
-            />
+            {selection == "albums" && (
+              <CustomButton
+                text="Next Page"
+                onClick={() =>
+                  handleSearch(localStorage.getItem(searchTerm), 1, selection)
+                }
+              />
+            )}
           </div>
         </div>
         <style>

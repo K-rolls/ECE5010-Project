@@ -159,8 +159,8 @@ const Album = () => {
       toast({
         title: reviewed.message,
         status: "success",
-        set: 5000,
         isClosable: true,
+        set: 5000,
         position: "top",
       });
       setTimeout(() => window.location.reload(), 750);
